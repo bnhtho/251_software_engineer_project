@@ -6,7 +6,7 @@ Repository dự án môn công nghệ phần mềm
 - **Backend**: Hệ thống , sql
 
 ```bash
-data-mining-workflow/
+software-engineer-project-workflow/
 ├── API/       
 ├── Backend/        
 ├── Frontend/     
