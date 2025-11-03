@@ -3,7 +3,7 @@ Repository dự án môn công nghệ phần mềm
 ## Công nghệ sử dụng
 - **Docker-compose**: Setup
 - **Frontend:** Giao diện dùng ReactJs
-- **Backend**: Hệ thống , sql
+- **Backend**: Spring Boot , sql
 
 ```bash
 software-engineer-project-workflow/
