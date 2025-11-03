@@ -10,7 +10,7 @@ software-engineer-project-workflow/
 ├── API/       
 ├── Backend/        
 ├── Frontend/     
-├── output/
 └── README.md
 ```
 
+    
