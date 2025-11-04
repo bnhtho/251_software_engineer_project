@@ -4,9 +4,14 @@ Repository dự án môn công nghệ phần mềm Frontend
 ## Công nghệ sử dụng
 - **Docker-compose**: Setup
 - **Frontend:** Giao diện Vite + Typescript
-## hướng dẫn cài đặt
-- Git clone repository
-- Chạy lệnh sau để setup
+## Yêu cầu
+- Cài volta: https://volta.sh
+- Cài yarn
+```bash
+volta install yarn
+```
+## hướng dẫn setup project
+- Git clone repository này về.
 ```bash
 cd 251_software_engineer_project
 yarn install
@@ -15,3 +20,4 @@ yarn install
 ```bash
 yarn run dev
 ```
+
