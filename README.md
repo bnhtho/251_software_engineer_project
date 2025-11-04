@@ -1,14 +1,13 @@
 # 251_software_engineer_project
-Repository dự án môn công nghệ phần mềm
+
+Repository dự án môn công nghệ phần mềm Frontend
 ## Công nghệ sử dụng
 - **Docker-compose**: Setup
 - **Frontend:** Giao diện dùng ReactJs
-- **Backend**: Spring Boot , sql
 
 ```bash
 software-engineer-project-workflow/
-├── API/       
-├── Backend/        
+├── API/            
 ├── Frontend/     
 └── README.md
 ```
