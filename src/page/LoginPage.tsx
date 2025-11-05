@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import hcmutLogo from '/src/assets/logo.svg';
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
     // selectedRole state
@@ -7,19 +8,25 @@ export const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-
+  const navigate = useNavigate();
   const roles = [
     { id: "student", label: "Sinh viên", value: "student" },
     { id: "tutor", label: "Gia sư", value: "tutor" },
     { id: "admin", label: "Admin", value: "admin" },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Handle login logic here
     console.log({ selectedRole, email, password, rememberMe });
-  };
 
+    // Example validation
+    if (email === "test@hcmut.edu.vn" && password === "123456") {
+      console.log("Login success!");
+      navigate("/home"); // 👈 go to Homepage
+    } else {
+      alert("Sai thông tin đăng nhập!");
+    }
+  };
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50 px-4">
       <div className="flex flex-col items-center w-full max-w-md bg-gray-50">
