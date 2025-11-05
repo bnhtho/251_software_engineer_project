@@ -37,7 +37,7 @@ const ProfilePage = () => {
   ]
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen">
         <div className="flex-1 overflow-auto p-8">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Thông tin cá nhân</h1>

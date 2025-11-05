@@ -59,7 +59,7 @@ export default function SchedulePage() {
   const [weekEnd] = useState("10/11/2025");
 
   return (
-    <div className="flex h-screen bg-gray-50 text-gray-900">
+    <div className="flex h-screen text-gray-900">
       <main className="flex-1 overflow-auto">
         <div className="p-8">
           {/* Title Section */}
@@ -101,56 +101,20 @@ export default function SchedulePage() {
 
             {/* Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-200 bg-gray-50">
-                    <th className="px-4 py-3 text-left font-semibold text-xs text-gray-700">
-                      #
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs text-gray-700">
-                      <div className="flex items-center gap-1">
-                        <BookOpen className="w-4 h-4" />
-                        <span>Tên môn học</span>
-                      </div>
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs text-gray-700">
-                      <div className="flex items-center gap-1">
-                        <Hash className="w-4 h-4" />
-                        <span>Mã môn</span>
-                      </div>
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs text-gray-700">
-                      <div className="flex items-center gap-1">
-                        <User className="w-4 h-4" />
-                        <span>Giảng viên</span>
-                      </div>
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs text-gray-700">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>Ngày</span>
-                      </div>
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs text-gray-700">
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        <span>Giờ</span>
-                      </div>
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs text-gray-700">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        <span>Địa điểm</span>
-                      </div>
-                    </th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs text-gray-700">
-                      <div className="flex items-center gap-1">
-                        <Laptop className="w-4 h-4" />
-                        <span>Hình thức</span>
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
+  <table className="min-w-full text-sm table-auto md:table-fixed">
+    <thead>
+      <tr className="border-b border-gray-200 bg-gray-50">
+        <th className="px-2 sm:px-4 py-2 text-left font-semibold text-xs text-gray-700">#</th>
+        <th className="px-2 sm:px-4 py-2 text-left font-semibold text-xs text-gray-700">Tên môn</th>
+        <th className="px-2 sm:px-4 py-2 text-left font-semibold text-xs text-gray-700">Mã môn</th>
+        <th className="hidden sm:table-cell px-2 sm:px-4 py-2 font-semibold text-xs text-gray-700">Giảng viên</th>
+        <th className="px-2 sm:px-4 py-2 font-semibold text-xs text-gray-700">Ngày</th>
+        <th className="hidden sm:table-cell px-2 sm:px-4 py-2 font-semibold text-xs text-gray-700">Giờ</th>
+        <th className="hidden md:table-cell px-2 sm:px-4 py-2 font-semibold text-xs text-gray-700">Địa điểm</th>
+        <th className="px-2 sm:px-4 py-2 font-semibold text-xs text-gray-700">Hình thức</th>
+      </tr>
+    </thead>
+            
 
                 <tbody>
                   {scheduleData.map((course, idx) => (

@@ -1,7 +1,7 @@
 import { NavLink, useParams } from "react-router-dom";
 import {useUser} from "../Context/UserContext";
 import hcmutLogo from '/src/assets/logo.svg';
-
+import { useState } from "react";
 import { ChevronRight, Home, Users, BookOpen, FileText, Settings, Bell, User, Menu } from "lucide-react"
 const menuItems = [
   { icon: Home, label: "Trang chủ", path: "" },
@@ -16,8 +16,24 @@ const menuItems = [
 
 export default function Sidebar() {
   const {user} = useUser();
+  // Mobile Reponsive
+  const [isOpen, setIsOpen] = useState(false); // mobile toggle
+
   return (
-    <aside className="w-64 border-gray-200 bg-white">
+              <aside
+        className={`
+          fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200
+          transform ${isOpen ? "translate-x-0" : "-translate-x-full"}
+          transition-transform duration-200 ease-in-out
+          md:translate-x-0 md:static md:block
+        `}
+      >
+          <button
+      className="md:hidden p-2 rounded-md hover:bg-gray-100"
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <Menu className="w-6 h-6" />
+    </button>
       {/* Logo */}
       <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-4">
         <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-500 text-white font-bold text-sm">
