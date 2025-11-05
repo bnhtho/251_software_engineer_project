@@ -33,7 +33,8 @@ export default function Sidebar() {
         {menuItems.map((item, idx) => (
           <NavLink
             key={idx}
-            to={`/home/${user?.id}/${item.path}`}
+            // to={`/home/${user?.id}/${item.path}`}
+            to={item.path === "" ? `/home/${user?.id}` : `/home/${user?.id}/${item.path}`}
             end={item.path === ""}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium ${
