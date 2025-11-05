@@ -3,6 +3,7 @@ import LoginPage from "./page/LoginPage";
 import Schedule from "./page/Schedule";
 import HomePage from "./page/HomePage";
 import Profile from "./page/Profile";
+import CoursePage from "./page/Course";
 import Layout from "./Components/Layout";
 import PageNotFound from "./page/PageNotFound";
 import { UserProvider } from "./Context/UserContext";
@@ -23,6 +24,9 @@ export default function App() {
 
           {/* Profile */}
           <Route path="profile" element={<Profile />} />
+        
+          {/* Courses */}
+          <Route path="courses" element={<CoursePage />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
 
