@@ -2,8 +2,8 @@ import { BrowserRouter, Routes, Route} from "react-router-dom";
 import LoginPage from "./page/LoginPage";
 import Schedule from "./page/Schedule";
 import HomePage from "./page/HomePage";
+import Profile from "./page/Profile";
 import Layout from "./Components/Layout";
-
 export default function App() {
   return (
     <BrowserRouter>
@@ -14,10 +14,11 @@ export default function App() {
         <Route path="/home/:userID" element={<Layout />}>
           <Route index element={<HomePage />} />
           {/* home/idUser */}
-          {/* home/idUser/profile */}
           {/* home/idUser/schedule */}
           <Route path="schedule" element={<Schedule />} />
-          {/* Thêm các trang khác nếu cần */}
+          {/* home/idUser/profile */}
+          <Route path="profile" element={<Profile />} />
+
         </Route>
       </Routes>
     </BrowserRouter>

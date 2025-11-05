@@ -18,11 +18,13 @@ export const LoginPage = () => {
 const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log({ selectedRole, email, password, rememberMe });
-
-    // Example validation
+    const userID = 123; 
+    
+    // NOTE: This is Handcode, in real app, get userID from backend after login
+    
     if (email === "test@hcmut.edu.vn" && password === "123456") {
       console.log("Login success!");
-      navigate("/home"); // 👈 go to Homepage
+      navigate(`/home/${userID}`);
     } else {
       alert("Sai thông tin đăng nhập!");
     }

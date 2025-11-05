@@ -3,8 +3,6 @@ import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 
 const Layout = () => {
-  const { userId } = useParams();
-  console.log("Layout UserID:", userId);
   return (
     <div className="flex flex-col h-screen">
       <Navbar />
@@ -14,7 +12,6 @@ const Layout = () => {
           <Sidebar />
         </div>
 
-        {/* Nội dung chính có margin để tránh đè lên Sidebar */}
         <div className="flex-1 ml-64 p-6 overflow-y-auto">
           <Outlet />
         </div>
