@@ -1,8 +1,14 @@
 import ProfileCard from "../Components/ProfileCard"
+
 import InfoCard from "../Components/InfoForm"
 import LearningHistoryItem from "../Components/LearningHistoryItem"
 import InfoForm from "../Components/InfoForm"
+import {useUser} from "../Context/UserContext";
+
 const ProfilePage = () => {
+  // const } = useUser();
+    const { user } = useUser();
+
   const learningHistory = [
     {
       courseName: "Toán Cao Cấp 1",
@@ -40,7 +46,8 @@ const ProfilePage = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             <div>
-              <ProfileCard avatar="NVA" name="Nguyễn Văn An" mssv="2012345" status="Sinh viên" />
+    {/* #NOTE: Trả về userContext.name => Tên người dùng, userContext.role="Vai trò" Ghi chú:  */}
+              <ProfileCard name={user?.name ?? ""}  mssv="2012345" status={user?.role ?? ""} />
             </div>
             <div className="lg:col-span-2">
                 <InfoForm/>

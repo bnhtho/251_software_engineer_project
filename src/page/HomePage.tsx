@@ -37,34 +37,15 @@ const HomePage = () => {
     
     return  (
         <div className="p-6 space-y-8">
-      <h1 className="text-2xl font-bold text-gray-800">
-        {/* Debug */}
-        {/* NOTE: Không xoá dòng debug trong giai đoạn demo */}
-        Chào mừng trở lại, người dùng {user?.name}!
-<ul>
-      [Debug]UserContext_id:  {user?.id}
-        <li>
-        [Debug]UserContext_role:  {user?.role}
-        </li>
-        [Debug]UserContext_name:  {user?.name}
-  
-</ul>
-        
-      </h1>
     {/* Load Review */}
               <Announcement annouceList={announcements} />
-        {/*  */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {reviewsData.map((review, idx) => (
                 <ReviewCard key={idx} {...review} />
             ))}
             </div>
-
-    </div>
-    
-
+      </div>
     )
-
 };
     
     

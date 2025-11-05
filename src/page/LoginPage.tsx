@@ -29,7 +29,7 @@ const handleSubmit = (e: React.FormEvent) => {
       // NOTE:[Logic] Khi sử lý với backend, lấy user data từ backend trả về login({...})
       login({
         id: 123, // trả về ID
-        name: "User Test", // trả về name
+        name: "Hoàng Thọ", // trả về name
         role: "student", // trả về role
       });
       navigate(`/home/${userID}`); // navigator vào trang chủ

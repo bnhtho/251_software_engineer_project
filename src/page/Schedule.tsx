@@ -1,7 +1,7 @@
 // const userID =
 import { useParams } from "react-router-dom";
 import { useState } from "react";
-
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 const scheduleData = [
   {
     id: 1,
@@ -98,9 +98,6 @@ const scheduleData = [
 export default function SchedulePage() {
   const [weekStart] = useState("04/11/2025")
   const [weekEnd] = useState("10/11/2025")
-
-    const {userID} = useParams();
-    console.log("UserID from params:", userID);
   return (
     <div className="flex h-screen bg-gray-50 text-gray-900">
       <main className="flex-1 overflow-auto">
@@ -116,14 +113,18 @@ export default function SchedulePage() {
           {/* Week Selector */}
           <div className="mb-8 flex items-center justify-center gap-4 bg-white border border-gray-200 rounded-lg p-6">
             <button className="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-             
+             <ChevronLeft  />
             </button>
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-900">
-                📅 Tuần: {weekStart} - {weekEnd}
-              </p>
-            </div>
+                    <div className="text-center">
+            <p className="text-sm font-medium text-gray-900 flex items-center justify-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Tuần: {weekStart} - {weekEnd}
+            </p>
+          </div>
+
+          
             <button className="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+              <ChevronRight  />
             </button>
           </div>
 
