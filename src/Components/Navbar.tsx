@@ -1,4 +1,17 @@
+import { useUser } from "../Context/UserContext";
+// Load navbar
 export default function Header() {
+  const { user, logout } = useUser();
+  let userSection;
+    if (user) {
+      userSection = (
+      "Xin chào, " + user.name + " | "
+      )
+    } else{
+      userSection = (
+        "Chưa đăng nhập"
+      );
+    }
   return (
     <header className="border-b border-gray-200 bg-white sticky top-0 z-40">
       <div className="flex items-center justify-between px-8 py-4">
@@ -22,8 +35,9 @@ export default function Header() {
           <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
             Quản trị
           </a>
+          {/* //TODO: Logic: Nếu đã login thành công thì hiện nút đăng xuất*/}
           <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-            Đăng nhập
+                  {userSection}
           </a>
         </nav>
       </div>

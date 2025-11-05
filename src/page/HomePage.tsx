@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 // import {}
 import ReviewCard from "../Components/ReviewCard";
 import Announcement from "../Components/AnnoucementCard";
+import {useUser} from "../Context/UserContext";
 const reviewsData = [
   {
     courseName: "Cấu trúc rời rạc",
@@ -32,11 +33,22 @@ const announcements = [
   { title: "Thông báo nghỉ lễ", content: "Trường nghỉ từ 10/11 đến 12/11." },
 ];
 const HomePage = () => {
-    const idUser  = useParams();
+    const { user } = useUser();
+    
     return  (
         <div className="p-6 space-y-8">
       <h1 className="text-2xl font-bold text-gray-800">
-        Chào mừng trở lại, người dùng { idUser.userID }!
+        {/* Debug */}
+        {/* NOTE: Không xoá dòng debug trong giai đoạn demo */}
+        Chào mừng trở lại, người dùng {user?.name}!
+<ul>
+      [Debug]UserContext_id:  {user?.id}
+        <li>
+        [Debug]UserContext_role:  {user?.role}
+        </li>
+        [Debug]UserContext_name:  {user?.name}
+  
+</ul>
         
       </h1>
     {/* Load Review */}

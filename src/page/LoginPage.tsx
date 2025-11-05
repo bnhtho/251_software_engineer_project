@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import hcmutLogo from '/src/assets/logo.svg';
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../Context/UserContext";
 
 export const LoginPage = () => {
     // selectedRole state
@@ -8,6 +9,8 @@ export const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  // const login
+  const { login } = useUser();
   const navigate = useNavigate();
   const roles = [
     { id: "student", label: "Sinh viên", value: "student" },
@@ -20,11 +23,17 @@ const handleSubmit = (e: React.FormEvent) => {
     console.log({ selectedRole, email, password, rememberMe });
     const userID = 123; 
     
-    // NOTE: This is Handcode, in real app, get userID from backend after login
     
     if (email === "test@hcmut.edu.vn" && password === "123456") {
       console.log("Login success!");
-      navigate(`/home/${userID}`);
+      // NOTE:[Logic] Khi sử lý với backend, lấy user data từ backend trả về sau khi login thành công, trả về user từ database vào đây.
+      login({
+        id: 123, // trả về ID
+        name: "User Test", // trả về name
+        role: "student", // trả về role
+      });
+      navigate(`/home/${userID}`); // navigator vào trang chủ
+      
     } else {
       alert("Sai thông tin đăng nhập!");
     }
