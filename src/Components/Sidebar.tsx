@@ -34,21 +34,7 @@ export default function Sidebar() {
     >
       <Menu className="w-6 h-6" />
     </button>
-      {/* Logo */}
-      <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-500 text-white font-bold text-sm">
-          <img
-              className="w-12 h-12"
-              alt="HCMUT Logo"
-              src={hcmutLogo}
-            />
-        </div>
-        <div>
-          <p className="font-semibold text-sm text-gray-900">HCMUT</p>
-          <p className="text-xs text-gray-500">{user?.name}</p>
-        </div>
-      </div>
-
+      
       {/* Menu Items */}
       <nav className="space-y-1 px-2 py-4">
         {menuItems.map((item, idx) => (

@@ -9,7 +9,8 @@ const Layout = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      <Navbar onMenuClick={() => setSidebarOpen(true)} />
+      <Navbar></Navbar>
+      {/* <Navbar onMenuClick={() => setSidebarOpen(true)} /> */}
       <div className="flex flex-1">
         {/* Mobile overlay */}
         {sidebarOpen && (
