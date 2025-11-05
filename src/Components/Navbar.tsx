@@ -3,14 +3,22 @@ import { useUser } from "../Context/UserContext";
 export default function Header() {
   const { user, logout } = useUser();
   let userSection;
+  let userRole;
+
     if (user) {
       userSection = (
-      "Xin chào, " + user.name + " | "
+      "Xin chào, " + user.name
       )
     } else{
       userSection = (
         "Chưa đăng nhập"
       );
+    }
+    // User Role: Hide Dashboard link if not admin
+    if(user?.role === "admin"){
+      userRole = "admin";
+    } else {
+      userRole = "user";
     }
   return (
     <header className="border-b border-gray-200 bg-white sticky top-0 z-40">
@@ -24,7 +32,9 @@ export default function Header() {
         </div>
         <nav className="flex items-center gap-8">
           <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-            Dashboard
+            {/* Dashboard */}
+            {/* Hide link if not admin */}
+            {userRole === "admin" ? "Dashboard" : ""}
           </a>
           <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
             Khóa học
@@ -33,7 +43,7 @@ export default function Header() {
             Đăng ký Gia sư
           </a>
           <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-            Quản trị
+            {userRole === "admin" ? "Quản trị" : ""}
           </a>
           {/* //TODO: Logic: Nếu đã login thành công thì hiện nút đăng xuất*/}
           <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">

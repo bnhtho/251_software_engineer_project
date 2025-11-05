@@ -26,7 +26,7 @@ const handleSubmit = (e: React.FormEvent) => {
     
     if (email === "test@hcmut.edu.vn" && password === "123456") {
       console.log("Login success!");
-      // NOTE:[Logic] Khi sử lý với backend, lấy user data từ backend trả về sau khi login thành công, trả về user từ database vào đây.
+      // NOTE:[Logic] Khi sử lý với backend, lấy user data từ backend trả về login({...})
       login({
         id: 123, // trả về ID
         name: "User Test", // trả về name
