@@ -33,8 +33,6 @@ const announcements = [
   { title: "Thông báo nghỉ lễ", content: "Trường nghỉ từ 10/11 đến 12/11." },
 ];
 const HomePage = () => {
-    const { user } = useUser();
-    
     return  (
         <div className="p-6 space-y-8">
     {/* Load Review */}

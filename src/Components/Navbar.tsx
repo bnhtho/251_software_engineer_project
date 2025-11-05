@@ -7,7 +7,7 @@ export default function Header() {
 
     if (user) {
       userSection = (
-      "Xin chào, " + user.name
+      "Đăng xuất"
       )
     } else{
       userSection = (
@@ -19,6 +19,11 @@ export default function Header() {
       userRole = "admin";
     } else {
       userRole = "user";
+    }
+    // Handle logout
+    const handleLogout = () => {
+      logout();
+      window.location.href = "/";
     }
   return (
     <header className="border-b border-gray-200 bg-white sticky top-0 z-40">
@@ -47,7 +52,19 @@ export default function Header() {
           </a>
           {/* //TODO: Logic: Nếu đã login thành công thì hiện nút đăng xuất*/}
           <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                  {userSection}
+            {/* Nếu đã login */}
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="text-sm font-medium text-gray-700 hover:text-red-600 transition-colors"
+            >
+              Đăng xuất ({user.name})
+            </button>
+          ) : (
+            <a href="/login" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+              Đăng nhập
+            </a>
+          )}
           </a>
         </nav>
       </div>

@@ -12,7 +12,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginPage />} />
-
+{/* NOTE: Ghi chú: Layout là trang template sẵn, có sidebar bên trái và navbar(header) trên đầu */}
         {/* ✅ Các route CÓ Layout */}
         <Route path="/home/:userID" element={<Layout />}>
           {/* Home page (index) */}
