@@ -52,7 +52,7 @@ const handleSubmit = (e: React.FormEvent) => {
             <div>
               <h1 className="text-2xl font-normal text-[#101727]">HCMUT</h1>
               <p className="text-sm text-[#697282] leading-5">
-                Tutor/Mentor System
+              Hệ thống gia sư
               </p>
             </div>
           </div>

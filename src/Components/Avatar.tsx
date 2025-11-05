@@ -10,7 +10,7 @@ const Avatar = ({ name }: ProfileImageProps) => {
     .toUpperCase();
 
   return (
-    <div className="w-24 h-24 rounded-full bg-blue-500 flex items-center justify-center text-white text-3xl font-bold">
+    <div className="w-24 h-24 rounded-full bg-[#0E7AA0] flex items-center justify-center text-white text-3xl font-bold">
       {initials}
     </div>
   );

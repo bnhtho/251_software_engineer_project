@@ -1,5 +1,6 @@
 import { NavLink, useParams } from "react-router-dom";
 import {useUser} from "../Context/UserContext";
+import hcmutLogo from '/src/assets/logo.svg';
 
 import { ChevronRight, Home, Users, BookOpen, FileText, Settings, Bell, User, Menu } from "lucide-react"
 const menuItems = [
@@ -20,7 +21,11 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-4">
         <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-500 text-white font-bold text-sm">
-          📚
+          <img
+              className="w-12 h-12"
+              alt="HCMUT Logo"
+              src={hcmutLogo}
+            />
         </div>
         <div>
           <p className="font-semibold text-sm text-gray-900">HCMUT</p>
@@ -39,7 +44,7 @@ export default function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium ${
                 isActive
-                  ? "bg-blue-100 text-blue-700"
+                  ? "text-[#0E7AA0]"
                   : "text-gray-700 hover:bg-gray-100 transition-colors"
               }`
             }

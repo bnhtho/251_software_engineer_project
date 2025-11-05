@@ -4,7 +4,6 @@ import {useUser} from "../Context/UserContext";
 interface ProfileCardProps {
   name: string;
   mssv: string;
-  status: string;
   onEditClick?: () => void;
 }
 
@@ -14,13 +13,8 @@ interface ContactInfo {
   value: string;
 }
 
-interface Achievement {
-  icon: React.ElementType;
-  label: string;
-  description: string;
-}
 
-const ProfileCard = ({name, mssv, status, onEditClick }: ProfileCardProps) => {
+const ProfileCard = ({name, mssv, onEditClick }: ProfileCardProps) => {
   const {user} = useUser();
   const contactInfos: ContactInfo[] = [
     { icon: Mail, label: "Email", value: "nva.sdh21@hcmut.edu.vn" },
@@ -39,7 +33,6 @@ const ProfileCard = ({name, mssv, status, onEditClick }: ProfileCardProps) => {
         </div>
         <h2 className="text-lg font-semibold text-gray-900">{name}</h2>
         <p className="text-sm text-gray-500 mb-3">MSSV: {mssv}</p>
-        <span className="text-sm text-green-600 font-medium">{status}</span>
       </div>
 
       {/* Edit Button */}
@@ -47,7 +40,7 @@ const ProfileCard = ({name, mssv, status, onEditClick }: ProfileCardProps) => {
         onClick={onEditClick}
         className="w-full mb-6 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
       >
-        ✏️ Chỉnh sửa ảnh
+        Chỉnh sửa ảnh
       </button>
 
       {/* Contact Information */}
@@ -56,7 +49,7 @@ const ProfileCard = ({name, mssv, status, onEditClick }: ProfileCardProps) => {
         <div className="space-y-4">
           {contactInfos.map((info, idx) => (
             <div key={idx} className="flex gap-3 items-center">
-              <info.icon className="h-5 w-5 text-blue-500" />
+              <info.icon className="h-5 w-5 text-[#0E7AA0]" />
               <div className="flex-1">
                 <p className="text-sm text-gray-700">{info.value}</p>
               </div>
