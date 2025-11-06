@@ -1,7 +1,6 @@
 import {useUser} from "../Context/UserContext";
-import hcmutLogo from '/src/assets/logo.svg';
 import { NavLink } from "react-router-dom";
-
+import { useState } from "react";
 import { ChevronRight, Home, Users, BookOpen, FileText, Settings, Bell, User, Menu } from "lucide-react"
 const menuItems = [
   { icon: Home, label: "Trang chủ", path: "" },
@@ -16,23 +15,25 @@ const menuItems = [
 
 export default function Sidebar() {
   const {user} = useUser();
-  return (
-    <aside className="w-64 border-gray-200 bg-white">
-      {/* Logo */}
-      <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-500 text-white font-bold text-sm">
-          <img
-              className="w-12 h-12"
-              alt="HCMUT Logo"
-              src={hcmutLogo}
-            />
-        </div>
-        <div>
-          <p className="font-semibold text-sm text-gray-900">HCMUT</p>
-          <p className="text-xs text-gray-500">{user?.name}</p>
-        </div>
-      </div>
+  // Mobile Reponsive
+  const [isOpen, setIsOpen] = useState(false); // mobile toggle
 
+  return (
+              <aside
+        className={`
+          fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200
+          transform ${isOpen ? "translate-x-0" : "-translate-x-full"}
+          transition-transform duration-200 ease-in-out
+          md:translate-x-0 md:static md:block
+        `}
+      >
+          <button
+      className="md:hidden p-2 rounded-md hover:bg-gray-100"
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <Menu className="w-6 h-6" />
+    </button>
+      
       {/* Menu Items */}
       <nav className="space-y-1 px-2 py-4">
         {menuItems.map((item, idx) => (
