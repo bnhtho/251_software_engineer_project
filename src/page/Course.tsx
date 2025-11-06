@@ -81,24 +81,45 @@ export default function CoursePage() {
 
     // ---- State ----
     const [searchTerm, setSearchTerm] = useState("");
-    const [registeredCourses, setRegisteredCourses] = useState<any[]>([
+    const [registeredCourses] = useState<Course[]>([
         {
             id: 99,
             name: "Cấu trúc dữ liệu",
             code: "CO2013",
             timeslots: [{ day: "Mon", start: "13:30", end: "15:30" }],
+            teacher: "TS. Nguyễn Văn D",
+            faculty: "Khoa Khoa học và Kỹ thuật Máy tính",
+            weeks: "15 tuần (30 buổi)",
+            enrolled: 40,
+            capacity: 45,
+            rating: 4.7,
+            ratingCount: 25,
         },
         {
             id: 98,
             name: "Vật lý đại cương",
             code: "PH1003",
             timeslots: [{ day: "Tue", start: "07:30", end: "09:30" }],
+            teacher: "PGS. Trần Văn E",
+            faculty: "Khoa Vật lý",
+            weeks: "15 tuần (30 buổi)",
+            enrolled: 35,
+            capacity: 40,
+            rating: 4.5,
+            ratingCount: 20,
         },
         {
             id: 97,
             name: "Xác suất thống kê",
             code: "MA2003",
             timeslots: [{ day: "Thu", start: "09:00", end: "11:00" }],
+            teacher: "TS. Lê Thị F",
+            faculty: "Khoa Toán - Tin học",
+            weeks: "15 tuần (30 buổi)",
+            enrolled: 38,
+            capacity: 42,
+            rating: 4.6,
+            ratingCount: 22,
         },
     ]);
     const registeredCount = useMemo(() => registeredCourses.length, [registeredCourses]);
@@ -110,13 +131,17 @@ export default function CoursePage() {
     );
 
     // ---- Services ----
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function getRegisteredCount(_studentId: number) {
+        // In a real app, this would fetch from API based on studentId
         return registeredCount;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function checkScheduleConflict(courseId: number, _studentId: number) {
         const course = sampleCourses.find((c) => c.id === courseId);
         if (!course) return false;
+        // In a real app, would check conflicts for specific studentId
         for (const reg of registeredCourses) {
             for (const t1 of reg.timeslots) {
                 for (const t2 of course.timeslots) {
@@ -127,7 +152,9 @@ export default function CoursePage() {
         return false;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function saveRegistrationRequest(_courseId: number, _studentId: number, _status: "PENDING") {
+        // In a real app, would save to database with courseId, studentId, and status
         return { success: true } as const;
     }
 
@@ -138,7 +165,7 @@ export default function CoursePage() {
         if (isValid) {
             const saved = saveRegistrationRequest(courseId, studentIdParam, "PENDING");
             if (saved.success) {
-                return { status: "PENDING", message: "✅ Gửi yêu cầu thành công. Đang chờ phê duyệt." };
+                return { status: "PENDING", message: "Gửi yêu cầu thành công. Đang chờ phê duyệt." };
             }
         }
         return { status: "FAILED", message: "❌ Trùng lịch hoặc vượt giới hạn số môn học." };
@@ -151,58 +178,97 @@ export default function CoursePage() {
 
     // ---- UI ----
     return (
-        <div className="w-full space-y-6 px-6 pb-6">
-            {/* Header */}
-            <div className="flex items-center justify-between pt-6"> 
-                <h1 className="text-2xl font-bold text-gray-900">Khóa học</h1>
-            </div>
-
-            {/* Thanh tìm kiếm */}
-            <div className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
-                <div className="flex-1 flex items-center border border-gray-300 rounded-md px-3 py-2">
-                    <Search className="w-4 h-4 text-gray-500 mr-2" />
-                    <input
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Tìm kiếm khóa học theo tên, mã, giảng viên..."
-                        className="w-full text-sm outline-none placeholder-gray-400"
-                    />
-                </div>
-                <select className="px-3 py-2 border border-gray-300 rounded-md text-sm">
-                    <option>Tất cả</option>
-                </select>
-                <select className="px-3 py-2 border border-gray-300 rounded-md text-sm">
-                    <option>Tất cả khoa</option>
-                </select>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <p className="text-sm text-gray-600">Đang học</p>
-                    <p className="text-2xl font-semibold text-gray-900 mt-1">{sampleCourses.length}</p>
-                </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <p className="text-sm text-gray-600">Sắp mở</p>
-                    <p className="text-2xl font-semibold text-gray-900 mt-1">0</p>
-                </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <p className="text-sm text-gray-600">Đã hoàn thành</p>
-                    <p className="text-2xl font-semibold text-gray-900 mt-1">0</p>
+        <div className="p-6 space-y-8">
+            {/* Header Section */}
+            <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12">
+                    <h1 className="text-2xl font-bold text-gray-900">Khóa học</h1>
+                    <p className="text-gray-600 mt-1">Tìm kiếm và đăng ký các khóa học phù hợp</p>
                 </div>
             </div>
 
+            {/* Search and Filter Section */}
+            <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12">
+                    <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <div className="grid grid-cols-12 gap-4">
+                            {/* Search Input */}
+                            <div className="col-span-12 lg:col-span-6">
+                                <div className="flex items-center border border-gray-300 rounded-md px-3 py-2">
+                                    <Search className="w-4 h-4 text-gray-500 mr-2" />
+                                    <input
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        placeholder="Tìm kiếm khóa học theo tên, mã, giảng viên..."
+                                        className="w-full text-sm outline-none placeholder-gray-400"
+                                    />
+                                </div>
+                            </div>
+                            
+                            {/* Filters */}
+                            <div className="col-span-12 sm:col-span-6 lg:col-span-3">
+                                <select className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                                    <option>Tất cả trạng thái</option>
+                                    <option>Đang học</option>
+                                    <option>Sắp mở</option>
+                                    <option>Đã hoàn thành</option>
+                                </select>
+                            </div>
+                            
+                            <div className="col-span-12 sm:col-span-6 lg:col-span-3">
+                                <select className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                                    <option>Tất cả khoa</option>
+                                    <option>Khoa Toán - Tin học</option>
+                                    <option>Khoa Khoa học và Kỹ thuật Máy tính</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Stats Section */}
+            <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12 sm:col-span-4">
+                    <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <p className="text-sm text-gray-600">Đang học</p>
+                        <p className="text-2xl font-semibold text-gray-900 mt-1">{sampleCourses.length}</p>
+                    </div>
+                </div>
+                <div className="col-span-12 sm:col-span-4">
+                    <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <p className="text-sm text-gray-600">Sắp mở</p>
+                        <p className="text-2xl font-semibold text-gray-900 mt-1">0</p>
+                    </div>
+                </div>
+                <div className="col-span-12 sm:col-span-4">
+                    <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <p className="text-sm text-gray-600">Đã hoàn thành</p>
+                        <p className="text-2xl font-semibold text-gray-900 mt-1">0</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Message Section */}
             {message && (
-                <div
-                    className={`rounded-md p-3 text-sm ${message.startsWith("❌") ? "bg-red-50 text-red-700" : "bg-blue-50 text-blue-700"
-                        }`}
-                >
-                    {message}
+                <div className="grid grid-cols-12 gap-6">
+                    <div className="col-span-12">
+                        <div
+                            className={`rounded-md p-3 text-sm ${message.startsWith("❌") ? "bg-red-50 text-red-700" : "bg-blue-50 text-blue-700"
+                                }`}
+                        >
+                            {message}
+                        </div>
+                    </div>
                 </div>
             )}
 
-            {/* Course list */}
-            <div className="grid grid-cols-1 gap-6">
+            {/* Course List Section */}
+            <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12">
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Danh sách khóa học</h2>
+                </div>
+                
                 {filterData.length > 0 ? (
                     filterData.map((c) => {
                         const progress = Math.round((c.enrolled / c.capacity) * 100);
@@ -210,61 +276,75 @@ export default function CoursePage() {
                             .map((t) => `${t.day}, ${t.start}-${t.end}`)
                             .join(" • ");
                         return (
-                            <div key={c.id} className="bg-white border border-gray-200 rounded-lg p-6">
-                                <div className="flex items-start justify-between gap-6">
-                                    <div className="min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h2 className="text-base font-semibold text-gray-900">{c.name}</h2>
-                                            <span className="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700">
-                                                Đang học
-                                            </span>
-                                        </div>
-                                        <div className="text-xs text-gray-500 leading-5">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-medium">Mã khóa học:</span>
-                                                <span className="inline-block bg-gray-100 text-gray-800 px-2 py-0.5 rounded">
-                                                    {c.code}
+                            <div key={c.id} className="col-span-12">
+                                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                                    <div className="grid grid-cols-12 gap-6">
+                                        {/* Course Info */}
+                                        <div className="col-span-12 lg:col-span-9">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <h3 className="text-base font-semibold text-gray-900">{c.name}</h3>
+                                                <span className="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700">
+                                                    Đang học
                                                 </span>
                                             </div>
-                                            <div className="mt-2 flex flex-wrap items-center gap-4">
-                                                <span>👨‍🏫 {c.teacher}</span>
-                                                <span>🏫 {c.faculty}</span>
-                                                <span>⏱ {c.weeks}</span>
+                                            
+                                            <div className="grid grid-cols-12 gap-4 text-xs text-gray-500">
+                                                <div className="col-span-12 sm:col-span-6">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <span className="font-medium">Mã khóa học:</span>
+                                                        <span className="inline-block bg-gray-100 text-gray-800 px-2 py-0.5 rounded">
+                                                            {c.code}
+                                                        </span>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <div>👨‍🏫 {c.teacher}</div>
+                                                        <div>🏫 {c.faculty}</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="col-span-12 sm:col-span-6">
+                                                    <div className="space-y-1">
+                                                        <div>⏱ {c.weeks}</div>
+                                                        <div>📅 {times}</div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="mt-2 flex flex-wrap items-center gap-4">
-                                                <span>📅 {times}</span>
+
+                                            {/* Progress */}
+                                            <div className="mt-4">
+                                                <div className="h-1.5 bg-gray-200 rounded">
+                                                    <div
+                                                        className="h-1.5 bg-blue-600 rounded"
+                                                        style={{ width: `${progress}%` }}
+                                                    />
+                                                </div>
+                                                <div className="mt-2 flex items-center gap-3 text-xs text-gray-600">
+                                                    <span>⭐ {c.rating.toFixed(1)} ({c.ratingCount})</span>
+                                                    <span>{c.enrolled}/{c.capacity} học viên</span>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        {/* Progress */}
-                                        <div className="mt-4">
-                                            <div className="h-1.5 bg-gray-200 rounded">
-                                                <div
-                                                    className="h-1.5 bg-blue-600 rounded"
-                                                    style={{ width: `${progress}%` }}
-                                                />
-                                            </div>
-                                            <div className="mt-2 flex items-center gap-3 text-xs text-gray-600">
-                                                <span>⭐ {c.rating.toFixed(1)} ({c.ratingCount})</span>
-                                                <span>{c.enrolled}/{c.capacity} học viên</span>
-                                            </div>
+                                        {/* Action Button */}
+                                        <div className="col-span-12 lg:col-span-3 flex items-start justify-end">
+                                            <button
+                                                onClick={() => submitRegistrations(c.id)}
+                                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm w-full lg:w-auto"
+                                            >
+                                                Đăng ký
+                                            </button>
                                         </div>
-                                    </div>
-
-                                    <div className="shrink-0">
-                                        <button
-                                            onClick={() => submitRegistrations(c.id)}
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-                                        >
-                                            Đăng ký
-                                        </button>
                                     </div>
                                 </div>
                             </div>
                         );
                     })
                 ) : (
-                    <p className="text-gray-500">Không tìm thấy khóa học nào.</p>
+                    <div className="col-span-12">
+                        <div className="text-center py-8">
+                            <p className="text-gray-500">Không tìm thấy khóa học nào.</p>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

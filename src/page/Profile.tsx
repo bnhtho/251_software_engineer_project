@@ -37,41 +37,74 @@ const ProfilePage = () => {
   ]
 
   return (
-    <div className="flex h-screen">
-        <div className="flex-1 overflow-auto p-8">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Thông tin cá nhân</h1>
-            <p className="text-gray-600">Quản lý thông tin cá nhân và theo dõi lịch học tập</p>
-          </div>
+    <div className="p-6 space-y-8">
+      {/* Header Section */}
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Thông tin cá nhân</h1>
+          <p className="text-gray-600">Quản lý thông tin cá nhân và theo dõi lịch học tập</p>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            <div>
-    {/* #NOTE: Trả về userContext.name => Tên người dùng, userContext.role="Vai trò" Ghi chú:  */}
-              <ProfileCard name={user?.name ?? ""}  mssv="2012345" />
-            </div>
-            <div className="lg:col-span-2">
-                <InfoForm/>
-            </div>
-          </div>
+      {/* Profile Information Section */}
+      <div className="grid grid-cols-12 gap-6">
+        {/* Profile Card */}
+        <div className="col-span-12 lg:col-span-4">
+          <ProfileCard name={user?.name ?? ""} mssv="2012345" />
+        </div>
+        
+        {/* Info Form */}
+        <div className="col-span-12 lg:col-span-8">
+          <InfoForm />
+        </div>
+      </div>
 
-          {/* Learning History Section */}
+      {/* Learning History Section */}
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-6">Lịch sử học tập</h2>
-            <div className="space-y-3">
-              {learningHistory.map((item, idx) => (
-                <LearningHistoryItem
-                  key={idx}
-                  courseName={item.courseName}
-                  instructor={item.instructor}
-                  date={item.date}
-                  duration={item.duration}
-                  status={item.status}
-                  statusColor={item.statusColor}
-                />
-              ))}
+            
+            {/* Table Layout for Learning History */}
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Khóa học
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Giảng viên
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Ngày học
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Thời lượng
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Trạng thái
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {learningHistory.map((item, idx) => (
+                    <LearningHistoryItem
+                      key={idx}
+                      courseName={item.courseName}
+                      instructor={item.instructor}
+                      date={item.date}
+                      duration={item.duration}
+                      status={item.status}
+                      statusColor={item.statusColor}
+                    />
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-          </div>
+        </div>
+      </div>
     </div>
   )
 }

@@ -32,14 +32,51 @@ const announcements = [
 const HomePage = () => {
     return  (
         <div className="p-6 space-y-8">
-    {/* Load Review */}
-              <Announcement annouceList={announcements} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {reviewsData.map((review, idx) => (
-                <ReviewCard key={idx} {...review} />
-            ))}
+            {/* Header Section */}
+            <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Trang chủ</h1>
+                    <p className="text-gray-600">Chào mừng bạn đến với hệ thống gia sư HCMUT</p>
+                </div>
             </div>
-      </div>
+
+            {/* Announcements Section */}
+            <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12 lg:col-span-8">
+                    <Announcement annouceList={announcements} />
+                </div>
+                <div className="col-span-12 lg:col-span-4">
+                    {/* Quick Stats or Additional Info */}
+                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                        <h3 className="font-semibold text-blue-900 mb-2">Thống kê nhanh</h3>
+                        <div className="space-y-2 text-sm text-blue-800">
+                            <div className="flex justify-between">
+                                <span>Tổng đánh giá:</span>
+                                <span className="font-medium">{reviewsData.length}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span>Thông báo mới:</span>
+                                <span className="font-medium">{announcements.length}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Đánh giá gần đây</h2>
+                </div>
+                
+                {/* Reviews Grid */}
+                {reviewsData.map((review, idx) => (
+                    <div key={idx} className="col-span-12 md:col-span-6 lg:col-span-4">
+                        <ReviewCard {...review} />
+                    </div>
+                ))}
+            </div>
+        </div>
     )
 };
     

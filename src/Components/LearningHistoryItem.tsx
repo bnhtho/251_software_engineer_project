@@ -7,7 +7,7 @@ interface LearningHistoryItemProps {
   statusColor?: string
 }
 
-const LearningHistoryItem =({
+const LearningHistoryItem = ({
   courseName,
   instructor,
   date,
@@ -16,18 +16,28 @@ const LearningHistoryItem =({
   statusColor = "bg-gray-200 text-gray-800",
 }: LearningHistoryItemProps) => {
   return (
-    <div className="flex justify-between items-center p-4 border border-gray-300 rounded-lg shadow-sm">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900">{courseName}</h3>
-        <p className="text-sm text-gray-600">Giảng viên: {instructor}</p>
-        <p className="text-sm text-gray-600">Ngày học: {date}</p>
-        <p className="text-sm text-gray-600">Thời lượng: {duration}</p>
-      </div>
-      <span
-        className={`px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}
-      >
-        {status}
-      </span>
-    </div>);
-}
+    <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+        {courseName}
+      </td>
+      <td className="px-6 py-4 text-sm text-gray-600">
+        {instructor}
+      </td>
+      <td className="px-6 py-4 text-sm text-gray-600">
+        {date}
+      </td>
+      <td className="px-6 py-4 text-sm text-gray-600">
+        {duration}
+      </td>
+      <td className="px-6 py-4">
+        <span
+          className={`px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}
+        >
+          {status}
+        </span>
+      </td>
+    </tr>
+  );
+};
+
 export default LearningHistoryItem;
