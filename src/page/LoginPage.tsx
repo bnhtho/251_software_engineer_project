@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import hcmutLogo from '/src/assets/logo.svg';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../Context/UserContext";
 
 export const LoginPage = () => {
@@ -12,6 +12,7 @@ export const LoginPage = () => {
   // const login
   const { login } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
   const roles = [
     { id: "student", label: "Sinh viên", value: "student" },
     { id: "tutor", label: "Gia sư", value: "tutor" },
@@ -21,18 +22,18 @@ export const LoginPage = () => {
 const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log({ selectedRole, email, password, rememberMe });
-    const userID = 123; 
-    
-    
     if (email === "test@hcmut.edu.vn" && password === "123456") {
       console.log("Login success!");
       // NOTE:[Logic] Khi sử lý với backend, lấy user data từ backend trả về login({...})
       login({
         id: 123, // trả về ID
         name: "Hoàng Thọ", // trả về name
-        role: "student", // trả về role
+        role: selectedRole, // sử dụng role được chọn
       });
-      navigate(`/home/${userID}`); // navigator vào trang chủ
+      
+      // Redirect về trang đã cố gắng truy cập hoặc dashboard
+      const from = location.state?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
       
     } else {
       alert("Sai thông tin đăng nhập!");

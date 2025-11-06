@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
 import { Search } from "lucide-react";
+import { useUser } from "../Context/UserContext";
 
 // ---- Types ----
 type Timeslot = {
@@ -76,8 +76,8 @@ function timeOverlap(a: Timeslot, b: Timeslot) {
 }
 
 export default function CoursePage() {
-    const { userID } = useParams();
-    const studentId = Number(userID) || 0;
+    const { user } = useUser();
+    const studentId = user?.id || 0;
 
     // ---- State ----
     const [searchTerm, setSearchTerm] = useState("");

@@ -4,13 +4,8 @@ import { Menu, X, Search } from "lucide-react";
 import hcmutLogo from '/src/assets/logo.svg';
 import Avatar from "./Avatar";
 export default function Header() {
-  const { user, logout } = useUser();
+  const { user } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/";
-  };
 
   const isAdmin = user?.role === "admin";
   const isLoggedIn = !!user;
@@ -23,9 +18,7 @@ export default function Header() {
   // Define navigation items based on the old nav's links
   const navItems = [
     { name: "Khóa học", href: "#", requiresAdmin: false },
-    { name: "Đăng ký Gia sư", href: "#", requiresAdmin: false },
-    // Only include Admin/Quản trị link if the user is an admin
-    ...(isAdmin ? [{ name: "Quản trị", href: "/admin", requiresAdmin: true }] : []),
+    { name: "Đăng ký Gia sư", href: "#", requiresAdmin: false }
   ];
 
   return (
@@ -36,12 +29,12 @@ export default function Header() {
           {/* Logo and Search (Left Side) */}
           <div className="flex flex-1 items-center justify-start gap-4">
             <div className="flex shrink-0 items-center">
-              <a href="/" className="text-xl font-bold text-[#0E7AA0] hover:text-blue-700 transition-colors">
+              <a href={isLoggedIn ? "/dashboard" : "/login"} className="text-xl font-bold text-[#0E7AA0] hover:text-blue-700 transition-colors">
                 <img
-              className="w-12 h-12"
-              alt="HCMUT Logo"
-              src={hcmutLogo}
-            />
+                  className="w-12 h-12"
+                  alt="HCMUT Logo"
+                  src={hcmutLogo}
+                />
               </a>
             </div>
 
@@ -80,31 +73,19 @@ export default function Header() {
               ))}
             </div>
 
-            {/* User Profile / Login/Logout */}
+            {/* User Profile */}
             <div className="flex items-center gap-4">
-              {isLoggedIn ? (
-                <button
-                  onClick={handleLogout}
-                  className="text-sm font-medium text-gray-700 hover:text-red-600 transition-colors"
-                >
-                  Đăng xuất {user.name ? `(${user.name})` : ""}
-                </button>
-              ) : (
-                <a 
-                  href="/login" 
-                  className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  Đăng nhập
-                </a>
-              )}
-              {/* Avatar */}
-              <div className="ml-3 relative">
+              {isLoggedIn && (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-700">
+                    {user.name}
+                  </span>
                   <Avatar 
                       name={user?.name ?? ""} 
                       className="h-8 w-8 rounded-full" 
                   />
-              </div>
-              
+                </div>
+              )}
             </div>
           </div>
           
@@ -162,22 +143,17 @@ export default function Header() {
                 </a>
             ))}
 
-            {/* Login/Logout section for Mobile */}
-            {isLoggedIn ? (
-                <button
-                    onClick={() => {handleLogout(); closeMobileMenu();}} // Closes menu AND logs out
-                    className="w-full text-left rounded-md px-3 py-2 text-base font-medium text-red-600 hover:bg-red-50"
-                >
-                    Đăng xuất {user.name ? `(${user.name})` : ""}
-                </button>
-            ) : (
-                <a
-                    href="/login"
-                    onClick={closeMobileMenu} // Closes menu on click
-                    className="block rounded-md px-3 py-2 text-base font-medium text-blue-600 hover:bg-blue-50"
-                >
-                    Đăng nhập
-                </a>
+            {/* User info for Mobile */}
+            {isLoggedIn && (
+                <div className="rounded-md px-3 py-2 text-base font-medium text-gray-700 bg-gray-50">
+                    <div className="flex items-center gap-3">
+                        <Avatar 
+                            name={user?.name ?? ""} 
+                            className="h-8 w-8 rounded-full" 
+                        />
+                        <span>{user.name}</span>
+                    </div>
+                </div>
             )}
         </div>
       )}
