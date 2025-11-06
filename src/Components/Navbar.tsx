@@ -2,18 +2,8 @@ import { useUser } from "../Context/UserContext";
 // Load navbar
 export default function Header() {
   const { user, logout } = useUser();
-  let userSection;
   let userRole;
 
-    if (user) {
-      userSection = (
-      "Đăng xuất"
-      )
-    } else{
-      userSection = (
-        "Chưa đăng nhập"
-      );
-    }
     // User Role: Hide Dashboard link if not admin
     if(user?.role === "admin"){
       userRole = "admin";

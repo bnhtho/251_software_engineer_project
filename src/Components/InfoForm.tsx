@@ -6,7 +6,7 @@ interface InfoCardProps{
     email?: string;
     phoneNumber?: string;
     bio?: string;
-    onSave?: (data:any) => void;
+    onSave?: () => void;
     onCancel?: () => void;
 }
 

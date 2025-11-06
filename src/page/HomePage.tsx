@@ -1,9 +1,6 @@
 
-import { useParams } from "react-router-dom";
-// import {}
 import ReviewCard from "../Components/ReviewCard";
 import Announcement from "../Components/AnnoucementCard";
-import {useUser} from "../Context/UserContext";
 const reviewsData = [
   {
     courseName: "Cấu trúc rời rạc",

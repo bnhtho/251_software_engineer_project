@@ -1,6 +1,6 @@
-import { NavLink, useParams } from "react-router-dom";
 import {useUser} from "../Context/UserContext";
 import hcmutLogo from '/src/assets/logo.svg';
+import { NavLink } from "react-router-dom";
 
 import { ChevronRight, Home, Users, BookOpen, FileText, Settings, Bell, User, Menu } from "lucide-react"
 const menuItems = [

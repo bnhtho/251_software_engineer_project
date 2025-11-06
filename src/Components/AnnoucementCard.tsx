@@ -1,3 +1,5 @@
+import { useUser } from "../Context/UserContext";
+
 // Props
 interface AnnouncementCardProps {
   title?: string;
@@ -13,11 +15,21 @@ const AnnouncementCard = ({
   viewAllText = "Xem tất cả",
   annouceList,
 }: AnnouncementCardProps) => {
+  const { user } = useUser();
+  const userID = user?.id;
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6">
       <div className="flex items-start justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        <button className="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition-colors">
+        <button
+          className="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition-colors"
+          onClick={() => {
+            if (userID) {
+              window.location.href = `${userID}/schedule`;
+            }
+          }}
+        >
           {viewAllText}
         </button>
       </div>

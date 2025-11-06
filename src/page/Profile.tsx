@@ -1,6 +1,6 @@
 import ProfileCard from "../Components/ProfileCard"
 
-import InfoCard from "../Components/InfoForm"
+// import InfoCard from "../Components/InfoForm"
 import LearningHistoryItem from "../Components/LearningHistoryItem"
 import InfoForm from "../Components/InfoForm"
 import {useUser} from "../Context/UserContext";
