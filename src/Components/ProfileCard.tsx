@@ -26,7 +26,7 @@ const ProfileCard = ({name, mssv, onEditClick }: ProfileCardProps) => {
   ];
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 w-full max-w-xs">
+    <div className="bg-white rounded-lg border border-gray-200 p-6 w-full">
       {/* Avatar Section */}
       <div className="flex flex-col items-center">
         {/* Pass all desired styling directly to the Avatar component */}
