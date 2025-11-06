@@ -28,7 +28,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
   // Dependency [user] giúp trigger lại khi trạng thái login thay đổi
   // 1. Nếu ĐANG TẢI, HIỂN THỊ MÀN HÌNH CHỜ
   if (isLoading) {
-    return <div>Loading session...</div>; 
+    return <div></div>; 
   }
 
   // 2. Nếu đã tải xong nhưng KHÔNG CÓ USER, redirect về login

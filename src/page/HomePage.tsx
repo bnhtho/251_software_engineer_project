@@ -31,6 +31,8 @@ const announcements = [
 ];
 const HomePage = () => {
     return  (
+        <>
+        <title>Trang chủ</title>
         <div className="p-6 space-y-8">
             {/* Header Section */}
             <div className="grid grid-cols-12 gap-6">
@@ -77,6 +79,7 @@ const HomePage = () => {
                 ))}
             </div>
         </div>
+        </>
     )
 };
     

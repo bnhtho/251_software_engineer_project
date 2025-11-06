@@ -8,7 +8,6 @@ import Layout from "./Components/Layout";
 import PageNotFound from "./page/PageNotFound";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { UserProvider } from "./Context/UserContext";
-
 export default function App() {
     
   return (

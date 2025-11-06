@@ -10,7 +10,7 @@ const Layout = () => {
   // 🧠 CHỈ GIỮ LẠI LOGIC LƯU PATH
   // Lưu path hiện tại mỗi khi người dùng thay đổi route
   useEffect(() => {
-    if (location.pathname.startsWith("/dashboard/schedule")) {
+    if (location.pathname.startsWith("/dashboard")) {
       localStorage.setItem("lastPath", location.pathname);
     }
   }, [location]);

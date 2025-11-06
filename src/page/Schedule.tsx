@@ -59,6 +59,8 @@ export default function SchedulePage() {
   const [weekEnd] = useState("10/11/2025");
 
   return (
+    <>
+    <title>Lịch học</title>
     <div className="p-6 space-y-8">
       {/* Header Section */}
       <div className="grid grid-cols-12 gap-6">
@@ -225,5 +227,6 @@ export default function SchedulePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

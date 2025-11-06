@@ -178,6 +178,8 @@ export default function CoursePage() {
 
     // ---- UI ----
     return (
+        <>
+        <title>Danh sách Khoá học</title>
         <div className="p-6 space-y-8">
             {/* Header Section */}
             <div className="grid grid-cols-12 gap-6">
@@ -348,5 +350,6 @@ export default function CoursePage() {
                 )}
             </div>
         </div>
+        </>
     );
 }

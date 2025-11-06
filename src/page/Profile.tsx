@@ -37,6 +37,7 @@ const ProfilePage = () => {
   ]
 
   return (
+    <><title>Thông tin cá nhân</title>
     <div className="p-6 space-y-8">
       {/* Header Section */}
       <div className="grid grid-cols-12 gap-6">
@@ -45,7 +46,6 @@ const ProfilePage = () => {
           <p className="text-gray-600">Quản lý thông tin cá nhân và theo dõi lịch học tập</p>
         </div>
       </div>
-
       {/* Profile Information Section */}
       <div className="grid grid-cols-12 gap-6">
         {/* Profile Card */}
@@ -106,6 +106,7 @@ const ProfilePage = () => {
         </div>
       </div>
     </div>
+    </>
   )
 }
 
