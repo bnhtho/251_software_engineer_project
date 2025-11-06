@@ -151,9 +151,9 @@ export default function CoursePage() {
 
     // ---- UI ----
     return (
-        <div className="p-6 space-y-6">
+        <div className="w-full space-y-6 px-6 pb-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-6"> 
                 <h1 className="text-2xl font-bold text-gray-900">Khóa học</h1>
             </div>
 
