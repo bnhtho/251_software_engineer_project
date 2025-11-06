@@ -37,7 +37,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   
   const logout = () => 
     {
-          localStorage.removeItem("user"); 
+          localStorage.removeItem("user");
+          localStorage.removeItem("lastPath");
           setUser(null);
     };
 

@@ -127,4 +127,3 @@ src/
 - Authentication được quản lý qua React Context
 - Routes được bảo vệ bằng ProtectedRoute component
 - UI/UX thiết kế theo chuẩn modern web app
-
