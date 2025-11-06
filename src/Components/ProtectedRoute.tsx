@@ -1,4 +1,5 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
 import { useUser } from "../Context/UserContext"; // Đảm bảo đường dẫn đúng
 
 interface ProtectedRouteProps {
@@ -7,20 +8,41 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
-  const { user} = useUser(); 
+  const { user, isLoading } = useUser(); 
   const location = useLocation();
-  // NOTE: Nếu chưa đăng nhập (và đã xong quá trình loading), redirect về login . Khi user không được đăng nhập, nó tự động chuyển hướng sang login 
+  const navigate = useNavigate();
+
+  // 🚀 LOGIC REDIRECT: CHUYỂN HOOK LÊN TRÊN CÁC CÂU LỆNH RETURN ĐIỀU KIỆN
+  // Hook này phải luôn được gọi trong mọi render
+  useEffect(() => {
+    const lastPath = localStorage.getItem("lastPath");
+    
+    // Nếu có path cũ VÀ người dùng đang cố truy cập Route cha (/dashboard)
+    if (lastPath && location.pathname === "/dashboard") {
+      // Tránh redirect nếu lastPath cũng là /dashboard
+      if (lastPath !== "/dashboard") { 
+          navigate(lastPath, { replace: true });
+      }
+    }
+  }, [user, location.pathname, navigate]); 
+  // Dependency [user] giúp trigger lại khi trạng thái login thay đổi
+  // 1. Nếu ĐANG TẢI, HIỂN THỊ MÀN HÌNH CHỜ
+  if (isLoading) {
+    return <div>Loading session...</div>; 
+  }
+
+  // 2. Nếu đã tải xong nhưng KHÔNG CÓ USER, redirect về login
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Nếu yêu cầu admin nhưng user không phải admin
+  // 3. Kiểm tra quyền Admin (nếu cần)
   if (requireAdmin && user.role !== "admin") {
-    // Có thể redirect về trang 403 (Access Denied) thay vì login nếu đã đăng nhập
-    return <Navigate to="/" replace />; // Hoặc về trang chủ
+    // Redirect về trang chủ nếu không có quyền Admin
+    return <Navigate to="/dashboard" replace />; 
   }
 
-  // Đã đăng nhập và có quyền truy cập
+  // 4. Cho phép truy cập
   return <>{children}</>;
 };
 

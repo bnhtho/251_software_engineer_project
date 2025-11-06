@@ -10,20 +10,25 @@ interface UserContextType {
   user: User | null;
   login: (userData: User) => void;
   logout: () => void;
-
+  // THÊM: Trạng thái loading
+  isLoading: boolean; 
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  // THÊM: State isLoading, ban đầu là true
+  const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-  }, []);
+    // ĐẶT isLoading thành false sau khi kiểm tra localStorage
+    setIsLoading(false); 
+  }, []); // Chỉ chạy một lần khi component mount
 
   const login = (userData: User) => {
     setUser(userData);
@@ -37,7 +42,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     };
 
   return (
-    <UserContext.Provider value={{ user, login, logout }}> 
+    <UserContext.Provider value={{ user, login, logout, isLoading }}> 
       {children}
     </UserContext.Provider>
   );

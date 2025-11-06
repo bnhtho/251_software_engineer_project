@@ -19,7 +19,7 @@ export default function App() {
           {/* ========== ROOT REDIRECT ========== */}
           {/* Redirect root to login page */}
           
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
 
           {/* ========== PUBLIC ROUTES ========== */}
           {/* Login Page */}
