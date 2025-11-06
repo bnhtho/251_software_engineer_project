@@ -10,13 +10,16 @@ import ProtectedRoute from "./Components/ProtectedRoute";
 import { UserProvider } from "./Context/UserContext";
 
 export default function App() {
+    
   return (
+
     <UserProvider>
       <BrowserRouter>
         <Routes>
           {/* ========== ROOT REDIRECT ========== */}
           {/* Redirect root to login page */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
           {/* ========== PUBLIC ROUTES ========== */}
           {/* Login Page */}

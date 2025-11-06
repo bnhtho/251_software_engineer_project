@@ -19,7 +19,6 @@ type NavItemDividerType = {
 
 const mainNavItems: (NavItemType | NavItemDividerType)[] = [
     { icon: Home, label: "Trang chủ", path: "" },
-    { icon: Users, label: "Thông tin cá nhân", path: "profile" },
     { icon: BookOpen, label: "Lịch học", path: "schedule" },
     { icon: FileText, label: "Khóa học", path: "courses" },
     { icon: Users, label: "Danh sách Gia sư", path: "tutors" },

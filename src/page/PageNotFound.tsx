@@ -1,11 +1,15 @@
 import { Link } from 'react-router-dom';
 import { Globe } from 'lucide-react';
-
+import Sidebar from '../Components/Sidebar';
+import Header from '../Components/Navbar';
 const PageNotFound = () => {
+  
   return (
+
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
         {/* Illustration */}
+        
         <div className="relative mb-12">
           {/* Background circle */}
           <div className="w-72 h-72 mx-auto bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center relative overflow-hidden">
