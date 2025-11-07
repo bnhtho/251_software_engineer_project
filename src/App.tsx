@@ -5,22 +5,21 @@ import HomePage from "./page/HomePage";
 import Profile from "./page/Profile";
 import CoursePage from "./page/Course";
 import TutorList from "./page/TutorList";
+import Materials from "./page/materials"; // Import index.tsx - tự động routing theo role
 import Layout from "./Components/Layout";
 import PageNotFound from "./page/PageNotFound";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { UserProvider } from "./Context/UserContext";
+
 export default function App() {
     return (
         <UserProvider>
             <BrowserRouter>
                 <Routes>
                     {/* ========== ROOT REDIRECT ========== */}
-                    {/* Redirect root to login page */}
-
                     <Route path="/" element={<Navigate to="/login" replace />} />
 
                     {/* ========== PUBLIC ROUTES ========== */}
-                    {/* Login Page */}
                     <Route path="/login" element={<LoginPage />} />
 
                     {/* Register Page - TODO: Create RegisterPage component */}
@@ -30,7 +29,6 @@ export default function App() {
                     {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
 
                     {/* ========== PROTECTED ROUTES (User Dashboard) ========== */}
-                    {/* Layout wrapper cho các trang cần authentication */}
                     <Route
                         path="/dashboard"
                         element={
@@ -39,20 +37,17 @@ export default function App() {
                             </ProtectedRoute>
                         }
                     >
-                        {/* Dashboard/HomePage */}
                         <Route index element={<HomePage />} />
-
-                        {/* Profile */}
                         <Route path="profile" element={<Profile />} />
-
-                        {/* Schedule */}
                         <Route path="schedule" element={<Schedule />} />
-
-                        {/* Courses */}
                         <Route path="courses" element={<CoursePage />} />
-
-                        {/* Tutors */}
                         <Route path="tutors" element={<TutorList />} />
+                        
+                        {/* Materials - Tự động routing theo role:
+                            - Student: ViewMaterials (xem danh sách)
+                            - Tutor: UploadMaterials (form upload)
+                            - Admin: ViewMaterials (xem danh sách để duyệt) */}
+                        <Route path="materials" element={<Materials />} />
 
                         {/* Settings - TODO: Create Settings component */}
                         {/* <Route path="settings" element={<Settings />} /> */}
@@ -76,7 +71,6 @@ export default function App() {
           > */}
                     {/* Admin Dashboard - TODO: Create AdminDashboard component */}
                     {/* <Route index element={<AdminDashboard />} /> */}
-                    {/* <Route path="dashboard" element={<AdminDashboard />} /> */}
 
                     {/* User Management - TODO: Create UserManagement component */}
                     {/* <Route path="users" element={<UserManagement />} /> */}
@@ -86,7 +80,6 @@ export default function App() {
                     {/* </Route> */}
 
                     {/* ========== ERROR HANDLING ========== */}
-                    {/* 404 Page */}
                     <Route path="*" element={<PageNotFound />} />
                 </Routes>
             </BrowserRouter>

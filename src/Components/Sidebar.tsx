@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useUser } from "../Context/UserContext";
 import { useState, useEffect, useRef } from "react";
-import { ChevronRight, Home, Users, BookOpen, FileText, Settings, Bell, User, Menu, LogOut, UserCircle, ChevronDown } from "lucide-react";
+import { ChevronRight, Home, Users, BookOpen, FileText, Settings, Bell, User, Menu, LogOut, UserCircle, ChevronDown, Calendar, MessageSquare } from "lucide-react";
 import React from "react"; 
 
 
@@ -17,23 +17,31 @@ type NavItemDividerType = {
 };
 
 
-const mainNavItems: (NavItemType | NavItemDividerType)[] = [
-    { icon: Home, label: "Trang chủ", path: "" },
-    { icon: BookOpen, label: "Lịch học", path: "schedule" },
-    { icon: FileText, label: "Khóa học", path: "courses" },
-    { icon: Users, label: "Danh sách Gia sư", path: "tutors" },
-    { icon: FileText, label: "Phản hồi", path: "feedback" },
-    { icon: Menu, label: "Báo cáo", path: "reports" },
-    { divider: true }, 
-    { icon: Settings, label: "Cài đặt", path: "settings" },
-];
-
-const bottomItems: NavItemType[] = [
-    { icon: Bell, label: "Thông báo", path: "notifications", isFooter: true },
-];
-
 export default function Sidebar() {
     const { user, logout } = useUser();
+    
+    // Hàm lấy label cho tài liệu dựa trên role
+    const getMaterialsLabel = () => {
+        if (user?.role === 'tutor') return 'Tải tài liệu';
+        if (user?.role === 'admin') return 'Duyệt tài liệu';
+        return 'Tài liệu';
+    };
+
+    const mainNavItems: (NavItemType | NavItemDividerType)[] = [
+        { icon: Home, label: "Trang chủ", path: "" },
+        { icon: BookOpen , label: "Lịch học", path: "schedule" },
+        { icon: Calendar, label: "Khóa học", path: "courses" },
+        { icon: Users, label: "Danh sách Gia sư", path: "tutors" },
+        { icon: FileText, label: getMaterialsLabel(), path: "materials" },
+        { icon: MessageSquare , label: "Phản hồi", path: "feedback" },
+        { icon: Menu, label: "Báo cáo", path: "reports" },
+        { divider: true }, 
+        { icon: Settings, label: "Cài đặt", path: "settings" },
+    ];
+
+    const bottomItems: NavItemType[] = [
+        { icon: Bell, label: "Thông báo", path: "notifications", isFooter: true },
+    ];
     const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
