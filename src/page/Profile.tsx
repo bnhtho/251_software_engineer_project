@@ -32,7 +32,7 @@ const ProfilePage = () => {
       date: "05/11/2025",
       duration: "2 giờ",
       status: "Sắp diễn ra",
-      statusColor: "blue",
+      statusColor: "orange",
     },
   ]
 
@@ -60,7 +60,7 @@ const ProfilePage = () => {
       </div>
 
       {/* Learning History Section */}
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-12 gap-6 ">
         <div className="col-span-12">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-6">Lịch sử học tập</h2>
@@ -96,6 +96,7 @@ const ProfilePage = () => {
                       date={item.date}
                       duration={item.duration}
                       status={item.status}
+                      // Color status
                       statusColor={item.statusColor}
                     />
                   ))}

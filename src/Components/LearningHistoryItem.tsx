@@ -8,6 +8,7 @@ interface LearningHistoryItemProps {
 }
 
 const LearningHistoryItem = ({
+  
   courseName,
   instructor,
   date,
@@ -31,7 +32,7 @@ const LearningHistoryItem = ({
       </td>
       <td className="px-6 py-4">
         <span
-          className={`px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}
+          className="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 inset-ring inset-ring-gray-500/10 text-white " style={{ background: statusColor + "-A" }}
         >
           {status}
         </span>
