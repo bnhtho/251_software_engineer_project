@@ -45,7 +45,17 @@ const monthlyStats = [
   { label: "T11", value: 420 },
 ];
 
+import BarChart from "../../Components/Charts/BarChart";
+import DonutChart from "../../Components/Charts/DonutChart";
+
 const AdminDashboard = () => {
+  // compute role distribution
+  const roleCounts = userList.reduce<Record<string, number>>((acc, u) => {
+    acc[u.role] = (acc[u.role] || 0) + 1;
+    return acc;
+  }, {});
+
+  const roleData = Object.keys(roleCounts).map((k) => ({ label: k, value: roleCounts[k] }));
   return (
     <div className="space-y-8">
       <section className="flex flex-col gap-2">
@@ -134,35 +144,28 @@ const AdminDashboard = () => {
       <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              Thống kê người dùng
-            </h2>
-            <p className="text-sm text-gray-500">
-              Số lượng người dùng đăng ký mới theo tháng
-            </p>
+            <h2 className="text-lg font-semibold text-gray-900">Thống kê người dùng</h2>
+            <p className="text-sm text-gray-500">Biểu đồ tổng quan về người dùng</p>
           </div>
           <button className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50">
             Xem chi tiết
           </button>
         </div>
 
-        <div className="space-y-4">
-          {monthlyStats.map((item) => (
-            <div key={item.label} className="space-y-2">
-              <div className="flex items-center justify-between text-sm text-gray-500">
-                <span className="font-medium text-gray-700">{item.label}</span>
-                <span>{item.value}</span>
-              </div>
-              <div className="h-3 w-full rounded-full bg-gray-100">
-                <div
-                  className="h-3 rounded-full bg-linear-to-r from-indigo-400 via-purple-500 to-blue-500"
-                  style={{
-                    width: `${(item.value / 420) * 100}%`,
-                  }}
-                />
-              </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div>
+            <h3 className="mb-3 text-sm font-medium text-gray-700">Người dùng mới theo tháng</h3>
+            <div className="rounded-lg border border-gray-100 bg-white p-4">
+              <BarChart data={monthlyStats} height={180} />
             </div>
-          ))}
+          </div>
+
+          <div>
+            <h3 className="mb-3 text-sm font-medium text-gray-700">Phân bố vai trò</h3>
+            <div className="rounded-lg border border-gray-100 bg-white p-4">
+              <DonutChart data={roleData} />
+            </div>
+          </div>
         </div>
       </section>
     </div>
