@@ -28,7 +28,7 @@ const scheduleData = [
     courseCode: "PH1003",
     instructor: "ThS. Lê Văn Tuấn",
     date: "Thứ 2\n04/11/2025",
-    time: "13:30 - 15:30",
+    time: "13:30 - 15:30",  
     location: "Phòng H2-203",
     locationType: "Offline",
   },

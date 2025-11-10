@@ -7,10 +7,14 @@ import CoursePage from "./page/Course";
 import TutorList from "./page/TutorList";
 import Materials from "./page/materials"; // Import index.tsx - tự động routing theo role
 import Layout from "./Components/Layout";
+// import AdminLayout from "";
+import AdminLayout from "./Components/admin/layout";
 import PageNotFound from "./page/PageNotFound";
 import ProtectedRoute from "./Components/ProtectedRoute";
+import { AdminDashboardPage } from "./page/admin/dashboard";
 import { UserProvider } from "./Context/UserContext";
-
+// import {UserList} from ""
+import { AdminUsersPage } from "./page/admin/UserList";
 export default function App() {
     return (
         <UserProvider>
@@ -61,19 +65,27 @@ export default function App() {
 
                     {/* ========== ADMIN ROUTES ========== */}
                     {/* Admin Layout - TODO: Create AdminLayout component */}
-                    {/* <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute requireAdmin={true}>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          > */}
+                    
+                    <Route 
+  path="/admin" 
+  element={
+    <ProtectedRoute requireAdmin={true}>
+      <AdminLayout />
+    </ProtectedRoute>
+  }
+>
+  {/* Admin Dashboard */}
+  {/* <Route index element={<SimpleDashboardPage />} /> */}
+{/* <Route path="/admin/dashboard" element={<AdminDashboardPage />} /> */}
+  {/* User Management - TODO */}
+  {/* <Route path="users" element={<UserManagement />} /> */}
+  {/* Reports - TODO */}
+  {/* <Route path="reports" element={<Reports />} /> */}
+</Route>
                     {/* Admin Dashboard - TODO: Create AdminDashboard component */}
-                    {/* <Route index element={<AdminDashboard />} /> */}
-
+                    <Route index element={<AdminDashboardPage />} />
                     {/* User Management - TODO: Create UserManagement component */}
-                    {/* <Route path="users" element={<UserManagement />} /> */}
+                    <Route path="user" element={<AdminUsersPage />} />
 
                     {/* Reports - TODO: Create Reports component */}
                     {/* <Route path="reports" element={<Reports />} /> */}

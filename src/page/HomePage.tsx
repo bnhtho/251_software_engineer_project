@@ -5,10 +5,10 @@ const reviewsData = [
   {
     courseName: "Cấu trúc rời rạc",
     reviewText:
-      "Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "Thầy giảng dễ hiểu , đi sâu vào trọng tâm môn học",
     authorName: "Nguyễn Văn Hiền",
     date: "30/10/2025",
-    rating: 2,
+    rating: 5,
   },
   {
     courseName: "Toán rời rạc",
@@ -19,7 +19,7 @@ const reviewsData = [
   },
   {
     courseName: "Tiếng Anh 2",
-    reviewText: "Review body",
+    reviewText: "Môn học cực kì thú vị",
     authorName: "Nguyễn Tân Lực",
     date: "30/10/2025",
     rating: 5,

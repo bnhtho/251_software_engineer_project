@@ -44,7 +44,7 @@ const TutorCard = ({
             <div className="flex flex-col sm:flex-row gap-4">
                 {/* Avatar Section */}
                 <div className="shrink-0">
-                    <Avatar name={name} className="w-16 h-16 text-2xl" />
+                    <Avatar name={name} className="w-16 h-16 text-md" />
                 </div>
 
                 {/* Content Section */}

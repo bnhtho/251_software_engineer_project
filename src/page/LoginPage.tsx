@@ -30,13 +30,17 @@ const handleSubmit = (e: React.FormEvent) => {
         name: "Hoàng Thọ", // trả về name
         role: selectedRole, // sử dụng role được chọn
       });
-      
       // Redirect về trang đã cố gắng truy cập hoặc dashboard
       const from = location.state?.from?.pathname || '/dashboard';
       navigate(from, { replace: true });
-      
-    } else {
-      alert("Sai thông tin đăng nhập!");
+      // Admin
+    } else if (email === "admin@hcmut.edu.vn" && password === "123456" && selectedRole == "admin") {
+       login({
+        id: 456, // trả về ID
+        name: "Admin", // trả về name
+        role: "admin", // sử dụng role được chọn
+      });
+            navigate("/admin/dashboard");
     }
   };
   return (
