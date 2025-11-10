@@ -6,7 +6,7 @@ import { useUser } from "../Context/UserContext";
 
 const PageNotFound = () => {
   const { user } = useUser();
-  const homePath = user?.role === "admin" ? "/admin/dashboard" : "/dashboard";
+  const homePath = "/dashboard";
   
   return (
 
