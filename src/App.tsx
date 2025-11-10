@@ -1,17 +1,24 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./page/LoginPage";
-import Schedule from "./page/Schedule";
-import HomePage from "./page/HomePage";
-import Profile from "./page/Profile";
-import CoursePage from "./page/Course";
-import TutorList from "./page/TutorList";
-import Materials from "./page/materials"; // Import index.tsx - tự động routing theo role
-import Layout from "./Components/Layout";
-// import AdminLayout from "";
+import AdminLoginPage from "./page/AdminLoginPage";
+import Schedule from "./pages/user/Schedule";
+import HomePage from "./pages/user/HomePage";
+import Profile from "./pages/user/Profile";
+import CoursePage from "./pages/user/Course";
+import TutorList from "./pages/user/TutorList";
+import Materials from "./pages/shared/materials";
+import UserLayout from "./layouts/user/UserLayout";
+import AdminLayout from "./layouts/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminUsers from "./pages/admin/Users";
+import AdminCourses from "./pages/admin/Courses";
+import AdminSessions from "./pages/admin/Sessions";
+import AdminReports from "./pages/admin/Reports";
+import AdminFeedback from "./pages/admin/Feedback";
+import AdminSettings from "./pages/admin/Settings";
 import PageNotFound from "./page/PageNotFound";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { UserProvider } from "./Context/UserContext";
-// import {UserList} from ""
 export default function App() {
   return (
     <UserProvider>
@@ -22,6 +29,7 @@ export default function App() {
 
           {/* ========== PUBLIC ROUTES ========== */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
 
           {/* Register Page - TODO: Create RegisterPage component */}
           {/* <Route path="/register" element={<RegisterPage />} /> */}
@@ -34,7 +42,7 @@ export default function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Layout />
+                <UserLayout />
               </ProtectedRoute>
             }
           >
@@ -58,6 +66,23 @@ export default function App() {
 
             {/* Help - TODO: Create HelpPage component */}
             {/* <Route path="help" element={<HelpPage />} /> */}
+          </Route>
+
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requireAdmin>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="courses" element={<AdminCourses />} />
+            <Route path="sessions" element={<AdminSessions />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="feedback" element={<AdminFeedback />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
 
           {/* Reports - TODO: Create Reports component */}

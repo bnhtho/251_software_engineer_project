@@ -1,40 +1,37 @@
 import React, { useState } from "react";
 import hcmutLogo from '/src/assets/logo.svg';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useUser } from "../Context/UserContext";
 
-export const LoginPage = () => {
-    // selectedRole state
-  const [selectedRole, setSelectedRole] = useState("student");
+export const AdminLoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  // const login
+  const [error, setError] = useState("");
   const { login } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
-  const roles = [
-    { id: "student", label: "Sinh viên", value: "student" },
-    { id: "tutor", label: "Gia sư", value: "tutor" },
-  ];
 
-const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ selectedRole, email, password, rememberMe });
-    // Tài khoản user (student/tutor)
-    if (email === "test@hcmut.edu.vn" && password === "123456") {
-      console.log("Login success!");
-      // NOTE:[Logic] Khi sử lý với backend, lấy user data từ backend trả về login({...})
+    setError("");
+    
+    // Tài khoản admin demo
+    if (email === "admin@hcmut.edu.vn" && password === "123456") {
+      console.log("Admin login success!");
       login({
-        id: 123, // trả về ID
-        name: "Hoàng Thọ", // trả về name
-        role: selectedRole, // sử dụng role được chọn
+        id: 1,
+        name: "Admin",
+        role: "admin",
       });
-      // Redirect về trang đã cố gắng truy cập hoặc dashboard
-      const from = location.state?.from?.pathname || '/dashboard';
+      // Redirect về trang đã cố gắng truy cập hoặc admin dashboard
+      const from = location.state?.from?.pathname || '/admin';
       navigate(from, { replace: true });
+    } else {
+      setError("Email hoặc mật khẩu không đúng!");
     }
   };
+
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50 px-4">
       <div className="flex flex-col items-center w-full max-w-md bg-gray-50">
@@ -49,41 +46,27 @@ const handleSubmit = (e: React.FormEvent) => {
             <div>
               <h1 className="text-2xl font-normal text-[#101727]">HCMUT</h1>
               <p className="text-sm text-[#697282] leading-5">
-              Hệ thống gia sư
+                Hệ thống gia sư
               </p>
             </div>
           </div>
           <h2 className="text-base font-normal text-[#101727] leading-6">
-            Đăng nhập hệ thống
+            Đăng nhập Admin
           </h2>
           <p className="text-sm text-[#495565] leading-5">
-            Vui lòng chọn vai trò và đăng nhập
+            Vui lòng đăng nhập bằng tài khoản Admin
           </p>
         </header>
 
         {/* Card */}
         <main className="bg-white rounded-xl shadow-md p-8 w-full">
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            {/* Role selection */}
-            <fieldset className="flex flex-col gap-2">
-              <legend className="text-sm text-neutral-950">Vai trò</legend>
-              <div className="flex gap-2">
-                {roles.map((role) => (
-                  <button
-                    key={role.id}
-                    type="button"
-                    onClick={() => setSelectedRole(role.value)}
-                    className={`w-1/2 py-2 rounded-lg border text-sm transition-colors ${
-                      selectedRole === role.value
-                        ? "bg-[#0b7a9f] text-white"
-                        : "bg-white text-[#354152] border-[#d0d5db] hover:bg-gray-100"
-                    }`}
-                  >
-                    {role.label}
-                  </button>
-                ))}
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                {error}
               </div>
-            </fieldset>
+            )}
 
             {/* Email */}
             <div className="flex flex-col gap-2">
@@ -105,7 +88,7 @@ const handleSubmit = (e: React.FormEvent) => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="example@hcmut.edu.vn"
+                  placeholder="admin@hcmut.edu.vn"
                   className="w-full pl-10 pr-3 py-2 bg-[#f3f3f5] rounded-lg text-sm text-[#717182] border border-transparent"
                 />
               </div>
@@ -166,19 +149,11 @@ const handleSubmit = (e: React.FormEvent) => {
           </form>
 
           {/* Footer inside card */}
-          <div className="text-center text-sm text-[#495565] mt-5 space-y-2">
-            <div>
-              Chưa có tài khoản?{" "}
-              <a href="#register" className="text-[#0b7a9f] hover:underline">
-                Đăng ký ngay
-              </a>
-            </div>
-            <div>
-              Bạn là Admin?{" "}
-              <a href="/admin/login" className="text-[#0b7a9f] hover:underline">
-                Đăng nhập Admin
-              </a>
-            </div>
+          <div className="text-center text-sm text-[#495565] mt-5">
+            Bạn là người dùng?{" "}
+            <Link to="/login" className="text-[#0b7a9f] hover:underline">
+              Đăng nhập tại đây
+            </Link>
           </div>
         </main>
 
@@ -191,4 +166,5 @@ const handleSubmit = (e: React.FormEvent) => {
   );
 };
 
-export default LoginPage;
+export default AdminLoginPage;
+

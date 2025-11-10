@@ -1,20 +1,16 @@
-import { Outlet, useLocation } from "react-router-dom"; // Đã bỏ useNavigate
-import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
-import React, { useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import Navbar from "../../Components/Navbar";
+import Sidebar from "../../Components/Sidebar";
 
-const Layout = () => {
+const UserLayout = () => {
   const location = useLocation();
-  // Đã bỏ const navigate = useNavigate();
 
-  // 🧠 CHỈ GIỮ LẠI LOGIC LƯU PATH
-  // Lưu path hiện tại mỗi khi người dùng thay đổi route
   useEffect(() => {
     if (location.pathname.startsWith("/dashboard")) {
       localStorage.setItem("lastPath", location.pathname);
     }
   }, [location]);
-
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -32,7 +28,6 @@ const Layout = () => {
 
           <div className="col-span-12 md:col-span-9 lg:col-span-10">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 min-h-full">
-              {/* Đảm bảo có <Outlet /> để hiển thị Profile, Courses, Schedule... */}
               <Outlet />
             </div>
           </div>
@@ -42,4 +37,5 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default UserLayout;
+

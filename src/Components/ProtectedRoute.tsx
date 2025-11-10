@@ -33,12 +33,16 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
 
   // 2. Nếu đã tải xong nhưng KHÔNG CÓ USER, redirect về login
   if (!user) {
+    // Nếu đang cố truy cập /admin, redirect về /admin/login
+    if (location.pathname.startsWith("/admin")) {
+      return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    }
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // 3. Kiểm tra quyền Admin (nếu cần)
   if (requireAdmin && user.role !== "admin") {
-    // Redirect về trang chủ nếu không có quyền Admin
+    // User không có quyền admin, redirect về dashboard
     return <Navigate to="/dashboard" replace />; 
   }
 

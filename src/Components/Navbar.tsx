@@ -1,6 +1,6 @@
 import { useUser } from "../Context/UserContext";
 import { useState } from "react";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X, Search, LayoutDashboard } from "lucide-react";
 import hcmutLogo from '/src/assets/logo.svg';
 import Avatar from "./Avatar";
 export default function Header() {
@@ -52,13 +52,14 @@ export default function Header() {
           {/* Desktop Menu & User Actions (Right Side) */}
           <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-8">
             <div className="flex space-x-6">
-              {/* Dashboard link for Admin */}
+              {/* Dashboard Admin link - chỉ hiển thị cho admin */}
               {isAdmin && (
                 <a
-                  href="/dashboard"
-                  className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                  href="/admin"
+                  className="flex items-center gap-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600"
                 >
-                  Dashboard
+                  <LayoutDashboard className="h-4 w-4" />
+                  Về Dashboard Admin
                 </a>
               )}
               {/* Navigation links */}
@@ -120,14 +121,15 @@ export default function Header() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             </div>
 
-            {/* Dashboard link for Admin on Mobile */}
+            {/* Dashboard Admin link for Mobile - chỉ hiển thị cho admin */}
             {isAdmin && (
                 <a
-                    href="/dashboard"
-                    onClick={closeMobileMenu} // Closes menu on click
-                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
+                    href="/admin"
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
                 >
-                    Dashboard
+                    <LayoutDashboard className="h-4 w-4" />
+                    Về Dashboard Admin
                 </a>
             )}
 
