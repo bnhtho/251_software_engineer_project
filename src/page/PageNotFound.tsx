@@ -2,7 +2,11 @@ import { Link } from 'react-router-dom';
 import { Globe } from 'lucide-react';
 import Sidebar from '../Components/Sidebar';
 import Header from '../Components/Navbar';
+import { useUser } from "../Context/UserContext";
+
 const PageNotFound = () => {
+  const { user } = useUser();
+  const homePath = user?.role === "admin" ? "/admin/dashboard" : "/dashboard";
   
   return (
 
@@ -69,7 +73,7 @@ const PageNotFound = () => {
           {/* Go Home Button */}
           <div className="pt-2">
             <Link
-              to="/dashboard"
+              to= {homePath}
               className="inline-flex items-center px-8 py-3 bg-blue-600 text-white font-semibold text-sm uppercase tracking-wider rounded-full hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               GO HOME

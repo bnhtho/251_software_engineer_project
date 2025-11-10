@@ -52,10 +52,14 @@ yarn dev
 ## Tài khoản Demo
 
 ### Đăng nhập hệ thống
+### User
 - **Email:** `test@hcmut.edu.vn`
 - **Mật khẩu:** `123456`
-- **Vai trò:** Có thể chọn Student/Tutor/Admin
-
+- **Vai trò:** `Student`
+### Admin
+- **Email:**: `admin@hcmut.edu.vn`
+- **Mật khẩu**: `123456`
+- **Vai trò:** : `Admin`
 ## Cấu trúc Routes
 
 ### 🌐 Public Routes
@@ -73,7 +77,7 @@ yarn dev
 - `/dashboard/help` - Trợ giúp (TODO)
 
 ### 👨‍💼 Admin Routes (Chỉ dành cho Admin)
-- `/admin` - Admin Dashboard (TODO)
+- `/admin` - Admin Dashboard
 - `/admin/users` - Quản lý người dùng (TODO)
 - `/admin/reports` - Báo cáo (TODO)
 
