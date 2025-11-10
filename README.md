@@ -131,3 +131,6 @@ src/
 - Authentication được quản lý qua React Context
 - Routes được bảo vệ bằng ProtectedRoute component
 - UI/UX thiết kế theo chuẩn modern web app
+
+## Việc cần làm trong nhánh admin/Sidebar
+- Sửa đổi sidebar theo hướng admin
