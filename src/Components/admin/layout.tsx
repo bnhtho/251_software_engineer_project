@@ -5,7 +5,7 @@ export default function AdminLayout() {
     <div className="admin-layout">
       <header>Admin Header</header>
       <main>
-        <Outlet /> {/* Đây sẽ render SimpleDashboardPage hoặc các route nested khác */}
+        <Outlet />
       </main>
     </div>
   );
