@@ -1,0 +1,30 @@
+// NOTE: Import interface
+import type { User } from "../UserList";
+// export const userList: User[] = [
+export const userList: User[] = [
+  { id: 1, name: "Nguyễn Văn An", email: "an.nguyen@hcmut.edu.vn", role: "Sinh viên", status: "Hoạt động" },
+  { id: 2, name: "Trần Thị Hương", email: "huong.tran@hcmut.edu.vn", role: "Gia sư", status: "Hoạt động" },
+  { id: 3, name: "Lê Văn Tuấn", email: "tuan.le@hcmut.edu.vn", role: "Gia sư", status: "Hoạt động" },
+  { id: 4, name: "Phạm Thị Lan", email: "lan.pham@hcmut.edu.vn", role: "Điều phối viên", status: "Hoạt động" },
+  { id: 5, name: "Hoàng Minh Tuấn", email: "tuan.hoang@hcmut.edu.vn", role: "Sinh viên", status: "Không hoạt động" },
+  { id: 6, name: "Nguyễn Thị Mai", email: "mai.nguyen@hcmut.edu.vn", role: "Sinh viên", status: "Hoạt động" },
+  { id: 7, name: "Trần Văn Phúc", email: "phuc.tran@hcmut.edu.vn", role: "Gia sư", status: "Hoạt động" },
+  { id: 8, name: "Lê Thị Hạnh", email: "hanh.le@hcmut.edu.vn", role: "Điều phối viên", status: "Hoạt động" },
+  { id: 9, name: "Phạm Văn Sơn", email: "son.pham@hcmut.edu.vn", role: "Sinh viên", status: "Hoạt động" },
+  { id: 10, name: "Hoàng Thị Lan", email: "lan.hoang@hcmut.edu.vn", role: "Gia sư", status: "Không hoạt động" },
+  { id: 11, name: "Nguyễn Văn Bảo", email: "bao.nguyen@hcmut.edu.vn", role: "Sinh viên", status: "Hoạt động" },
+  { id: 12, name: "Trần Thị Dung", email: "dung.tran@hcmut.edu.vn", role: "Gia sư", status: "Hoạt động" },
+  { id: 13, name: "Lê Văn Khánh", email: "khanh.le@hcmut.edu.vn", role: "Sinh viên", status: "Hoạt động" },
+  { id: 14, name: "Phạm Thị Thảo", email: "thao.pham@hcmut.edu.vn", role: "Điều phối viên", status: "Hoạt động" },
+  { id: 15, name: "Hoàng Văn Minh", email: "minh.hoang@hcmut.edu.vn", role: "Sinh viên", status: "Hoạt động" },
+  { id: 16, name: "Nguyễn Thị Phương", email: "phuong.nguyen@hcmut.edu.vn", role: "Gia sư", status: "Hoạt động" },
+  { id: 17, name: "Trần Văn Long", email: "long.tran@hcmut.edu.vn", role: "Điều phối viên", status: "Không hoạt động" },
+  { id: 18, name: "Lê Thị Ngọc", email: "ngoc.le@hcmut.edu.vn", role: "Sinh viên", status: "Hoạt động" },
+  { id: 19, name: "Phạm Văn Tùng", email: "tung.pham@hcmut.edu.vn", role: "Gia sư", status: "Hoạt động" },
+  { id: 20, name: "Hoàng Thị Yến", email: "yen.hoang@hcmut.edu.vn", role: "Sinh viên", status: "Hoạt động" },
+  { id: 21, name: "Nguyễn Văn Hùng", email: "hung.nguyen@hcmut.edu.vn", role: "Gia sư", status: "Hoạt động" },
+  { id: 22, name: "Trần Thị Lan", email: "lan.tran@hcmut.edu.vn", role: "Điều phối viên", status: "Hoạt động" },
+  { id: 23, name: "Lê Văn Hoàng", email: "hoang.le@hcmut.edu.vn", role: "Sinh viên", status: "Không hoạt động" },
+  { id: 24, name: "Phạm Thị Bích", email: "bich.pham@hcmut.edu.vn", role: "Gia sư", status: "Hoạt động" },
+  { id: 25, name: "Hoàng Văn Quang", email: "quang.hoang@hcmut.edu.vn", role: "Sinh viên", status: "Hoạt động" },
+];
