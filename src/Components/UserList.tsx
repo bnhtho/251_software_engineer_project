@@ -1,4 +1,5 @@
 // Định nghĩa kiểu dữ liệu cho User
+// Import file này vào trước 
 export interface User {
   id: number;
   name: string;

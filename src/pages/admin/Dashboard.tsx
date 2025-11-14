@@ -1,120 +1,106 @@
-// ────────────────────────────────────────────────
-// Imports
-// ────────────────────────────────────────────────
-import Box from "@mui/material/Box";
-import { BarChart } from "@mui/x-charts/BarChart";
-import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
+import ReviewCard from "../../Components/ReviewCard";
+import Announcement from "../../Components/AnnoucementCard";
+import axios from 'axios';
 
-// ────────────────────────────────────────────────
-// Mock data
-// ────────────────────────────────────────────────
-
-import { userList } from "../../Components/Data/user";
-import { UserRow } from "../../Components/UserList";
-// ────────────────────────────────────────────────
-// Chart data
-// ────────────────────────────────────────────────
-const monthlyStats = [
-  { label: "Tháng 6", value: 120 },
-  { label: "Tháng 7", value: 165 },
-  { label: "Tháng 8", value: 210 },
-  { label: "Tháng 9", value: 280 },
-  { label: "Tháng 10", value: 350 },
-  { label: "Tháng 11", value: 420 },
+const reviewsData = [
+  {
+    courseName: "Cấu trúc rời rạc",
+    reviewText: "Thầy giảng dễ hiểu , đi sâu vào trọng tâm môn học",
+    authorName: "Nguyễn Văn Hiền",
+    date: "30/10/2025",
+    rating: 5,
+  },
+  {
+    courseName: "Toán rời rạc",
+    reviewText: "Giáo viên giảng dạy rất hiệu quả",
+    authorName: "Nguyễn Thị Thu",
+    date: "31/10/2025",
+    rating: 5,
+  },
+  {
+    courseName: "Tiếng Anh 2",
+    reviewText: "Môn học cực kì thú vị",
+    authorName: "Nguyễn Tân Lực",
+    date: "30/10/2025",
+    rating: 5,
+  },
 ];
 
-const xLabels = monthlyStats.map((item) => item.label);
-const pData = monthlyStats.map((item) => item.value);
+async function majors() {
+  const res = await fetch("http://localhost:8081/majors", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    }
+  });
 
-// ────────────────────────────────────────────────
-// Main Component
-// ────────────────────────────────────────────────
-const AdminDashboard = () => {
-  // ─── Derived data ───────────────────────────────
-  const roleCounts = userList.reduce<Record<string, number>>((acc, user) => {
-    acc[user.role] = (acc[user.role] || 0) + 1;
-    return acc;
-  }, {});
+  if (!res.ok) {
+    throw new Error("Request failed");
+  }
 
-  const roleData = Object.entries(roleCounts).map(([label, value]) => ({
-    label,
-    value,
-  }));
+  const data = await res.json();
+  return data;
+}
 
-  // ────────────────────────────────────────────────
-  // Render
-  // ────────────────────────────────────────────────
+
+const announcements = [
+  { title: "Lịch học tuần này", content: "Cập nhật lịch học mới nhất." },
+  { title: "Thông báo nghỉ lễ", content: "Trường nghỉ từ 10/11 đến 12/11." },
+];
+
+const HomePage = () => {
   return (
-    <div className="space-y-8">
-      {/* ─── Header ─────────────────────────────── */}
-      <header className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500">
-          Chào mừng trở lại, Admin. Đây là tổng quan nhanh về hệ thống.
-        </p>
-      </header>
-      {/* ─── Charts ─────────────────────────────── */}
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">Thống kê người dùng</h2>
-            <p className="text-sm text-gray-500">Biểu đồ tổng quan về người dùng</p>
+    <>
+      <title>Trang chủ</title>
+      <div className="space-y-8 p-6">
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12">
+            <h1 className="text-2xl font-bold text-gray-900">Trang chủ</h1>
+            <p className="text-gray-600">
+              Chào mừng bạn đến với hệ thống gia sư HCMUT
+            </p>
           </div>
-          <ActionButton label="Xem chi tiết" />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* ─── Bar Chart ─────────────────────────── */}
-          
-          <Box sx={{ width: "100%", height: 300 }}> <BarChart xAxis={[{ data: xLabels, label: "Tháng",categoryGapRatio: 0.5, barGapRatio: 0.1 }]} series={[ { data: pData, label: "Người dùng đăng ký theo tháng", id: "userGrowth", color: "#0E7AA0", }, ]} /> </Box>
-
-          {/* ─── Pie Chart ─────────────────────────── */}
-          <Box
-            sx={{
-              width: "100%",
-              height: 300,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <h3 className="mb-3 text-sm font-medium text-gray-700">
-              Phân bố người dùng
-            </h3>
-
-            <PieChart
-              series={[
-                {
-                  data: roleData,
-                  arcLabel: "value",
-                },
-              ]}
-              sx={{
-                [`& .${pieArcLabelClasses.root}`]: {
-                  fill: "white",
-                  fontSize: 14,
-                },
-              }}
-              width={300}
-              height={250}
-            />
-          </Box>
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-8">
+            <Announcement annouceList={announcements} />
+          </div>
+          <div className="col-span-12 lg:col-span-4">
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <h3 className="mb-2 font-semibold text-blue-900">Thống kê nhanh</h3>
+              <div className="space-y-2 text-sm text-blue-800">
+                <div className="flex justify-between">
+                  <span>Tổng đánh giá:</span>
+                  <span className="font-medium">{reviewsData.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Thông báo mới:</span>
+                  <span className="font-medium">{announcements.length}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
-    </div>
+
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12">
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">
+              Đánh giá gần đây
+            </h2>
+          </div>
+
+          {reviewsData.map((review, idx) => (
+            <div key={idx} className="col-span-12 md:col-span-6 lg:col-span-4">
+              <ReviewCard {...review} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
   );
 };
 
-export default AdminDashboard;
-
-// ────────────────────────────────────────────────
-// Subcomponents
-// ────────────────────────────────────────────────
-const ActionButton = ({ label }: { label: string }) => (
-  <button className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50">
-    {label}
-  </button>
-);
-
+export default HomePage;
 
