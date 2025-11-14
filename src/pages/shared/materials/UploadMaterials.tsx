@@ -1,9 +1,25 @@
 import { useState } from "react";
-import { FileText, Link as LinkIcon, AlertCircle, Save, X } from "lucide-react";
-import type {
-  MaterialFormData,
-  SubmittedMaterial,
-} from "./types/material.types";
+import { FileText, Link as LinkIcon, AlertCircle, Save, X, CheckCircle, Clock, XCircle } from "lucide-react";
+
+// Định nghĩa types trực tiếp trong file
+interface MaterialFormData {
+  title: string;
+  category: string;
+  description: string;
+  link: string;
+}
+
+interface SubmittedMaterial {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  author: string;
+  date: string;
+  views: number;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedDate: string;
+}
 
 export default function UploadMaterials() {
   const [formData, setFormData] = useState<MaterialFormData>({
@@ -15,6 +31,10 @@ export default function UploadMaterials() {
 
   const [errors, setErrors] = useState<Partial<MaterialFormData>>({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState<'success' | 'error'>('success');
 
   const categories = ["Toán học", "Vật lý", "Tin học", "Hóa học", "Cơ khí"];
 
@@ -57,6 +77,7 @@ export default function UploadMaterials() {
   const validateForm = (): boolean => {
     const newErrors: Partial<MaterialFormData> = {};
 
+    // Validate theo Use Case UC01: gia sư tải tài liệu mới lên hệ thống thông qua đường link
     if (!formData.title.trim()) {
       newErrors.title = "Vui lòng nhập tiêu đề";
     }
@@ -88,13 +109,29 @@ export default function UploadMaterials() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Implement theo Sequence Diagram: processSubmission(link, description, tutorID)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      console.log("Submitting material:", formData);
-      setShowSuccess(true);
+    if (!validateForm()) {
+      return;
+    }
 
+    setIsSubmitting(true);
+    setSubmitStatus('submitting');
+
+    try {
+      console.log("Processing submission:", formData);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Step 6: Hiển thị modal thông báo "Đã gửi thành công. Chờ duyệt"
+      setSubmitStatus('success');
+      setModalType('success');
+      setShowModal(true);
+      
+      // Reset form sau khi thành công
       setFormData({
         title: "",
         category: "",
@@ -103,18 +140,19 @@ export default function UploadMaterials() {
       });
       setErrors({});
 
-      setTimeout(() => setShowSuccess(false), 5000);
+    } catch (error) {
+      setSubmitStatus('error');
+      setModalType('error');
+      setShowModal(true);
+      console.error("Submission failed:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleReset = () => {
-    setFormData({
-      title: "",
-      category: "",
-      description: "",
-      link: "",
-    });
-    setErrors({});
+  const closeModal = () => {
+    setShowModal(false);
+    setSubmitStatus('idle');
   };
 
   const getStatusBadge = (status: string) => {
@@ -137,11 +175,72 @@ export default function UploadMaterials() {
     );
   };
 
+  const handleReset = () => {
+    setFormData({
+      title: "",
+      category: "",
+      description: "",
+      link: "",
+    });
+    setErrors({});
+    setSubmitStatus('idle');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header - xóa debug text */}
       <div className="mb-6 bg-teal-600 px-6 py-3 text-white">
         <p className="text-sm font-medium">Chế độ: Gia sư</p>
       </div>
+
+      {/* Modal thông báo - giữ nguyên */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="relative mx-4 w-full max-w-md transform rounded-lg bg-white p-6 shadow-xl">
+            <button
+              onClick={closeModal}
+              className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="text-center">
+              {modalType === 'success' ? (
+                <>
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                    <CheckCircle className="h-6 w-6 text-green-600" />
+                  </div>
+                  <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                    Thông báo
+                  </h3>
+                  <p className="mb-6 text-sm text-gray-600">
+                    Tài liệu đã được gửi thành công! Vui lòng đợi admin duyệt.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                    <XCircle className="h-6 w-6 text-red-600" />
+                  </div>
+                  <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                    Có lỗi xảy ra
+                  </h3>
+                  <p className="mb-6 text-sm text-gray-600">
+                    Không thể gửi tài liệu. Vui lòng thử lại sau.
+                  </p>
+                </>
+              )}
+              
+              <button
+                onClick={closeModal}
+                className="w-full rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="px-6">
         <div className="mx-auto max-w-3xl">
@@ -154,17 +253,6 @@ export default function UploadMaterials() {
             </p>
           </div>
 
-          {showSuccess && (
-            <div className="mb-6 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-4">
-              <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-500 text-xs text-white">
-                ✓
-              </div>
-              <p className="text-sm text-green-800">
-                Tài liệu đã được gửi thành công! Vui lòng đợi admin duyệt.
-              </p>
-            </div>
-          )}
-
           <div className="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white">
             <div className="flex items-start gap-3 border-b border-blue-100 bg-blue-50 p-4">
               <FileText className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
@@ -173,12 +261,14 @@ export default function UploadMaterials() {
                   Thông tin tài liệu
                 </h3>
                 <p className="text-xs text-blue-700">
-                  Vui lòng điền đầy đủ thông tin bên dưới
+                  Vui lòng điền đầy đủ thông tin bên dưới để gửi tài liệu lên hệ thống
                 </p>
               </div>
             </div>
 
+            {/* Form theo Use Case Description */}
             <form onSubmit={handleSubmit} className="space-y-6 p-6">
+              {/* Tiêu đề tài liệu */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-900">
                   Tiêu đề tài liệu <span className="text-red-500">*</span>
@@ -190,8 +280,9 @@ export default function UploadMaterials() {
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                    errors.title ? "border-red-300 bg-red-50" : "border-gray-300"
+                  disabled={isSubmitting}
+                  className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 disabled:bg-gray-100 disabled:cursor-not-allowed ${
+                    errors.title ? "border-red-300 bg-red-50" : "border-gray-300 hover:border-gray-400"
                   }`}
                 />
                 <p className="mt-2 text-xs text-gray-500">
@@ -205,6 +296,7 @@ export default function UploadMaterials() {
                 )}
               </div>
 
+              {/* Danh mục */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-900">
                   Danh mục <span className="text-red-500">*</span>
@@ -214,10 +306,11 @@ export default function UploadMaterials() {
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className={`w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  disabled={isSubmitting}
+                  className={`w-full rounded-lg border bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 disabled:bg-gray-100 disabled:cursor-not-allowed ${
                     errors.category
                       ? "border-red-300 bg-red-50"
-                      : "border-gray-300"
+                      : "border-gray-300 hover:border-gray-400"
                   }`}
                 >
                   <option value="">-- Chọn danh mục --</option>
@@ -235,6 +328,7 @@ export default function UploadMaterials() {
                 )}
               </div>
 
+              {/* Mô tả - theo Use Case: description */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-900">
                   Mô tả <span className="text-red-500">*</span>
@@ -246,14 +340,15 @@ export default function UploadMaterials() {
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  className={`w-full resize-none rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  disabled={isSubmitting}
+                  className={`w-full resize-none rounded-lg border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 disabled:bg-gray-100 disabled:cursor-not-allowed ${
                     errors.description
                       ? "border-red-300 bg-red-50"
-                      : "border-gray-300"
+                      : "border-gray-300 hover:border-gray-400"
                   }`}
                 />
                 <p className="mt-2 text-xs text-gray-500">
-                  Mô tả càng chi tiết sẽ giúp sinh viên hiểu rõ hơn về tài liệu
+                  Mô tả càng chi tiết sẽ giúp sinh viên và admin hiểu rõ hơn về tài liệu
                 </p>
                 {errors.description && (
                   <p className="mt-2 flex items-center gap-1 text-xs text-red-500">
@@ -263,6 +358,7 @@ export default function UploadMaterials() {
                 )}
               </div>
 
+              {/* Link tài liệu - theo Use Case: link */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-900">
                   Link tài liệu <span className="text-red-500">*</span>
@@ -270,22 +366,22 @@ export default function UploadMaterials() {
                 <div className="relative">
                   <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <input
-                    type="text"
+                    type="url"
                     placeholder="https://drive.google.com/file/d/..."
                     value={formData.link}
                     onChange={(e) =>
                       setFormData({ ...formData, link: e.target.value })
                     }
-                    className={`w-full rounded-lg border px-4 py-2.5 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    disabled={isSubmitting}
+                    className={`w-full rounded-lg border px-4 py-2.5 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 disabled:bg-gray-100 disabled:cursor-not-allowed ${
                       errors.link
                         ? "border-red-300 bg-red-50"
-                        : "border-gray-300"
+                        : "border-gray-300 hover:border-gray-400"
                     }`}
                   />
                 </div>
                 <p className="mt-2 text-xs text-gray-500">
-                  Hỗ trợ link từ Google Drive, Dropbox, OneDrive, hoặc link trực
-                  tiếp đến file PDF
+                  Hỗ trợ link từ Google Drive, Dropbox, OneDrive, hoặc link trực tiếp đến file PDF
                 </p>
                 {errors.link && (
                   <p className="mt-2 flex items-center gap-1 text-xs text-red-500">
@@ -295,36 +391,46 @@ export default function UploadMaterials() {
                 )}
               </div>
 
+              {/* Lưu ý khi tải tài liệu */}
               <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
                 <div className="mb-2 flex items-start gap-2">
                   <FileText className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
                   <h4 className="text-sm font-semibold text-blue-900">
-                    Lưu ý khi tải tài liệu
+                    Quy trình duyệt tài liệu
                   </h4>
                 </div>
                 <ul className="list-disc space-y-1 pl-6 text-xs text-blue-800">
-                  <li>
-                    Tài liệu cần phải được admin duyệt trước khi cho sinh viên
-                    xem
-                  </li>
+                  <li>Tài liệu sẽ được lưu với trạng thái "chờ duyệt" sau khi gửi thành công</li>
+                  <li>Admin sẽ xem xét nội dung và đường link tài liệu</li>
+                  <li>Tài liệu được phê duyệt sẽ hiển thị cho sinh viên xem</li>
                   <li>Đảm bảo link tài liệu có thể truy cập công khai</li>
-                  <li>Nội dung tài liệu phải phù hợp với mục đích học tập</li>
-                  <li>Không vi phạm bản quyền hoặc chứa nội dung không phù hợp</li>
+                  <li>Nội dung phải phù hợp với mục đích học tập và không vi phạm bản quyền</li>
                 </ul>
               </div>
 
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+                  disabled={isSubmitting}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gray-900 px-6 py-3 text-sm font-medium text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
                 >
-                  <Save className="h-4 w-4" />
-                  Gửi duyệt
+                  {isSubmitting ? (
+                    <>
+                      <Clock className="h-4 w-4 animate-spin" />
+                      <span>Đang gửi...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4" />
+                      Gửi duyệt
+                    </>
+                  )}
                 </button>
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="flex items-center gap-2 rounded-lg border border-gray-300 px-8 py-3 text-sm font-medium transition-colors hover:bg-gray-50"
+                  disabled={isSubmitting}
+                  className="flex items-center gap-2 rounded-lg border border-gray-300 px-8 py-3 text-sm font-medium hover:bg-gray-50 hover:border-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-colors"
                 >
                   <X className="h-4 w-4" />
                   Xóa form
@@ -333,6 +439,7 @@ export default function UploadMaterials() {
             </form>
           </div>
 
+          {/* Tài liệu đã gửi gần đây */}
           <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
             <div className="border-b border-gray-200 px-6 py-4">
               <h2 className="text-base font-semibold text-gray-900">
