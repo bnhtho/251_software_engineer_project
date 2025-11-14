@@ -6,6 +6,9 @@ import {
   Link as LinkIcon,
   Check,
   X,
+  CheckCircle,
+  XCircle,
+  Clock,
 } from "lucide-react";
 
 interface PendingMaterial {
@@ -80,37 +83,184 @@ export default function ApproveMaterials() {
     },
   ]);
 
-  const handleApprove = (id: string) => {
-    console.log("Approved material:", id);
-    setMaterials(materials.filter((m) => m.id !== id));
+  // States cho modal và processing theo Activity Diagram
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState<'approve' | 'reject'>('approve');
+  const [selectedMaterial, setSelectedMaterial] = useState<PendingMaterial | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+
+  // Implement theo Use Case UC02: Admin kiểm tra và duyệt tài liệu
+  const handleApprove = async (material: PendingMaterial) => {
+    // Step 1: Admin chọn chức năng Duyệt tài liệu (đã có)
+    // Step 2: Xem thông tin tài liệu do gia sư gửi (đã có)
+    // Step 3: Chọn "Duyệt"
+    setSelectedMaterial(material);
+    setModalType('approve');
+    setShowModal(true);
   };
 
-  const handleReject = (id: string) => {
-    console.log("Rejected material:", id);
-    setMaterials(materials.filter((m) => m.id !== id));
+  const handleReject = async (material: PendingMaterial) => {
+    // Step 3: Chọn "Từ chối"
+    setSelectedMaterial(material);
+    setModalType('reject');
+    setShowModal(true);
   };
 
+  // Implement theo Sequence Diagram: processReview(documentID, decision)
+  const confirmAction = async () => {
+    if (!selectedMaterial) return;
+
+    setIsProcessing(true);
+    setShowModal(false);
+
+    try {
+      // Step 4: Hệ thống cập nhật trạng thái tài liệu theo Activity Diagram
+      console.log(`Processing ${modalType} for material:`, selectedMaterial.id);
+      
+      // Simulate API call - processReview(documentID, decision)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      if (modalType === 'approve') {
+        // Step 5: Hệ thống gửi thông báo "Đã duyệt" cho Gia sư
+        // updateStatus(documentID, status) -> success
+        setNotificationMessage(`Tài liệu "${selectedMaterial.title}" đã được duyệt thành công!`);
+      } else {
+        // Step 5: Hệ thống gửi thông báo "Từ chối" (kèm lý do) cho Gia sư
+        setNotificationMessage(`Tài liệu "${selectedMaterial.title}" đã bị từ chối!`);
+      }
+
+      // Step 6: Hệ thống hiển thị thông báo xử lý thành công cho Admin
+      setShowNotification(true);
+      
+      // Remove material from list - Step 6: Tài liệu được công khai cho sinh viên có thể truy cập
+      setMaterials(materials.filter(m => m.id !== selectedMaterial.id));
+
+      // Auto hide notification after 3 seconds
+      setTimeout(() => {
+        setShowNotification(false);
+      }, 3000);
+
+    } catch (error) {
+      // Exception Flow: Lỗi DB khi cập nhật trạng thái
+      console.error("Processing failed:", error);
+      setNotificationMessage('Có lỗi xảy ra khi xử lý tài liệu!');
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000);
+    } finally {
+      setIsProcessing(false);
+      setSelectedMaterial(null);
+    }
+  };
+
+  const cancelAction = () => {
+    setShowModal(false);
+    setSelectedMaterial(null);
+  };
+
+  // Stats
   const pendingCount = materials.length;
   const approvedToday = 12;
   const rejectedCount = 3;
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Success/Error Notification - theo Step 6 */}
+      {showNotification && (
+        <div className="fixed top-4 right-4 z-50 max-w-md rounded-lg bg-white p-4 shadow-lg border border-gray-200">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+            <p className="text-sm text-gray-900">{notificationMessage}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Processing Modal - theo Activity Diagram */}
+      {isProcessing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="relative mx-4 w-full max-w-md transform rounded-lg bg-white p-6 shadow-xl">
+            <div className="text-center">
+              <Clock className="mx-auto mb-4 h-12 w-12 text-blue-600 animate-spin" />
+              <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                Đang xử lý...
+              </h3>
+              <p className="text-sm text-gray-600">
+                Vui lòng chờ trong giây lát
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal - theo Use Case Main Flow */}
+      {showModal && selectedMaterial && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="relative mx-4 w-full max-w-md transform rounded-lg bg-white p-6 shadow-xl">
+            <div className="text-center">
+              <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${
+                modalType === 'approve' ? 'bg-green-100' : 'bg-red-100'
+              }`}>
+                {modalType === 'approve' ? (
+                  <CheckCircle className="h-6 w-6 text-green-600" />
+                ) : (
+                  <XCircle className="h-6 w-6 text-red-600" />
+                )}
+              </div>
+              
+              <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                {modalType === 'approve' ? 'Xác nhận duyệt tài liệu' : 'Xác nhận từ chối tài liệu'}
+              </h3>
+              
+              <p className="mb-4 text-sm text-gray-600">
+                Bạn có chắc chắn muốn {modalType === 'approve' ? 'duyệt' : 'từ chối'} tài liệu:
+              </p>
+              
+              <div className="mb-6 rounded-lg bg-gray-50 p-3 text-left">
+                <p className="font-medium text-gray-900">{selectedMaterial.title}</p>
+                <p className="text-sm text-gray-500">Tác giả: {selectedMaterial.author}</p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelAction}
+                  className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={confirmAction}
+                  className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    modalType === 'approve'
+                      ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+                      : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                  }`}
+                >
+                  {modalType === 'approve' ? 'Xác nhận duyệt' : 'Xác nhận từ chối'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-6 bg-teal-600 px-6 py-3 text-white">
         <p className="text-sm font-medium">Chế độ: Admin</p>
       </div>
 
       <div className="px-6">
         <div className="mx-auto max-w-7xl">
+          {/* Page Title - theo Use Case: Admin chọn chức năng Duyệt tài liệu */}
           <div className="mb-6">
             <h1 className="mb-1 text-2xl font-bold text-gray-900">
               Duyệt tài liệu
             </h1>
             <p className="text-sm text-gray-600">
-              Xem xét và phê duyệt các tài liệu do gia sư gửi lên
+              Xem xét và phê duyệt các tài liệu do gia sư gửi lên hệ thống
             </p>
           </div>
 
+          {/* Stats Cards */}
           <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="rounded-lg border border-gray-200 bg-white p-4">
               <div className="flex items-center justify-between">
@@ -155,6 +305,7 @@ export default function ApproveMaterials() {
             </div>
           </div>
 
+          {/* Materials Table - Step 2: Xem thông tin tài liệu do gia sư gửi */}
           <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
             <div className="border-b border-gray-200 bg-gray-50 px-6 py-3">
               <div className="grid grid-cols-12 gap-4 text-xs font-semibold uppercase text-gray-700">
@@ -220,17 +371,20 @@ export default function ApproveMaterials() {
                       </a>
                     </div>
 
+                    {/* Action buttons - Step 3: Chọn "Duyệt" hoặc "Từ chối" */}
                     <div className="col-span-2 flex items-center justify-center gap-2">
                       <button
-                        onClick={() => handleApprove(material.id)}
-                        className="flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-700"
+                        onClick={() => handleApprove(material)}
+                        disabled={isProcessing}
+                        className="flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
                         <Check className="h-3 w-3" />
                         Duyệt
                       </button>
                       <button
-                        onClick={() => handleReject(material.id)}
-                        className="flex items-center gap-1 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700"
+                        onClick={() => handleReject(material)}
+                        disabled={isProcessing}
+                        className="flex items-center gap-1 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
                         <X className="h-3 w-3" />
                         Từ chối
@@ -242,6 +396,7 @@ export default function ApproveMaterials() {
             </div>
           </div>
 
+          {/* Guidelines - giữ nguyên nội dung cũ */}
           <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50 p-4">
             <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-blue-900">
               <FileText className="h-4 w-4" />
@@ -257,7 +412,7 @@ export default function ApproveMaterials() {
                 phù hợp
               </li>
               <li>
-                Nếu có chốc, cảnh giải rõ lý do để gia sư hiểu và chỉnh sửa
+                Nếu có vấn đề, giải thích rõ lý do để gia sư hiểu và chỉnh sửa
               </li>
             </ul>
           </div>
