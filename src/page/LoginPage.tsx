@@ -2,54 +2,65 @@ import React, { useState } from "react";
 import hcmutLogo from '/src/assets/logo.svg';
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../Context/UserContext";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 export const LoginPage = () => {
-    // selectedRole state
   const [selectedRole, setSelectedRole] = useState("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  // const login
+
   const { login } = useUser();
   const navigate = useNavigate();
-  const location = useLocation();
-  const roles = [
-    { id: "student", label: "Sinh viên", value: "student" },
-    { id: "tutor", label: "Gia sư", value: "tutor" },
-  ];
 
-const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ selectedRole, email, password, rememberMe });
-    // Tài khoản user (student/tutor)
-    if (email === "test@hcmut.edu.vn" && password === "123456") {
-      console.log("Login success!");
-      // NOTE:[Logic] Khi sử lý với backend, lấy user data từ backend trả về login({...})
-      login({
-        id: 123, // trả về ID
-        name: "Hoàng Thọ", // trả về name
-        role: selectedRole, // sử dụng role được chọn
+    axios
+      .post('http://localhost:8081/auth/login', {
+        email,
+        password,
+      })
+      .then((response) => {
+        // Save token vào context
+        console.log(response.data);
+        const token = response.data.data;
+        localStorage.setItem('token', response.data.data);
+        const tokenDecode = jwtDecode<any>(token);
+        // decode ra role
+        // Decode token để lấy thông tin user
+        const userData = {
+          // userData = id
+            id: tokenDecode.sub,
+            name: tokenDecode.name || "",
+            role: tokenDecode.role,
+            token: token,
+          };
+          // Hàm login: để lưu sessionStorage
+          login(userData);
+
+        const redirectPath = userData.role === "student"
+          ? "/dashboard" // dashboard
+          : "/tutor/dashboard";
+        navigate(redirectPath);
+      })
+      .catch((error) => {
+        console.error("Login failed:", error);
+        alert("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
       });
-      // Redirect về trang đã cố gắng truy cập hoặc dashboard
-      const from = location.state?.from?.pathname || '/dashboard';
-      navigate(from, { replace: true });
-    }
   };
+
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50 px-4">
       <div className="flex flex-col items-center w-full max-w-md bg-gray-50">
         {/* Header */}
         <header className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-2">
-            <img
-              className="w-12 h-12"
-              alt="HCMUT Logo"
-              src={hcmutLogo}
-            />
+            <img className="w-12 h-12" alt="HCMUT Logo" src={hcmutLogo} />
             <div>
               <h1 className="text-2xl font-normal text-[#101727]">HCMUT</h1>
               <p className="text-sm text-[#697282] leading-5">
-              Hệ thống gia sư
+                Hệ thống gia sư
               </p>
             </div>
           </div>
@@ -64,33 +75,9 @@ const handleSubmit = (e: React.FormEvent) => {
         {/* Card */}
         <main className="bg-white rounded-xl shadow-md p-8 w-full">
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            {/* Role selection */}
-            <fieldset className="flex flex-col gap-2">
-              <legend className="text-sm text-neutral-950">Vai trò</legend>
-              <div className="flex gap-2">
-                {roles.map((role) => (
-                  <button
-                    key={role.id}
-                    type="button"
-                    onClick={() => setSelectedRole(role.value)}
-                    className={`w-1/2 py-2 rounded-lg border text-sm transition-colors ${
-                      selectedRole === role.value
-                        ? "bg-[#0b7a9f] text-white"
-                        : "bg-white text-[#354152] border-[#d0d5db] hover:bg-gray-100"
-                    }`}
-                  >
-                    {role.label}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-
             {/* Email */}
             <div className="flex flex-col gap-2">
-              <label
-                htmlFor="email"
-                className="text-sm text-neutral-950 font-normal"
-              >
+              <label htmlFor="email" className="text-sm text-neutral-950 font-normal">
                 Email
               </label>
               <div className="relative">
@@ -113,10 +100,7 @@ const handleSubmit = (e: React.FormEvent) => {
 
             {/* Password */}
             <div className="flex flex-col gap-2">
-              <label
-                htmlFor="password"
-                className="text-sm text-neutral-950 font-normal"
-              >
+              <label htmlFor="password" className="text-sm text-neutral-950 font-normal">
                 Mật khẩu
               </label>
               <div className="relative">
@@ -148,10 +132,7 @@ const handleSubmit = (e: React.FormEvent) => {
                 />
                 <span className="text-[#354152]">Ghi nhớ đăng nhập</span>
               </label>
-              <a
-                href="#forgot-password"
-                className="text-[#0b7a9f] hover:underline"
-              >
+              <a href="#forgot-password" className="text-[#0b7a9f] hover:underline">
                 Quên mật khẩu?
               </a>
             </div>
@@ -182,7 +163,6 @@ const handleSubmit = (e: React.FormEvent) => {
           </div>
         </main>
 
-        {/* Page footer */}
         <footer className="mt-6 text-xs text-[#697282] text-center">
           © 2025 HCMUT - Đại học Bách Khoa TP.HCM
         </footer>

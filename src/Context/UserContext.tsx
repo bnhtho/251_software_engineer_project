@@ -4,13 +4,13 @@ interface User {
   id: number;
   name: string;
   role: string;
+  token: string;
 }
 
 interface UserContextType {
   user: User | null;
   login: (userData: User) => void;
   logout: () => void;
-  // THÊM: Trạng thái loading
   isLoading: boolean; 
 }
 
@@ -21,19 +21,24 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   // THÊM: State isLoading, ban đầu là true
   const [isLoading, setIsLoading] = useState(true); 
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+useEffect(() => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser && storedUser !== "undefined") {
+    try {
       setUser(JSON.parse(storedUser));
+    } catch (err) {
+      console.error("Invalid JSON in localStorage:", err);
+      localStorage.removeItem("user");
     }
-    // ĐẶT isLoading thành false sau khi kiểm tra localStorage
-    setIsLoading(false); 
-  }, []); // Chỉ chạy một lần khi component mount
+  }
 
+  setIsLoading(false);
+}, []);
   const login = (userData: User) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
-  }
+    localStorage.setItem("id", JSON.stringify(userData.id));
+    localStorage.setItem("role", JSON.stringify(userData.role));
+  };
   
   const logout = () => 
     {
