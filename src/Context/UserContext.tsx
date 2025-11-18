@@ -12,8 +12,12 @@ interface User {
   role: string;
   firstName?: string;
   lastName?: string;
-  exp: number;
-  iat: number;
+    hcmutId: string;        // MSSV
+    dob: string;            // Ngày sinh
+    email: string;
+    phone: string;          // Số điện thoại
+    bio: string;
+
 }
 
 interface UserContextType {
@@ -21,6 +25,7 @@ interface UserContextType {
   isLoading: boolean;
   setToken: (token: string) => void;
   logout: () => void;
+  setUserDirectly: (user: User) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -61,20 +66,24 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     await loadUserFromToken(token);
   };
 
-  const loadUserFromToken = async (token: string) => {
+const loadUserFromToken = async (token: string) => {
   console.log("Loading user from token...");
+  console.log("Token:", token);
   try {
     const decoded = decodeToken(token);
-
     const profile = await fetchProfile(Number(decoded.sub), token);
     setUser({ ...decoded, ...profile });
-    console.log("User set successfully");
   } catch (err) {
     setUser(null);
     localStorage.removeItem("authToken");
   } finally {
     setIsLoading(false);
   }
+};
+
+const setUserDirectly = (fetchedUser: User) => {
+  setUser(fetchedUser);
+  setIsLoading(false);
 };
   
 
@@ -92,17 +101,18 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user, isLoading, setToken, logout }}>
+    <UserContext.Provider value={{ user, isLoading, setToken, logout, setUserDirectly }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-// Hook
 export const useUser = () => {
   const ctx = useContext(UserContext);
   if (!ctx) throw new Error("useUser must be used within a UserProvider");
   return ctx;
 };
 
+// USe fetchProfile elsewhere
+export { fetchProfile };
 export default UserProvider;

@@ -3,7 +3,6 @@ import hcmutLogo from '/src/assets/logo.svg';
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../Context/UserContext";
 import axios from "axios";
-import {jwtDecode} from "jwt-decode";
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
