@@ -8,16 +8,17 @@ import React, {
 import { jwtDecode } from "jwt-decode";
 
 interface User {
+  // User info taken from JWT and profile API
   id: number;
   role: string;
   firstName?: string;
   lastName?: string;
     hcmutId: string;        // MSSV
     dob: string;            // Ngày sinh
-    email: string;
+    otherMethodContact: string; //phương 
     phone: string;          // Số điện thoại
     bio: string;
-
+    majorName :string; // ngành học
 }
 
 interface UserContextType {
@@ -69,9 +70,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 const loadUserFromToken = async (token: string) => {
   console.log("Loading user from token...");
   console.log("Token:", token);
+  // console
+  
   try {
     const decoded = decodeToken(token);
     const profile = await fetchProfile(Number(decoded.sub), token);
+    console.log("profile", profile);
     setUser({ ...decoded, ...profile });
   } catch (err) {
     setUser(null);

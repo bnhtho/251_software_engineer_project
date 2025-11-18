@@ -3,9 +3,15 @@ import { useUser } from "../Context/UserContext";
 // use Hook
 
 const InfoForm = () => {
+
   // useUser nơi chứa thông tin của user như id, name
   const { user, isLoading } = useUser();
-
+  // FORMAT DATE
+  const formatDate = (dateStr: string): string => {
+    const [year, month, day] = dateStr.split('-');
+    let newDate = `${day}-${month}-${year}`;
+    return newDate;
+  };
   // Check nếu nó isLoading thì return loading
   if (isLoading) {
     return <div>Đang tải thông tin...</div>;
@@ -19,7 +25,7 @@ const InfoForm = () => {
     lastName: user.lastName || "",
     dob: user.dob || "",
     hcmutId: user.hcmutId || "",
-    email: user.email || "Chưa có email",
+    other_method_contact: user.otherMethodContact|| "Chưa có cập nhật",
     phoneNumber: user.phone || "",
     bio: user.bio || "",
   });
@@ -58,7 +64,9 @@ const InfoForm = () => {
                         <div>
                             <label className="block text-sm text-gray-600 mb-2">Ngày sinh</label>
                             <div className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900">
-                                {formValue.dob}
+                                {/* {formValue.dob}  */}
+                                {formatDate(formValue.dob)}
+                                {/* Function */}
                             </div>
                         </div>
                     </div>
@@ -68,7 +76,7 @@ const InfoForm = () => {
                         <div>
                             <label className="block text-sm text-gray-600 mb-2">Email</label>
                             <div className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900">
-                                {formValue.email}
+                                {formValue.other_method_contact}
                             </div>
                         </div>
                         <div>

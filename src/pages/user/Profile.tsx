@@ -4,7 +4,7 @@ import InfoForm from "../../Components/InfoForm";
 import { useUser } from "../../Context/UserContext";
 // import { fetchProfile } from "../../Context/UserContext";
 import { useEffect, useState } from "react";
-
+import ProfileCard from "../../Components/ProfileCard";
 const ProfilePage = () => {
 
 
@@ -52,9 +52,10 @@ const ProfilePage = () => {
 
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-4">
-            {/* <ProfileCard name={user?.name ?? ""} mssv="2012345" /> */}
+            <ProfileCard/>
           </div>
           <div className="col-span-12 lg:col-span-8">
+            {/* NOTE: [x] Đã fetch xong Data từ API */}
             <InfoForm />
           </div>
         </div>
@@ -63,6 +64,7 @@ const ProfilePage = () => {
           <div className="col-span-12">
             <div className="rounded-lg border border-gray-200 bg-white p-6">
               <h2 className="mb-6 text-lg font-bold text-gray-900">
+                {/* Component: Lịch sử học tập */}
                 Lịch sử học tập
               </h2>
               <div className="overflow-x-auto">
