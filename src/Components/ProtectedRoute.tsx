@@ -1,6 +1,6 @@
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import React, { useEffect } from "react";
-import { useUser } from "../Context/UserContext"; // Đảm bảo đường dẫn đúng
+import { Navigate } from "react-router-dom";
+import React from "react";
+import { useUser } from "../Context/UserContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -8,45 +8,22 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
-  const { user, isLoading } = useUser(); 
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { user, isLoading } = useUser();
 
-  // 🚀 LOGIC REDIRECT: CHUYỂN HOOK LÊN TRÊN CÁC CÂU LỆNH RETURN ĐIỀU KIỆN
-  // Hook này phải luôn được gọi trong mọi render
-  useEffect(() => {
-    const lastPath = localStorage.getItem("lastPath");
-    
-    // Nếu có path cũ VÀ người dùng đang cố truy cập Route cha (/dashboard)
-    if (lastPath && location.pathname === "/dashboard") {
-      // Tránh redirect nếu lastPath cũng là /dashboard
-      if (lastPath !== "/dashboard") { 
-          navigate(lastPath, { replace: true });
-      }
-    }
-  }, [user, location.pathname, navigate]); 
-  // Dependency [user] giúp trigger lại khi trạng thái login thay đổi
-  // 1. Nếu ĐANG TẢI, HIỂN THỊ MÀN HÌNH CHỜ
-  if (isLoading) {
-    return <div></div>; 
-  }
+  // 1️⃣ Nếu đang load user
+  if (isLoading) return <div className="text-center py-10">Loading...</div>;
 
-  // 2. Nếu đã tải xong nhưng KHÔNG CÓ USER, redirect về login
+  // 2️⃣ Nếu chưa login
   if (!user) {
-    // Nếu đang cố truy cập /admin, redirect về /admin/login
-    if (location.pathname.startsWith("/admin")) {
-      return <Navigate to="/admin/login" state={{ from: location }} replace />;
-    }
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" replace />;
   }
 
-  // 3. Kiểm tra quyền Admin (nếu cần)
+  // 3️⃣ Nếu route admin mà user không phải admin
   if (requireAdmin && user.role !== "admin") {
-    // User không có quyền admin, redirect về dashboard
     return <Navigate to="/dashboard" replace />; 
   }
 
-  // 4. Cho phép truy cập
+  // 4️⃣ Cho phép truy cập
   return <>{children}</>;
 };
 

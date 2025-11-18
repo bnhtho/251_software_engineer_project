@@ -6,10 +6,8 @@ import Avatar from "./Avatar";
 export default function Header() {
   const { user } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const isAdmin = user?.role === "admin";
   const isLoggedIn = !!user;
-
   // Function to close the menu
   const closeMobileMenu = () => {
       setMobileMenuOpen(false);
@@ -73,21 +71,16 @@ export default function Header() {
                 </a>
               ))}
             </div>
-
+             
             {/* User Profile */}
-            <div className="flex items-center gap-4">
-              {isLoggedIn && (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-gray-700">
-                    {user.name}
-                  </span>
-                  <Avatar 
-                      name={user?.name ?? ""} 
-                      className="h-8 w-8 rounded-full" 
-                  />
-                </div>
-              )}
-            </div>
+            {isLoggedIn && (
+                  <div className="flex items-center gap-3">
+                    <Avatar name={`${user.firstName} ${user.lastName}`} />
+                    <span className="text-sm font-medium text-gray-700">
+                      {user.firstName} {user.lastName}
+                    </span>
+                  </div>
+                )}
           </div>
           
           {/* Mobile menu button (Right Side on Mobile) */}
@@ -150,10 +143,10 @@ export default function Header() {
                 <div className="rounded-md px-3 py-2 text-base font-medium text-gray-700 bg-gray-50">
                     <div className="flex items-center gap-3">
                         <Avatar 
-                            name={user?.name ?? ""} 
+                            name={user?.firstName ?? ""} 
                             className="h-8 w-8 rounded-full" 
                         />
-                        <span>{user.name}</span>
+                        <span>{user.lastName}</span>
                     </div>
                 </div>
             )}

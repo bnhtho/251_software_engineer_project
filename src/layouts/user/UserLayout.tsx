@@ -4,13 +4,6 @@ import Navbar from "../../Components/Navbar";
 import Sidebar from "../../Components/Sidebar";
 
 const UserLayout = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.pathname.startsWith("/dashboard")) {
-      localStorage.setItem("lastPath", location.pathname);
-    }
-  }, [location]);
 
   return (
     <div className="min-h-screen bg-gray-50">

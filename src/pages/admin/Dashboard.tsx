@@ -27,23 +27,9 @@ const reviewsData = [
 ];
 
 async function majors() {
-  const res = await fetch("http://localhost:8081/majors", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`
-    }
-  });
-
-  if (!res.ok) {
-    throw new Error("Request failed");
-  }
-
-  const data = await res.json();
-  return data;
+  
+  console.log("Tính năng majors đang được phát triển...");
 }
-
-
 const announcements = [
   { title: "Lịch học tuần này", content: "Cập nhật lịch học mới nhất." },
   { title: "Thông báo nghỉ lễ", content: "Trường nghỉ từ 10/11 đến 12/11." },

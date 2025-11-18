@@ -1,55 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import hcmutLogo from '/src/assets/logo.svg';
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../Context/UserContext";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 
 export const LoginPage = () => {
-  const [selectedRole, setSelectedRole] = useState("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-
-  const { login } = useUser();
+  const { setToken } = useUser();
+  const { user } = useUser();
   const navigate = useNavigate();
-
+  useEffect(() => {
+  if (user) {
+    const redirectPath = user.role === "student" ? "/dashboard" : "/tutor/dashboard";
+    navigate(redirectPath, { replace: true });
+  }
+}, [user, navigate]);
   const handleSubmit = (e: React.FormEvent) => {
+  
     e.preventDefault();
+    // SECTION: Gửi yêu cầu đăng nhập đến backend
     axios
-      .post('http://localhost:8081/auth/login', {
-        email,
-        password,
-      })
-      .then((response) => {
-        // Save token vào context
-        console.log(response.data);
-        const token = response.data.data;
-        localStorage.setItem('token', response.data.data);
-        const tokenDecode = jwtDecode<any>(token);
-        // decode ra role
-        // Decode token để lấy thông tin user
-        const userData = {
-          // userData = id
-            id: tokenDecode.sub,
-            name: tokenDecode.name || "",
-            role: tokenDecode.role,
-            token: token,
-          };
-          // Hàm login: để lưu sessionStorage
-          login(userData);
-
-        const redirectPath = userData.role === "student"
-          ? "/dashboard" // dashboard
-          : "/tutor/dashboard";
-        navigate(redirectPath);
-      })
-      .catch((error) => {
-        console.error("Login failed:", error);
-        alert("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
-      });
+  .post("http://localhost:8081/auth/login", { email, password })
+  .then(async (response) => {
+    const token = response.data.data;
+    // Lưu token vào UserProvider, setUser async
+    await setToken(token);
+  })
+  .catch((error) => {
+    console.error("Login failed:", error);
+  });
+    
   };
-
+  
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50 px-4">
       <div className="flex flex-col items-center w-full max-w-md bg-gray-50">

@@ -1,62 +1,108 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  type ReactNode,
+} from "react";
+import { jwtDecode } from "jwt-decode";
 
 interface User {
   id: number;
-  name: string;
   role: string;
-  token: string;
+  firstName?: string;
+  lastName?: string;
+  exp: number;
+  iat: number;
 }
 
 interface UserContextType {
   user: User | null;
-  login: (userData: User) => void;
+  isLoading: boolean;
+  setToken: (token: string) => void;
   logout: () => void;
-  isLoading: boolean; 
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+// --------------------------------------------------------------
+// Helpers
+// --------------------------------------------------------------
+
+const getToken = () => localStorage.getItem("authToken");
+
+const decodeToken = (token: string) => {
+  const decoded: any = jwtDecode(token);
+  if (decoded.exp * 1000 < Date.now()) throw new Error("Token expired");
+  return decoded;
+};
+
+const fetchProfile = async (id: number, token: string) => {
+  const res = await fetch(`http://localhost:8081/students/profile/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch profile");
+
+  const json = await res.json();
+  return json.data ?? json; // phòng trường hợp API bọc { data: {...} }
+};
+
+// --------------------------------------------------------------
+// Provider
+// --------------------------------------------------------------
+
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  // THÊM: State isLoading, ban đầu là true
-  const [isLoading, setIsLoading] = useState(true); 
-
-useEffect(() => {
-  const storedUser = localStorage.getItem("user");
-  if (storedUser && storedUser !== "undefined") {
-    try {
-      setUser(JSON.parse(storedUser));
-    } catch (err) {
-      console.error("Invalid JSON in localStorage:", err);
-      localStorage.removeItem("user");
-    }
-  }
-
-  setIsLoading(false);
-}, []);
-  const login = (userData: User) => {
-    setUser(userData);
-    localStorage.setItem("id", JSON.stringify(userData.id));
-    localStorage.setItem("role", JSON.stringify(userData.role));
+  const [isLoading, setIsLoading] = useState(true);
+  // Allow loginPage to set token
+  const setToken = async (token: string) => {
+    localStorage.setItem("authToken", token);
+    await loadUserFromToken(token);
   };
+
+  const loadUserFromToken = async (token: string) => {
+  console.log("Loading user from token...");
+  try {
+    const decoded = decodeToken(token);
+
+    const profile = await fetchProfile(Number(decoded.sub), token);
+    setUser({ ...decoded, ...profile });
+    console.log("User set successfully");
+  } catch (err) {
+    setUser(null);
+    localStorage.removeItem("authToken");
+  } finally {
+    setIsLoading(false);
+  }
+};
   
-  const logout = () => 
-    {
-          localStorage.removeItem("user");
-          localStorage.removeItem("lastPath");
-          setUser(null);
-    };
+
+  // Load user on refresh
+  useEffect(() => {
+    const token = getToken();
+    if (token) loadUserFromToken(token);
+    else setIsLoading(false);
+  }, []);
+
+  // Logout
+  const logout = () => {
+    localStorage.removeItem("authToken");
+    setUser(null);
+  };
 
   return (
-    <UserContext.Provider value={{ user, login, logout, isLoading }}> 
+    <UserContext.Provider value={{ user, isLoading, setToken, logout }}>
       {children}
     </UserContext.Provider>
   );
 };
 
+// Hook
 export const useUser = () => {
-  const context = useContext(UserContext);
-  if (!context)
-    throw new Error("useUser must be used within a UserProvider");
-  return context;
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error("useUser must be used within a UserProvider");
+  return ctx;
 };
+
+export default UserProvider;

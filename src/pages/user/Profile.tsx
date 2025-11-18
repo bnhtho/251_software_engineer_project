@@ -2,10 +2,11 @@ import ProfileCard from "../../Components/ProfileCard";
 import LearningHistoryItem from "../../Components/LearningHistoryItem";
 import InfoForm from "../../Components/InfoForm";
 import { useUser } from "../../Context/UserContext";
+import { use } from "react";
 
 const ProfilePage = () => {
   const { user } = useUser();
-
+  // console.log(user);
   const learningHistory = [
     {
       courseName: "Toán Cao Cấp 1",
@@ -50,7 +51,7 @@ const ProfilePage = () => {
 
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-4">
-            <ProfileCard name={user?.name ?? ""} mssv="2012345" />
+            {/* <ProfileCard name={user?.name ?? ""} mssv="2012345" /> */}
           </div>
           <div className="col-span-12 lg:col-span-8">
             <InfoForm />
