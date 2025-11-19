@@ -9,17 +9,16 @@ const InfoForm = () => {
   // FORMAT DATE
   const formatDate = (dateStr: string): string => {
     const [year, month, day] = dateStr.split('-');
-    let newDate = `${day}-${month}-${year}`;
+    let newDate = `${day}/${month}/${year}`;
     return newDate;
   };
-  // Check nếu nó isLoading thì return loading
+  // Check  isLoading thì return loading
   if (isLoading) {
     return <div>Đang tải thông tin...</div>;
   }
   if (!user) {
     return <div>Lỗi: Không tìm thấy người dùng.</div>;
   }
-  // [3] Set state
   const [formValue, setFormValue] = useState({
     firstName: user.firstName || "",
     lastName: user.lastName || "",
@@ -29,7 +28,6 @@ const InfoForm = () => {
     phoneNumber: user.phone || "",
     bio: user.bio || "",
   });
-  // [4]Render it
   return (
     <div>
       <>

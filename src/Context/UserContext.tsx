@@ -39,6 +39,7 @@ const getToken = () => localStorage.getItem("authToken");
 
 const decodeToken = (token: string) => {
   const decoded: any = jwtDecode(token);
+  console.log("Decoded token:", decoded);
   if (decoded.exp * 1000 < Date.now()) throw new Error("Token expired");
   return decoded;
 };
@@ -66,12 +67,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem("authToken", token);
     await loadUserFromToken(token);
   };
-
+// Load dữ liệu user từ token
 const loadUserFromToken = async (token: string) => {
-  console.log("Loading user from token...");
-  console.log("Token:", token);
-  // console
-  
   try {
     const decoded = decodeToken(token);
     const profile = await fetchProfile(Number(decoded.sub), token);
@@ -117,6 +114,4 @@ export const useUser = () => {
   return ctx;
 };
 
-// USe fetchProfile elsewhere
-export { fetchProfile };
 export default UserProvider;
