@@ -13,10 +13,27 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   useEffect(() => {
   if (user) {
-    const redirectPath = user.role === "student" ? "/dashboard" : "/tutor/dashboard";
-    navigate(redirectPath, { replace: true });
+    let redirectPath;
+
+    // Xác định đường dẫn dựa trên vai trò (role)
+    if (user.role === "student") {
+      redirectPath = "/dashboard";
+    } else if (user.role === "tutor") {
+      redirectPath = "/tutor/dashboard";
+    } else if (user.role === "admin") {
+      // Thêm điều kiện cho vai trò admin
+      redirectPath = "/admin"; 
+    } else {
+      // Xử lý trường hợp vai trò không xác định (tùy chọn)
+      redirectPath = "/home"; 
+    }
+
+    // Thực hiện điều hướng
+    if (redirectPath) {
+      navigate(redirectPath, { replace: true });
+    }
   }
-}, [user, navigate]);
+}, [user, navigate]); // Đảm bảo thêm navigate và user vào dependency array
   const handleSubmit = (e: React.FormEvent) => {
   
     e.preventDefault();
