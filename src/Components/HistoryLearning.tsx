@@ -82,7 +82,7 @@ const getStatusInfo = (status: string) => {
     default:
       return {
         label: 'Không xác định',
-        classes: 'bg-gray-100 text-gray-800 font-medium',
+        classes: 'bg-gray-100 text-gray-801 font-medium',
       };
   }
 };
@@ -104,23 +104,23 @@ const getStatusInfo = (status: string) => {
             <thead className="bg-gray-100 sticky top-0">
                 <tr>
                     <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        <BookOpen className="h-4 w-4 inline-block mr-1 text-gray-400" />
+                        <BookOpen className="h-4 w-4 inline-block mr-1 text-[#0E7AA0]" />
                         Môn đã học
                     </th>
                     <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        <User className="h-4 w-4 inline-block mr-1 text-gray-400" />
+                        <User className="h-4 w-4 inline-block mr-1 text-[#0E7AA0]" />
                         Người dạy
                     </th>
                     <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                         <Clock className="h-4 w-4 inline-block mr-1 text-gray-400" />
+                         <Clock className="h-4 w-4 inline-block mr-1 text-[#0E7AA0]" />
                         Ngày học
                     </th>
                     <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                         <Clock className="h-4 w-4 inline-block mr-1 text-gray-400" />
+                         <Clock className="h-4 w-4 inline-block mr-1 text-[#0E7AA0]" />
                         Thời Lượng
                     </th>
                     <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        <MapPin className="h-4 w-4 inline-block mr-1 text-gray-400" />
+                        <MapPin className="h-4 w-4 inline-block mr-1 text-[#0E7AA0]" />
                         Địa Điểm
                     </th>
                

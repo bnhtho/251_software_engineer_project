@@ -3,7 +3,7 @@ import { useUser } from "../Context/UserContext";
 import { useState, useEffect, useRef } from "react";
 import { ChevronRight, Home, Users, BookOpen, FileText, Settings, Bell, User, Menu, LogOut, UserCircle, ChevronDown, Calendar, MessageSquare } from "lucide-react";
 import React from "react"; 
-
+import Avatar from "./Avatar";
 
 type NavItemType = {
     label: string;
@@ -19,7 +19,8 @@ type NavItemDividerType = {
 
 export default function Sidebar() {
     const { user, logout } = useUser();
-    
+      const name = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
+
     // Hàm lấy label cho tài liệu dựa trên role
     const getMaterialsLabel = () => {
         if (user?.role === 'tutor') return 'Tải tài liệu';
@@ -33,10 +34,10 @@ export default function Sidebar() {
         { icon: Calendar, label: "Khóa học", path: "courses" },
         { icon: Users, label: "Danh sách Gia sư", path: "tutors" },
         { icon: FileText, label: getMaterialsLabel(), path: "materials" },
-        { icon: MessageSquare , label: "Phản hồi", path: "feedback" },
-        { icon: Menu, label: "Báo cáo", path: "reports" },
+        // NOTE:  Khi nào có chức năng phản hồi và báo cáo thì mở lại
+        // { icon: MessageSquare , label: "Phản hồi", path: "feedback" },
+        // { icon: Menu, label: "Báo cáo", path: "reports" },
         { divider: true }, 
-        { icon: Settings, label: "Cài đặt", path: "settings" },
     ];
 
     const bottomItems: NavItemType[] = [
@@ -142,11 +143,10 @@ export default function Sidebar() {
                             {/* User Info */}
                             <div className="px-4 py-3 border-b border-gray-100">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                                        {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-                                    </div>
+                                    
+                                    <Avatar name={`${user?.firstName} ${user?.lastName}`} />
                                     <div>
-                                        <p className="text-sm font-medium text-gray-900">{user?.name || 'User'}</p>
+                                        <p className="text-sm font-medium text-gray-900">{name || ''}</p>
                                         <p className="text-xs text-gray-500 capitalize">{user?.role || 'student'}</p>
                                     </div>
                                 </div>

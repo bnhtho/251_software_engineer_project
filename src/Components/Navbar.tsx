@@ -13,10 +13,8 @@ export default function Header() {
       setMobileMenuOpen(false);
   };
 
-  // Define navigation items based on the old nav's links
   const navItems = [
-    { name: "Khóa học", href: "#", requiresAdmin: false },
-    { name: "Đăng ký Gia sư", href: "#", requiresAdmin: false }
+    { name: "Danh sách khóa học", href: "#", requiresAdmin: false },
   ];
 
   return (
@@ -71,16 +69,7 @@ export default function Header() {
                 </a>
               ))}
             </div>
-             
-            {/* User Profile */}
-            {isLoggedIn && (
-                  <div className="flex items-center gap-3">
-                    <Avatar name={`${user.firstName} ${user.lastName}`} />
-                    <span className="text-sm font-medium text-gray-700">
-                      {user.firstName} {user.lastName}
-                    </span>
-                  </div>
-                )}
+            
           </div>
           
           {/* Mobile menu button (Right Side on Mobile) */}
