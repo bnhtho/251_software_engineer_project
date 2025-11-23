@@ -7,11 +7,7 @@ const ProfileCard = () => {
   //  ---------------------------------------
   const { user, isLoading } = useUser();
   const [CardValue, setCardValue] = useState({
-    // TODO: Fill in fields from user context
-    // Major
     majorName: user?.majorName || "Chưa cập nhật ngành học",
-    // Email
-    // sdt
     hcmutId: user?.hcmutId || "",
     other_method_contact: user?.otherMethodContact || "Chưa cập nhật thông tin liên lạc",
     phoneNumber: user?.phone || "",

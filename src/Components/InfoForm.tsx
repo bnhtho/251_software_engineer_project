@@ -1,165 +1,95 @@
 import React, { useState } from "react";
 import { useUser } from "../Context/UserContext";
-// use Hook
-interface InfoFormProps {
-  isEditable?: boolean;
-}
-
-
-// NOTE: Functional Components: Thêm props isEditable kiểu Boolean vào InfoForm.
-//
-const InfoForm: React.FC<InfoFormProps> = ({ isEditable = false }) => {
-  // useUser nơi chứa thông tin của user như id, name
+const InfoForm: React.FC = () => {
   const { user, isLoading } = useUser();
-  // FORMAT DATE
-  const formatDate = (dateStr: string): string => {
-    const [year, month, day] = dateStr.split("-");
-    let newDate = `${day}/${month}/${year}`;
-    return newDate;
-  };
-  // Check  isLoading thì return loading
-  if (isLoading) {
-    return <div>Đang tải thông tin...</div>;
-  }
-  if (!user) {
-    return <div>Lỗi: Không tìm thấy người dùng.</div>;
-  }
-  const [formValue, setFormValue] = useState({
-    firstName: user.firstName || "",
-    lastName: user.lastName || "",
-    dob: user.dob || "",
-    hcmutId: user.hcmutId || "",
-    other_method_contact: user.otherMethodContact || "Chưa có cập nhật",
-    phoneNumber: user.phone || "",
-  });
+  const [FormdefaultValue] = useState({
+      hcmutId: user?.hcmutId || "",
+    other_method_contact: user?.otherMethodContact || "Chưa cập nhật thông tin liên lạc",
+    phoneNumber: user?.phone || "",
+    
+  })
+    const name = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
 
-  // Hàm để kiểm soát các trường
-  const getDisabledState = (fieldName: string): boolean => {
-    return !isEditable;
-  };
-  // ---------------------------------------------
-  //  Get class theo trạng thái
-  // Base class
-  const inputBaseClasses =
-    "w-full px-4 py-2 border text-sm rounded-lg transition-all duration-200 ease-in-out";
-  // Trạng thái 1 : Cho phép Edit
-    const editableClasses =
-    "bg-white border-blue-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none shadow-sm";
-    // Trạng thái 2 : Không có phép Edit
-  const readOnlyClasses =
-    "bg-gray-50 border-gray-200 disabled:bg-gray-100 disabled:opacity-100 disabled:cursor-default text-gray-700";
-  // -------------------------------------------------
+  return <div>
+    <div className="lg:col-span-2 space-y-6">
+              {/* Personal Information */}
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <h3 className="text-gray-900 mb-4">Thông tin chi tiết</h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">Họ và tên đệm</label>
+                      <input
+                        type="text"
+                        defaultValue={user?.firstName}  
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">Tên</label>
+                      <input
+                        type="text"
+                        defaultValue={user?.lastName}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      />
+                    </div>
+                  </div>
 
-  const getInputClassName = () => {
-    let conditionalClasses = "";
-    if (isEditable) {
-      conditionalClasses = editableClasses;
-    } else {
-      conditionalClasses = readOnlyClasses;
-    }
-    return `${inputBaseClasses} ${conditionalClasses}`;
-  };
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">MSSV</label>
+                      <input
+                        type="text"
+                        defaultValue= {user?.hcmutId}
+                        disabled
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">Ngày sinh</label>
+                      <input
+                        type="date"
+                        defaultValue={user?.dob}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      />
+                    </div>
+                  </div>
 
-  return (
-    <div>
-      <>
-        {/* --------------------------------------------------------------- */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">Email</label>
+                      <input
+                        type="email"
+                        defaultValue={user?.otherMethodContact}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">Số điện thoại</label>
+                      <input
+                        type="tel"
+                        defaultValue={user?.phone}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      />
+                    </div>
+                  </div>
 
-        <div className="space-y-4">
-          {/* Họ và tên đệm, Tên */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-600 mb-2">
-                Họ và tên đệm
-              </label>
-              <input
-                className={getInputClassName()}
-                value={formValue.firstName}
-                disabled={getDisabledState("firstName")}
-                onChange={(e) =>
-                  setFormValue({ ...formValue, firstName: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-2">Tên</label>
-              <input
-                className={getInputClassName()}
-                value={formValue.lastName}
-                disabled={getDisabledState("formValue.lastName")}
-                onChange={(e) =>
-                  setFormValue({ ...formValue, lastName: e.target.value })
-                }
-              />
-            </div>
-          </div>
 
-          {/* MSSV, Ngày sinh */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-600 mb-2">MSSV</label>
-              <input
-                className={getInputClassName()}
-                value={formValue.hcmutId}
-                onChange={(e) =>
-                  setFormValue({ ...formValue, hcmutId: e.target.value })
-                }
-                disabled={getDisabledState("formValue.hcmutId")}
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-2">
-                Ngày sinh
-              </label>
-              <input
-                className={getInputClassName()}
-                value={formatDate(formValue.dob)}
-                onChange={(e) =>
-                  setFormValue({ ...formValue, dob: e.target.value })
-                }
-                disabled={getDisabledState("formValue.dob")}
-              />
-            </div>
-          </div>
+                  <div className="flex justify-end gap-3">
+                    <button className="px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50">
+                      Hủy
+                    </button>
+                    <button className="px-4 py-2 bg-cyan-600 text-white text-sm rounded-md hover:bg-cyan-700"
+                    onClick={()=>{alert("Helllo")}}
+                    >
+                      Lưu thay đổi
+                    </button>
+                  </div>
+                </div>
+              </div>
+  </div>
 
-          {/* Email, Số điện thoại */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-600 mb-2">Email</label>
-              <input
-                className={getInputClassName()}
-                value={formValue.other_method_contact}
-                onChange={(e) =>
-                  setFormValue({
-                    ...formValue,
-                    other_method_contact: e.target.value,
-                  })
-                }
-                disabled={getDisabledState("formValue.other_method_contact")}
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-2">
-                Số điện thoại
-              </label>
-              <input
-                className={getInputClassName()}
-                value={formValue.phoneNumber}
-                onChange={(e) =>
-                  setFormValue({ ...formValue, phoneNumber: e.target.value })
-                }
-                disabled={getDisabledState("formValue.phoneNumber")}
-              />
-            </div>
-          </div>
-
-          {/* Bio */}
-          <div></div>
-        </div>
-      </>
-      {/* ------------------------------------------------------------------ */}
-    </div>
-    // <div>{formValue.firstName}</div>
-  );
+  </div>;
 };
+
 export default InfoForm;

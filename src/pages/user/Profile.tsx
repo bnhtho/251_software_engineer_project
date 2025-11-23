@@ -7,7 +7,6 @@ import ProfileCard from "../../Components/ProfileCard";
 
 import HistoryLearning from "../../Components/HistoryLearning";
 import { Edit } from "lucide-react";
-import EditProfileModal from "../../Components/EditProfileModal";
 const ProfilePage = () => {
 
 
@@ -33,7 +32,6 @@ const ProfilePage = () => {
           <div className="col-span-12 lg:col-span-8">
             {/* NOTE: [x] Đã fetch xong Data từ API */}
             <InfoForm />
-            <EditProfileModal></EditProfileModal>
           </div>
         </div>
     {/* NOTE [x] History  */}
