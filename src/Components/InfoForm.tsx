@@ -5,8 +5,6 @@ import axios from "axios";
 import { useUser} from "../Context/UserContext"; 
 // import toast from "react-hot-toast";
 import toast, { Toaster } from 'react-hot-toast';
-// --- Interfaces from your InfoForm.tsx ---
-
 interface ProfileFormData {
   hcmutId: string;
   firstName: string;
@@ -17,7 +15,6 @@ interface ProfileFormData {
 }
 
 const InfoForm: React.FC = () => {
-  // 1. Destructure the `setUserDirectly` function from the context
   const { 
     user, 
     isLoading: isUserLoading, 
@@ -43,9 +40,7 @@ const InfoForm: React.FC = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   useEffect(() => {
-    // We can safely assume 'user' matches the 'User' interface from context
     if (user) {
       const mapped: ProfileFormData = {
         hcmutId: user.hcmutId || "",
@@ -53,7 +48,6 @@ const InfoForm: React.FC = () => {
         lastName: user.lastName || "",
         dob: user.dob || "",
         otherMethodContact: user.otherMethodContact || "",
-        // The context uses 'phone', the form state uses 'phoneNumber'
         phoneNumber: user.phone || "", 
       };
 
@@ -102,12 +96,11 @@ const InfoForm: React.FC = () => {
 
         setInitialFormData(formData);
         
-        const updatedUser = { // Ensure we keep the User type for context
+        const updatedUser = {
             ...user, 
             ...apiPayload, 
         };
         
-        // 1. 🔥 Success Notification
         toast.success('Cập nhật thông tin thành công!');
         setUserDirectly(updatedUser); 
 
@@ -157,7 +150,6 @@ const InfoForm: React.FC = () => {
 
           <div className="space-y-6">
 
-            {/* Họ + Tên */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Họ và tên đệm</label>
