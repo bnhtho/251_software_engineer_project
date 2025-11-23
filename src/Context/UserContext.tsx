@@ -37,7 +37,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const getToken = () => localStorage.getItem("authToken");
 
-const decodeToken = (token: string) => {
+export const decodeToken = (token: string) => {
   const decoded: any = jwtDecode(token);
   console.log("Decoded token:", decoded);
   if (decoded.exp * 1000 < Date.now()) throw new Error("Token expired");
