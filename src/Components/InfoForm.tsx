@@ -3,12 +3,9 @@ import type { FormEvent } from "react";
 import axios from "axios";
 // Correctly import the useUser hook
 import { useUser} from "../Context/UserContext"; 
-// import {useUser,User } from "../Context/UserContext"
-import User from "../Context/UserContext"
+// import toast from "react-hot-toast";
+import toast, { Toaster } from 'react-hot-toast';
 // --- Interfaces from your InfoForm.tsx ---
-
-// NOTE: UserProfile is now unnecessary, we can use the 'User' interface from UserContext
-// interface UserProfile { ... } 
 
 interface ProfileFormData {
   hcmutId: string;
@@ -89,13 +86,12 @@ const InfoForm: React.FC = () => {
             lastName: formData.lastName,
             dob: formData.dob,
             otherMethodContact: formData.otherMethodContact,
-            // API expects 'phone', not 'phoneNumber' (based on User interface)
             phone: formData.phoneNumber, 
         };
 
-        const response = await axios.put(
+        await axios.put(
           `http://localhost:8081/students/profile/${user.id}`,
-          apiPayload, // Use the mapped payload
+          apiPayload, 
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -106,24 +102,36 @@ const InfoForm: React.FC = () => {
 
         setInitialFormData(formData);
         
-       
-        const updatedUser = {
+        const updatedUser = { // Ensure we keep the User type for context
             ...user, 
             ...apiPayload, 
         };
         
+        // 1. 🔥 Success Notification
+        toast.success('Cập nhật thông tin thành công!');
         setUserDirectly(updatedUser); 
-        
+
       } catch (err) {
         console.error("Update failed", err);
+        toast.error('Cập nhật thất bại. Vui lòng thử lại.');
+        
       } finally {
         setIsSubmitting(false);
       }
     },
     [formData, user, setUserDirectly] 
   );
+// ------------
+//  If the form is not changed -> disable the input
+// ------------
+  const isFormUnchanged = 
+    formData.firstName !== initialFormData.firstName ||
+    formData.lastName !== initialFormData.lastName ||
+    formData.dob !== initialFormData.dob ||
+    formData.otherMethodContact !== initialFormData.otherMethodContact ||
+    formData.phoneNumber !== initialFormData.phoneNumber;
 
-  // ... (rest of the component remains the same)
+  const isSaveButtonDisabled = isSubmitting || !isFormUnchanged; 
   
   if (isUserLoading) {
     return <div className="p-4 text-center">Đang tải...</div>;
@@ -250,7 +258,7 @@ const InfoForm: React.FC = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSaveButtonDisabled}
                 className="px-6 py-2 bg-cyan-600 text-white font-medium text-sm 
                   rounded-lg hover:bg-cyan-700 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >

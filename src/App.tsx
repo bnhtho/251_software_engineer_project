@@ -19,9 +19,14 @@ import AdminSettings from "./pages/admin/Settings";
 import PageNotFound from "./page/PageNotFound";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { UserProvider } from "./Context/UserContext";
+// import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 export default function App() {
   return (
+    
     <UserProvider>
+            <Toaster />
+
       <BrowserRouter>
         <Routes>
           {/* ========== ROOT REDIRECT ========== */}
