@@ -7,7 +7,7 @@ During the frontend API integration for course and schedule management features,
 
 ### 1. Course Management Endpoints
 
-#### GET /api/courses
+#### GET /courses
 **Purpose**: Get all available courses for course listing page  
 **Expected Response**:
 ```typescript
@@ -34,7 +34,7 @@ interface CourseDTO {
 }
 ```
 
-#### POST /api/courses/register
+#### POST /courses/register
 **Purpose**: Register student for a course  
 **Request Body**:
 ```typescript

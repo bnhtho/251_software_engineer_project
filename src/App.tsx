@@ -19,14 +19,14 @@ import AdminSettings from "./pages/admin/Settings";
 import PageNotFound from "./page/PageNotFound";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { UserProvider } from "./Context/UserContext";
-// import { Toaster } from 'react-hot-toast';
-import toast, { Toaster } from 'react-hot-toast';
+// Tutor
+import TutorHomePage from "./pages/tutor/TutorHomepage";
+import TutorProfilePage from "./pages/tutor/TutorProfile";
+// import StudentHomePage from "./pages/student/StudentHomePage"; // Student dashboard
+import { Home } from "lucide-react";
 export default function App() {
   return (
-    
     <UserProvider>
-            <Toaster />
-
       <BrowserRouter>
         <Routes>
           {/* ========== ROOT REDIRECT ========== */}
@@ -35,12 +35,6 @@ export default function App() {
           {/* ========== PUBLIC ROUTES ========== */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
-
-          {/* Register Page - TODO: Create RegisterPage component */}
-          {/* <Route path="/register" element={<RegisterPage />} /> */}
-
-          {/* Forgot Password Page - TODO: Create ForgotPasswordPage component */}
-          {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
 
           {/* ========== PROTECTED ROUTES (User Dashboard) ========== */}
           <Route
@@ -51,28 +45,30 @@ export default function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<HomePage />} />
+            <Route index element={<HomePage />} /> {/* Student Dashboard */}
             <Route path="profile" element={<Profile />} />
             <Route path="schedule" element={<Schedule />} />
             <Route path="courses" element={<CoursePage />} />
             <Route path="tutors" element={<TutorList />} />
-
-            {/* Materials - Tự động routing theo role:
-                            - Student: ViewMaterials (xem danh sách)
-                            - Tutor: UploadMaterials (form upload)
-                            - Admin: ViewMaterials (xem danh sách để duyệt) */}
             <Route path="materials" element={<Materials />} />
-
-            {/* Settings - TODO: Create Settings component */}
-            {/* <Route path="settings" element={<Settings />} /> */}
-
-            {/* Notifications - TODO: Create Notifications component */}
-            {/* <Route path="notifications" element={<Notifications />} /> */}
-
-            {/* Help - TODO: Create HelpPage component */}
-            {/* <Route path="help" element={<HelpPage />} /> */}
           </Route>
 
+          {/* ========== TUTOR ROUTES ========== */}
+          <Route
+            path="/tutor"
+            element={
+              <ProtectedRoute requireTutor> {/* Đảm bảo người dùng là tutor */}
+                <UserLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<TutorHomePage />} /> {/* Tutor Dashboard */}
+            <Route path="dashboard" element={<TutorHomePage />} />
+            <Route path="profile" element={<TutorProfilePage />} />
+            {/* Các route khác của tutor */}
+          </Route>
+
+          {/* ========== ADMIN ROUTES ========== */}
           <Route
             path="/admin"
             element={
@@ -89,10 +85,6 @@ export default function App() {
             <Route path="feedback" element={<AdminFeedback />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
-
-          {/* Reports - TODO: Create Reports component */}
-          {/* <Route path="reports" element={<Reports />} /> */}
-          {/* </Route> */}
 
           {/* ========== ERROR HANDLING ========== */}
           <Route path="*" element={<PageNotFound />} />

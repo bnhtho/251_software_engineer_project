@@ -5,25 +5,26 @@ import { useUser } from "../Context/UserContext";
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
+  requireTutor?: boolean;
 }
 
-const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, requireAdmin = false, requireTutor = false }: ProtectedRouteProps) => {
   const { user, isLoading } = useUser();
 
-  // 1️⃣ Nếu đang load user
   if (isLoading) return <div className="text-center py-10">Loading...</div>;
 
-  // 2️⃣ Nếu chưa login
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  // 3️⃣ Nếu route admin mà user không phải admin
   if (requireAdmin && user.role !== "admin") {
-    return <Navigate to="/dashboard" replace />; 
+    return <Navigate to="/login" replace />; // Chuyển hướng tới trang "Không có quyền truy cập"
   }
 
-  // 4️⃣ Cho phép truy cập
+  if (requireTutor && user.role !== "tutor") {
+    return <Navigate to="/login" replace />; // Chuyển hướng tới trang "Không có quyền truy cập"
+  }
+
   return <>{children}</>;
 };
 
