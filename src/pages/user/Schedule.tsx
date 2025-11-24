@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -8,64 +8,87 @@ import {
   Laptop,
   BookOpen,
 } from "lucide-react";
-// Interface CalendarData:
-// list all sessions (offline - online - all status: pending, available ..)
-interface CalendarData{
-  id: string,
-student_id: string,
-day_of_week: string,
-start_time: string,
-end_time: string,
-created_date: string,
-update_date: string,
-}
-// LIST SCHEDULE
-const scheduleData = [
-  {
-    id: 1,
-    courseName: "Toán Cao Cấp 1 - Giải tích",
-    courseCode: "MT1003",
-    instructor: "TS. Nguyễn Văn Minh",
-    date: "Thứ 2\n04/11/2025",
-    time: "07:30 - 09:30",
-    location: "Phòng H1-101",
-    locationType: "Offline",
-  },
-  {
-    id: 2,
-    courseName: "Vật Lý Đại Cương",
-    courseCode: "PH1003",
-    instructor: "ThS. Lê Văn Tuấn",
-    date: "Thứ 2\n04/11/2025",
-    time: "13:30 - 15:30",
-    location: "Phòng H2-203",
-    locationType: "Offline",
-  },
-  {
-    id: 3,
-    courseName: "Lập trình OOP",
-    courseCode: "CO1027",
-    instructor: "PGS.TS. Trần Thị Hương",
-    date: "Thứ 3\n05/11/2025",
-    time: "13:30 - 16:00",
-    location: "Google Meet",
-    locationType: "Online",
-  },
-  {
-    id: 4,
-    courseName: "Cơ sở Dữ liệu",
-    courseCode: "CO2003",
-    instructor: "TS. Phạm Thị Lan",
-    date: "Thứ 7\n09/11/2025",
-    time: "09:00 - 11:00",
-    location: "Microsoft Teams",
-    locationType: "Online",
-  },
-];
-
+import { useUser } from "../../Context/UserContext";
+import { scheduleApi } from "../../services/api";
+import type { SessionDTO } from "../../types/api";
+import toast from 'react-hot-toast';
 export default function SchedulePage() {
-  const [weekStart] = useState("04/11/2025");
-  const [weekEnd] = useState("10/11/2025");
+  const { user } = useUser();
+  const studentId = user?.id || 0;
+  
+  const [weekStart, setWeekStart] = useState("04/11/2025");
+  const [weekEnd, setWeekEnd] = useState("10/11/2025");
+  const [sessions, setSessions] = useState<SessionDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load sessions data
+  useEffect(() => {
+    if (studentId) {
+      loadSessions();
+    }
+  }, [studentId, weekStart, weekEnd]);
+
+  const loadSessions = async () => {
+    try {
+      setLoading(true);
+      // Convert date format for API (assuming YYYY-MM-DD format)
+      const startDate = convertToApiDate(weekStart);
+      const endDate = convertToApiDate(weekEnd);
+      
+      const sessionsData = await scheduleApi.getStudentSessions(studentId, { // MISSING ENDPOINT
+        startDate,
+        endDate
+      });
+      setSessions(sessionsData);
+    } catch (error) {
+      console.error('Error loading sessions:', error);
+      toast.error('Không thể tải lịch học');
+      // Fallback to sample data for now
+      setSessions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper function to convert DD/MM/YYYY to YYYY-MM-DD
+  const convertToApiDate = (dateStr: string): string => {
+    const [day, month, year] = dateStr.split('/');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  };
+
+  // Helper function to format session data for display
+  const formatSessionForDisplay = (session: SessionDTO) => {
+    const sessionDate = new Date(session.sessionDate);
+    const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const dayName = dayNames[sessionDate.getDay()];
+    const dateStr = session.sessionDate.split('-').reverse().join('/'); // Convert YYYY-MM-DD to DD/MM/YYYY
+    
+    return {
+      id: session.id,
+      courseName: session.course?.name || 'N/A',
+      courseCode: session.course?.code || 'N/A',
+      instructor: session.course?.tutorName || 'N/A',
+      date: `${dayName}\n${dateStr}`,
+      time: `${session.startTime} - ${session.endTime}`,
+      location: session.location || (session.locationType === 'ONLINE' ? session.meetingLink : 'N/A') || 'N/A',
+      locationType: session.locationType || 'OFFLINE',
+    };
+  };
+
+  const displaySessions = sessions.map(formatSessionForDisplay);
+  const onlineCount = sessions.filter(s => s.locationType === 'ONLINE').length;
+  const offlineCount = sessions.filter(s => s.locationType === 'OFFLINE').length;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-gray-600">Đang tải lịch học...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -123,7 +146,7 @@ export default function SchedulePage() {
                 <Laptop className="h-5 w-5 text-blue-600" />
                 <div>
                   <p className="text-sm text-gray-600">Online</p>
-                  <p className="text-2xl font-semibold text-gray-900">2</p>
+                  <p className="text-2xl font-semibold text-gray-900">{onlineCount}</p>
                 </div>
               </div>
             </div>
@@ -135,7 +158,7 @@ export default function SchedulePage() {
                 <MapPin className="h-5 w-5 text-green-600" />
                 <div>
                   <p className="text-sm text-gray-600">Offline</p>
-                  <p className="text-2xl font-semibold text-gray-900">2</p>
+                  <p className="text-2xl font-semibold text-gray-900">{offlineCount}</p>
                 </div>
               </div>
             </div>
@@ -148,7 +171,7 @@ export default function SchedulePage() {
                 <div>
                   <p className="text-sm text-gray-600">Tuần này</p>
                   <p className="text-2xl font-semibold text-gray-900">
-                    {scheduleData.length}
+                    {sessions.length}
                   </p>
                 </div>
               </div>
@@ -198,7 +221,7 @@ export default function SchedulePage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {scheduleData.map((course, idx) => (
+                    {displaySessions.map((course, idx) => (
                       <tr
                         key={course.id}
                         className="transition-colors hover:bg-gray-50"
@@ -229,17 +252,17 @@ export default function SchedulePage() {
                         <td className="px-2 py-4 sm:px-4">
                           <span
                             className={`inline-flex items-center gap-1 rounded px-3 py-1 text-xs font-medium ${
-                              course.locationType === "Offline"
+                              course.locationType === "OFFLINE"
                                 ? "bg-green-100 text-green-800"
                                 : "bg-blue-100 text-blue-800"
                             }`}
                           >
-                            {course.locationType === "Offline" ? (
+                            {course.locationType === "OFFLINE" ? (
                               <MapPin className="h-3 w-3" />
                             ) : (
                               <Laptop className="h-3 w-3" />
                             )}
-                            {course.locationType}
+                            {course.locationType === "OFFLINE" ? "Offline" : "Online"}
                           </span>
                         </td>
                       </tr>

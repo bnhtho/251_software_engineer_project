@@ -1,183 +1,126 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { Search } from "lucide-react";
 import { useUser } from "../../Context/UserContext";
-
-type Timeslot = {
-  day: string;
-  start: string;
-  end: string;
-};
-
-type Course = {
-  id: number;
-  name: string;
-  code: string;
-  timeslots: Timeslot[];
-  teacher: string;
-  faculty: string;
-  weeks: string;
-  enrolled: number;
-  capacity: number;
-  rating: number;
-  ratingCount: number;
-};
+import { courseApi, publicApi } from "../../services/api";
+import type { CourseDTO, DepartmentDTO, MajorDTO } from "../../types/api";
+import toast from 'react-hot-toast';
 
 type ServiceResult = {
   status: "PENDING" | "FAILED";
   message: string;
 };
 
-const sampleCourses: Course[] = [
-  {
-    id: 1,
-    name: "Toán Cao Cấp 1",
-    code: "MT1003",
-    timeslots: [
-      { day: "Mon", start: "07:30", end: "09:30" },
-      { day: "Wed", start: "07:30", end: "09:30" },
-    ],
-    teacher: "TS. Nguyễn Văn Minh",
-    faculty: "Khoa Toán - Tin học",
-    weeks: "15 tuần (30 buổi)",
-    enrolled: 45,
-    capacity: 50,
-    rating: 4.8,
-    ratingCount: 28,
-  },
-  {
-    id: 2,
-    name: "Lập trình Hướng đối tượng",
-    code: "CO2017",
-    timeslots: [{ day: "Tue", start: "13:30", end: "16:00" }],
-    teacher: "PGS.TS. Trần Thị Hương",
-    faculty: "Khoa Khoa học và Kỹ thuật Máy tính",
-    weeks: "15 tuần (30 buổi)",
-    enrolled: 42,
-    capacity: 45,
-    rating: 4.9,
-    ratingCount: 35,
-  },
-];
+// Sample courses removed - using API data
 
-function timeOverlap(a: Timeslot, b: Timeslot) {
-  if (a.day !== b.day) return false;
-  const toMin = (t: string) => {
-    const [h, m] = t.split(":").map(Number);
-    return h * 60 + m;
-  };
-  const aStart = toMin(a.start);
-  const aEnd = toMin(a.end);
-  const bStart = toMin(b.start);
-  const bEnd = toMin(b.end);
-  return Math.max(aStart, bStart) < Math.min(aEnd, bEnd);
-}
+// Conflict checking moved to backend
 
 export default function CoursePage() {
   const { user } = useUser();
   const studentId = user?.id || 0;
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [registeredCourses] = useState<Course[]>([
-    {
-      id: 99,
-      name: "Cấu trúc dữ liệu",
-      code: "CO2013",
-      timeslots: [{ day: "Mon", start: "13:30", end: "15:30" }],
-      teacher: "TS. Nguyễn Văn D",
-      faculty: "Khoa Khoa học và Kỹ thuật Máy tính",
-      weeks: "15 tuần (30 buổi)",
-      enrolled: 40,
-      capacity: 45,
-      rating: 4.7,
-      ratingCount: 25,
-    },
-    {
-      id: 98,
-      name: "Vật lý đại cương",
-      code: "PH1003",
-      timeslots: [{ day: "Tue", start: "07:30", end: "09:30" }],
-      teacher: "PGS. Trần Văn E",
-      faculty: "Khoa Vật lý",
-      weeks: "15 tuần (30 buổi)",
-      enrolled: 35,
-      capacity: 40,
-      rating: 4.5,
-      ratingCount: 20,
-    },
-    {
-      id: 97,
-      name: "Xác suất thống kê",
-      code: "MA2003",
-      timeslots: [{ day: "Thu", start: "09:00", end: "11:00" }],
-      teacher: "TS. Lê Thị F",
-      faculty: "Khoa Toán - Tin học",
-      weeks: "15 tuần (30 buổi)",
-      enrolled: 38,
-      capacity: 42,
-      rating: 4.6,
-      ratingCount: 22,
-    },
-  ]);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  
+  // API data states
+  const [courses, setCourses] = useState<CourseDTO[]>([]);
+  const [registeredCourses, setRegisteredCourses] = useState<CourseDTO[]>([]);
+  const [departments, setDepartments] = useState<DepartmentDTO[]>([]);
+  const [majors, setMajors] = useState<MajorDTO[]>([]);
+  
+  // Loading states
+  const [loading, setLoading] = useState(true);
+  const [registering, setRegistering] = useState<number | null>(null);
+  
+  const [message, setMessage] = useState<string>("");
+  
   const registeredCount = useMemo(
     () => registeredCourses.length,
     [registeredCourses],
   );
-  const [message, setMessage] = useState<string>("");
 
-  const filterData = sampleCourses.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  // Load initial data
+  useEffect(() => {
+    loadData();
+  }, [studentId]);
 
-  function getRegisteredCount(_studentId: number) {
-    return registeredCount;
-  }
-
-  function checkScheduleConflict(courseId: number, _studentId: number) {
-    const course = sampleCourses.find((c) => c.id === courseId);
-    if (!course) return false;
-    for (const reg of registeredCourses) {
-      for (const t1 of reg.timeslots) {
-        for (const t2 of course.timeslots) {
-          if (timeOverlap(t1, t2)) return true;
-        }
-      }
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [coursesData, departmentsData, majorsData, registeredData] = await Promise.all([
+        courseApi.getCourses().catch(() => []), // MISSING ENDPOINT - using empty array as fallback
+        publicApi.getDepartments(),
+        publicApi.getMajors(),
+        studentId ? courseApi.getStudentCourses(studentId).catch(() => []) : [] // MISSING ENDPOINT
+      ]);
+      
+      setCourses(coursesData);
+      setDepartments(departmentsData);
+      setMajors(majorsData);
+      setRegisteredCourses(registeredData.map(sc => sc.course));
+    } catch (error) {
+      console.error('Error loading course data:', error);
+      toast.error('Không thể tải dữ liệu khóa học');
+    } finally {
+      setLoading(false);
     }
-    return false;
-  }
+  };
 
-  function saveRegistrationRequest(
-    _courseId: number,
-    _studentId: number,
-    _status: "PENDING",
-  ) {
-    return { success: true } as const;
-  }
-
-  function processRegistrations(
-    courseId: number,
-    studentIdParam: number,
-  ): ServiceResult {
-    const count = getRegisteredCount(studentIdParam);
-    const conflict = checkScheduleConflict(courseId, studentIdParam);
-    const isValid = !conflict && count < 5;
-    if (isValid) {
-      const saved = saveRegistrationRequest(courseId, studentIdParam, "PENDING");
-      if (saved.success) {
-        return {
-          status: "PENDING",
-          message: "Gửi yêu cầu thành công. Đang chờ phê duyệt.",
-        };
+  const submitRegistration = async (courseId: number) => {
+    if (registering || !studentId) return;
+    
+    try {
+      setRegistering(courseId);
+      const result = await courseApi.registerCourse({ // MISSING ENDPOINT
+        courseId,
+        studentId,
+        notes: ""
+      });
+      
+      if (result.status === 'PENDING') {
+        setMessage("✅ Gửi yêu cầu thành công. Đang chờ phê duyệt.");
+        toast.success("Đăng ký thành công!");
+        // Reload registered courses
+        const updatedRegistered = await courseApi.getStudentCourses(studentId);
+        setRegisteredCourses(updatedRegistered.map(sc => sc.course));
       }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Đăng ký thất bại";
+      setMessage(`❌ ${errorMessage}`);
+      toast.error(errorMessage);
+    } finally {
+      setRegistering(null);
     }
-    return {
-      status: "FAILED",
-      message: "❌ Trùng lịch hoặc vượt giới hạn số môn học.",
-    };
-  }
+  };
 
-  function submitRegistrations(courseId: number) {
-    const result = processRegistrations(courseId, studentId);
-    setMessage(result.message);
+  // Filter courses based on search and filters
+  const filteredCourses = useMemo(() => {
+    if (loading) return [];
+    
+    return courses.filter((course) => {
+      const matchesSearch = searchTerm === "" || 
+        course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.tutorName.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesDepartment = selectedDepartment === "" || 
+        course.departmentId.toString() === selectedDepartment;
+        
+      const matchesStatus = selectedStatus === "" || course.status === selectedStatus;
+      
+      return matchesSearch && matchesDepartment && matchesStatus;
+    });
+  }, [courses, searchTerm, selectedDepartment, selectedStatus, loading]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-gray-600">Đang tải dữ liệu...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -210,19 +153,31 @@ export default function CoursePage() {
                 </div>
 
                 <div className="col-span-12 sm:col-span-6 lg:col-span-3">
-                  <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
-                    <option>Tất cả trạng thái</option>
-                    <option>Đang học</option>
-                    <option>Sắp mở</option>
-                    <option>Đã hoàn thành</option>
+                  <select 
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  >
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="OPEN">Đang mở</option>
+                    <option value="CLOSED">Đã đóng</option>
+                    <option value="FULL">Đã đầy</option>
+                    <option value="PENDING">Sắp mở</option>
                   </select>
                 </div>
 
                 <div className="col-span-12 sm:col-span-6 lg:col-span-3">
-                  <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
-                    <option>Tất cả khoa</option>
-                    <option>Khoa Toán - Tin học</option>
-                    <option>Khoa Khoa học và Kỹ thuật Máy tính</option>
+                  <select 
+                    value={selectedDepartment}
+                    onChange={(e) => setSelectedDepartment(e.target.value)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  >
+                    <option value="">Tất cả khoa</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.id.toString()}>
+                        {dept.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -231,26 +186,30 @@ export default function CoursePage() {
         </div>
 
         <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-12 sm:col-span-4">
-            <div className="rounded-lg border border-gray-200 bg-white p-4">
-              <p className="text-sm text-gray-600">Đang học</p>
-              <p className="mt-1 text-2xl font-semibold text-gray-900">
-                {sampleCourses.length}
-              </p>
+            <div className="col-span-12 sm:col-span-4">
+              <div className="rounded-lg border border-gray-200 bg-white p-4">
+                <p className="text-sm text-gray-600">Khả dụng</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-900">
+                  {courses.filter(c => c.status === 'OPEN').length}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="col-span-12 sm:col-span-4">
-            <div className="rounded-lg border border-gray-200 bg-white p-4">
-              <p className="text-sm text-gray-600">Sắp mở</p>
-              <p className="mt-1 text-2xl font-semibold text-gray-900">0</p>
+            <div className="col-span-12 sm:col-span-4">
+              <div className="rounded-lg border border-gray-200 bg-white p-4">
+                <p className="text-sm text-gray-600">Đã đăng ký</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-900">
+                  {registeredCount}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="col-span-12 sm:col-span-4">
-            <div className="rounded-lg border border-gray-200 bg-white p-4">
-              <p className="text-sm text-gray-600">Đã hoàn thành</p>
-              <p className="mt-1 text-2xl font-semibold text-gray-900">0</p>
+            <div className="col-span-12 sm:col-span-4">
+              <div className="rounded-lg border border-gray-200 bg-white p-4">
+                <p className="text-sm text-gray-600">Đã đầy</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-900">
+                  {courses.filter(c => c.status === 'FULL').length}
+                </p>
+              </div>
             </div>
-          </div>
         </div>
 
         {message && (
@@ -272,24 +231,38 @@ export default function CoursePage() {
             </h2>
           </div>
 
-          {filterData.length > 0 ? (
-            filterData.map((c) => {
-              const progress = Math.round((c.enrolled / c.capacity) * 100);
-              const times = c.timeslots
-                .map((t) => `${t.day}, ${t.start}-${t.end}`)
+          {filteredCourses.length > 0 ? (
+            filteredCourses.map((course) => {
+              const progress = Math.round((course.enrolled / course.capacity) * 100);
+              const times = course.timeslots
+                .map((t) => `${t.dayOfWeek.slice(0,3)}, ${t.startTime}-${t.endTime}`)
                 .join(" • ");
+              const isRegistered = registeredCourses.some(r => r.id === course.id);
+              const isRegistering = registering === course.id;
+              
               return (
-                <div key={c.id} className="col-span-12">
+                <div key={course.id} className="col-span-12">
                   <div className="rounded-lg border border-gray-200 bg-white p-6">
                     <div className="grid grid-cols-12 gap-6">
                       <div className="col-span-12 lg:col-span-9">
                         <div className="mb-2 flex items-center gap-2">
                           <h3 className="text-base font-semibold text-gray-900">
-                            {c.name}
+                            {course.name}
                           </h3>
-                          <span className="inline-block rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
-                            Đang học
+                          <span className={`inline-block rounded px-2 py-0.5 text-xs ${
+                            course.status === 'OPEN' ? 'bg-green-100 text-green-700' :
+                            course.status === 'FULL' ? 'bg-red-100 text-red-700' :
+                            'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {course.status === 'OPEN' ? 'Đang mở' :
+                             course.status === 'FULL' ? 'Đã đầy' :
+                             course.status === 'CLOSED' ? 'Đã đóng' : 'Sắp mở'}
                           </span>
+                          {isRegistered && (
+                            <span className="inline-block rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">
+                              Đã đăng ký
+                            </span>
+                          )}
                         </div>
 
                         <div className="grid grid-cols-12 gap-4 text-xs text-gray-500">
@@ -297,18 +270,18 @@ export default function CoursePage() {
                             <div className="mb-2 flex items-center gap-2">
                               <span className="font-medium">Mã khóa học:</span>
                               <span className="inline-block rounded bg-gray-100 px-2 py-0.5 text-gray-800">
-                                {c.code}
+                                {course.code}
                               </span>
                             </div>
                             <div className="space-y-1">
-                              <div>👨‍🏫 {c.teacher}</div>
-                              <div>🏫 {c.faculty}</div>
+                              <div>👨‍🏫 {course.tutorName}</div>
+                              <div>🏫 {course.departmentName}</div>
                             </div>
                           </div>
 
                           <div className="col-span-12 sm:col-span-6">
                             <div className="space-y-1">
-                              <div>⏱ {c.weeks}</div>
+                              <div>📚 {course.subjectName}</div>
                               <div>📅 {times}</div>
                             </div>
                           </div>
@@ -323,10 +296,10 @@ export default function CoursePage() {
                           </div>
                           <div className="mt-2 flex items-center gap-3 text-xs text-gray-600">
                             <span>
-                              ⭐ {c.rating.toFixed(1)} ({c.ratingCount})
+                              ⭐ {course.rating?.toFixed(1) || 'N/A'} ({course.ratingCount || 0})
                             </span>
                             <span>
-                              {c.enrolled}/{c.capacity} học viên
+                              {course.enrolled}/{course.capacity} học viên
                             </span>
                           </div>
                         </div>
@@ -334,10 +307,15 @@ export default function CoursePage() {
 
                       <div className="col-span-12 flex items-start justify-end lg:col-span-3">
                         <button
-                          onClick={() => submitRegistrations(c.id)}
-                          className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 lg:w-auto"
+                          onClick={() => submitRegistration(course.id)}
+                          disabled={isRegistered || isRegistering || course.status !== 'OPEN'}
+                          className="w-full rounded-md px-4 py-2 text-sm text-white lg:w-auto disabled:opacity-50 disabled:cursor-not-allowed
+                            bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
                         >
-                          Đăng ký
+                          {isRegistering ? 'Đang xử lý...' : 
+                           isRegistered ? 'Đã đăng ký' :
+                           course.status === 'FULL' ? 'Đã đầy' :
+                           course.status === 'CLOSED' ? 'Đã đóng' : 'Đăng ký'}
                         </button>
                       </div>
                     </div>
