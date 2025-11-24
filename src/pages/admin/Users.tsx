@@ -27,9 +27,9 @@ interface UserData {
 
 const getStatusInfo = (statusName: string) => {
     const status = statusName ? statusName.toLowerCase() : "";
-    if (status.includes('hoạt động') || status === 'active') {
+    if (status.includes('hoạt động') || status === 'ACTIVE' || status === "active") {
       return { label: 'Đang hoạt động', classes: 'bg-green-100 text-green-800 font-medium' };
-    } else if (status.includes('khóa') || status === 'banned') {
+    } else if (status.includes('khóa') || status === 'INACTIVE' || status === 'inactive') {
       return { label: 'Đã bị khóa', classes: 'bg-red-100 text-red-800 font-medium' };
     } else {
       return { label: statusName || 'Không xác định', classes: 'bg-gray-100 text-gray-800 font-medium' };
@@ -153,16 +153,15 @@ const AdminUsers: React.FC = () => {
         {
             editURL = `http://localhost:8081/admin/tutors/${userId}`
         }
-        else if (userRole === "student") // Thêm điều kiện else if để rõ ràng hơn
+        else if (userRole === "student") 
         {
-            editURL = `http://localhost:8081/admin/students/${userId}` // Thêm 's' nếu API là 'students'
+            editURL = `http://localhost:8081/admin/students/${userId}` 
         } else {
-            // Xử lý trường hợp role không xác định, nếu cần
             console.error("Vai trò không hợp lệ:", userRole);
             return; 
         }
         console.log("Vai trò được chọn (editFormData.role):", editFormData.role);
-        // [1] + [2]: To fetch API per role and id
+        
         const response = await axios.put(
           editURL,
           payload,
@@ -219,9 +218,8 @@ const AdminUsers: React.FC = () => {
                     onChange={handleFormChange}
                     className={`p-1 border rounded text-xs text-center bg-white ${getStatusInfo(editFormData.statusName || user.statusName).classes}`}
                 >
-                    <option value="Hoạt động">Hoạt động</option>
-                    <option value="Bị khóa">Bị khóa</option>
-                    <option value="Chờ xác nhận">Chờ xác nhận</option>
+                    <option value="ACTIVE">Hoạt động</option>
+                    <option value="INACTIVE">Bị khóa</option>
                 </select>
             </td>
         </>
