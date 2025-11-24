@@ -8,7 +8,18 @@ import {
   Laptop,
   BookOpen,
 } from "lucide-react";
-
+// Interface CalendarData:
+// list all sessions (offline - online - all status: pending, available ..)
+interface CalendarData{
+  id: string,
+student_id: string,
+day_of_week: string,
+start_time: string,
+end_time: string,
+created_date: string,
+update_date: string,
+}
+// LIST SCHEDULE
 const scheduleData = [
   {
     id: 1,
