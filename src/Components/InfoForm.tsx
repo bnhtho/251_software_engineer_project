@@ -69,9 +69,7 @@ const InfoForm: React.FC = () => {
       }
 
       setIsSubmitting(true);
-
       try {
-        // Payload an toàn: Gửi cả phone và phoneNumber để backend nhận kiểu nào cũng được
         const apiPayload = {
           hcmutId: formData.hcmutId,
           firstName: formData.firstName,
@@ -96,11 +94,8 @@ const InfoForm: React.FC = () => {
         console.log(">>> Update Success:", response.data);
         
         // --- LOGIC UPDATE UI NHANH ---
-        // 1. Lấy data trả về từ server (nếu có)
         const responseData = response.data?.data || response.data || {};
         
-        // 2. Tạo object user mới bằng cách merge: User cũ + Dữ liệu Form vừa nhập + Dữ liệu Server trả về
-        // Ưu tiên dữ liệu Form cho trường phone để UI nảy số ngay lập tức
         const updatedUser = {
             ...user,
             ...responseData,
@@ -111,12 +106,9 @@ const InfoForm: React.FC = () => {
             phone: formData.phone
         };
 
-        // 3. Update Context ngay lập tức -> UI re-render
         setUserDirectly(updatedUser);
         
-        // 4. Reset mốc "ban đầu" thành dữ liệu mới
         setInitialFormData(formData);
-        
         toast.success('Cập nhật thông tin thành công!');
 
       } catch (err: any) {
