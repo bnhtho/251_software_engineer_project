@@ -18,12 +18,9 @@ import Avatar from "../../Components/Avatar";
 
 const adminNavItems = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/admin" },
-  { icon: Users, label: "Người dùng", to: "/admin/users" },
+  { icon: Users, label: "Danh sách gia sư chờ duyệt", to: "/admin/tutors" },
   { icon: BookOpen, label: "Khóa học", to: "/admin/courses" },
   { icon: CalendarCheck, label: "Buổi học", to: "/admin/sessions" },
-  { icon: BarChart2, label: "Báo cáo", to: "/admin/reports" },
-  { icon: MessageSquare, label: "Phản hồi", to: "/admin/feedback" },
-  { icon: Settings, label: "Cài đặt", to: "/admin/settings" },
 ];
 
 const AdminLayout = () => {
@@ -39,9 +36,8 @@ const AdminLayout = () => {
   return (
     <div className="flex min-h-screen bg-gray-100">
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-72 transform bg-white border-r border-gray-200 shadow-sm transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-40 w-72 transform bg-white border-r border-gray-200 shadow-sm transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex h-16 items-center gap-3 border-b border-gray-200 px-6">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-blue-500 to-indigo-500 text-white font-semibold">

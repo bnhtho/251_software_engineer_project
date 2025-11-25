@@ -11,7 +11,7 @@ import Materials from "./pages/shared/materials";
 import UserLayout from "./layouts/user/UserLayout";
 import AdminLayout from "./layouts/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
-import AdminUsers from "./pages/admin/Users";
+import AdminTutorsPending from "./pages/admin/Tutors";
 import AdminCourses from "./pages/admin/Courses";
 import AdminSessions from "./pages/admin/Sessions";
 import AdminReports from "./pages/admin/Reports";
@@ -86,7 +86,7 @@ export default function App() {
             }
           >
             <Route index element={<AdminDashboard />} />
-            <Route path="users" element={<AdminUsers />} />
+            <Route path="tutors" element={<AdminTutorsPending />} />
             <Route path="courses" element={<AdminCourses />} />
             <Route path="sessions" element={<AdminSessions />} />
             <Route path="reports" element={<AdminReports />} />
