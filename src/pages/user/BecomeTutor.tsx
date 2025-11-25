@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../../Context/UserContext';
-import { publicApi } from '../../services/api';
-import api from '../../services/api';
+import { publicApi, tutorApi } from '../../services/api';
 import toast from 'react-hot-toast';
 import { GraduationCap, BookOpen, Award, ArrowLeft } from 'lucide-react';
 
@@ -110,30 +109,23 @@ export default function BecomeTutorPage() {
         return;
       }
 
-      const response = await api.post('/api/tutor-profiles', formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      await tutorApi.registerAsTutor(formData);
+      
+      toast.success('Đơn đăng ký đã được gửi thành công! Vui lòng chờ admin phê duyệt.');
+      
+      // Reset form
+      setFormData({
+        title: '',
+        majorId: 0,
+        description: '',
+        subjects: [],
+        experienceYears: 1
       });
-
-      if (response.data.statusCode === 200) {
-        toast.success('Đơn đăng ký đã được gửi thành công! Vui lòng chờ admin phê duyệt.');
-        
-        // Reset form
-        setFormData({
-          title: '',
-          majorId: 0,
-          description: '',
-          subjects: [],
-          experienceYears: 1
-        });
-        
-        // Redirect after 2 seconds
-        setTimeout(() => {
-          window.location.href = '/dashboard';
-        }, 2000);
-      }
+      
+      // Redirect after 2 seconds
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 2000);
     } catch (error: any) {
       console.error('Registration failed:', error);
       const errorMsg = error?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
