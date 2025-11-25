@@ -1,21 +1,37 @@
 import { useUser } from "../Context/UserContext";
 import { useState } from "react";
-import { Menu, X, Search, LayoutDashboard } from "lucide-react";
+import { Menu, X, Search, LayoutDashboard, GraduationCap } from "lucide-react";
 import hcmutLogo from '/src/assets/logo.svg';
 import Avatar from "./Avatar";
+
 export default function Header() {
   const { user } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === "admin" || user?.role === "ADMIN";
+  const isTutor = user?.role === "tutor" || user?.role === "TUTOR";
+  const isStudent = user?.role === "student" || user?.role === "STUDENT";
   const isLoggedIn = !!user;
+
   // Function to close the menu
   const closeMobileMenu = () => {
-      setMobileMenuOpen(false);
+    setMobileMenuOpen(false);
   };
 
-  const navItems = [
-    { name: "Danh sách khóa học", href: "#", requiresAdmin: false },
-  ];
+  // Get role display name
+  const getRoleDisplay = () => {
+    if (isAdmin) return "Admin";
+    if (isTutor) return "Gia sư";
+    if (isStudent) return "Sinh viên";
+    return "User";
+  };
+
+  // Get role color
+  const getRoleBadgeColor = () => {
+    if (isAdmin) return "bg-purple-100 text-purple-700";
+    if (isTutor) return "bg-blue-100 text-blue-700";
+    if (isStudent) return "bg-green-100 text-green-700";
+    return "bg-gray-100 text-gray-700";
+  };
 
   return (
     <nav className="sticky top-0 z-40 bg-white border-b border-gray-200">
@@ -46,30 +62,46 @@ export default function Header() {
           </div>
           
           {/* Desktop Menu & User Actions (Right Side) */}
-          <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-8">
-            <div className="flex space-x-6">
-              {/* Dashboard Admin link - chỉ hiển thị cho admin */}
-              {isAdmin && (
-                <a
-                  href="/admin"
-                  className="flex items-center gap-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600"
-                >
-                  <LayoutDashboard className="h-4 w-4" />
-                  Về Dashboard Admin
-                </a>
-              )}
-              {/* Navigation links */}
-              {navItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  {item.name}
-                </a>
-              ))}
-            </div>
-            
+          <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-4">
+            {/* Dashboard Admin link - chỉ hiển thị cho admin */}
+            {isAdmin && (
+              <a
+                href="/admin"
+                className="flex items-center gap-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Dashboard Admin
+              </a>
+            )}
+
+            {/* Đăng ký làm Gia sư - chỉ hiển thị cho Student */}
+            {isStudent && !isTutor && (
+              <a
+                href="/dashboard/become-tutor"
+                className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+              >
+                <GraduationCap className="h-4 w-4" />
+                Đăng ký làm Gia sư
+              </a>
+            )}
+
+            {/* User Info with Avatar & Role */}
+            {isLoggedIn && (
+              <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2">
+                <Avatar 
+                  name={`${user?.firstName || ""} ${user?.lastName || ""}`}
+                  className="h-8 w-8"
+                />
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-gray-900">
+                    {user?.firstName} {user?.lastName}
+                  </span>
+                  <span className={`text-xs font-medium rounded px-2 py-0.5 ${getRoleBadgeColor()}`}>
+                    {getRoleDisplay()}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
           
           {/* Mobile menu button (Right Side on Mobile) */}
@@ -92,9 +124,9 @@ export default function Header() {
 
       {/* Mobile menu panel */}
       {mobileMenuOpen && (
-        <div className="sm:hidden px-2 pt-2 pb-3 space-y-1 border-t border-gray-100">
-            {/* Search Bar (Mobile) - Does not close menu */}
-            <div className="relative mb-3">
+        <div className="sm:hidden px-2 pt-2 pb-3 space-y-3 border-t border-gray-100">
+            {/* Search Bar (Mobile) */}
+            <div className="relative">
                 <input
                     type="text"
                     placeholder="Tìm kiếm gia sư, buổi học..."
@@ -103,41 +135,48 @@ export default function Header() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             </div>
 
-            {/* Dashboard Admin link for Mobile - chỉ hiển thị cho admin */}
+            {/* User info for Mobile */}
+            {isLoggedIn && (
+                <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+                    <div className="flex items-center gap-3">
+                        <Avatar 
+                            name={`${user?.firstName || ""} ${user?.lastName || ""}`}
+                            className="h-10 w-10" 
+                        />
+                        <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-900">
+                                {user?.firstName} {user?.lastName}
+                            </span>
+                            <span className={`text-xs font-medium rounded px-2 py-0.5 w-fit ${getRoleBadgeColor()}`}>
+                                {getRoleDisplay()}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Dashboard Admin link for Mobile */}
             {isAdmin && (
                 <a
                     href="/admin"
                     onClick={closeMobileMenu}
-                    className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-700 bg-gray-50 hover:bg-gray-100"
+                    className="flex items-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50"
                 >
                     <LayoutDashboard className="h-4 w-4" />
-                    Về Dashboard Admin
+                    Dashboard Admin
                 </a>
             )}
 
-            {/* Navigation links for Mobile */}
-            {navItems.map((item) => (
+            {/* Đăng ký làm Gia sư - Mobile */}
+            {isStudent && !isTutor && (
                 <a
-                    key={item.name}
-                    href={item.href}
-                    onClick={closeMobileMenu} // Closes menu on click
-                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+                    href="/dashboard/become-tutor"
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
                 >
-                    {item.name}
+                    <GraduationCap className="h-4 w-4" />
+                    Đăng ký làm Gia sư
                 </a>
-            ))}
-
-            {/* User info for Mobile */}
-            {isLoggedIn && (
-                <div className="rounded-md px-3 py-2 text-base font-medium text-gray-700 bg-gray-50">
-                    <div className="flex items-center gap-3">
-                        <Avatar 
-                            name={user?.firstName ?? ""} 
-                            className="h-8 w-8 rounded-full" 
-                        />
-                        <span>{user.lastName}</span>
-                    </div>
-                </div>
             )}
         </div>
       )}

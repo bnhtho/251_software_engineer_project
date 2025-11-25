@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
-import { Search } from "lucide-react";
+import { Search, RefreshCw, Filter, CheckCircle, Clock, XCircle } from "lucide-react";
 import { useUser } from "../../Context/UserContext";
 import { courseApi, publicApi } from "../../services/api";
-import type { CourseDTO, DepartmentDTO } from "../../types/api";
+import type { CourseDTO, DepartmentDTO, StudentCourseDTO } from "../../types/api";
 import toast from "react-hot-toast";
 
 export default function CoursePage() {
@@ -12,10 +12,12 @@ export default function CoursePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [selectedTab, setSelectedTab] = useState<'all' | 'registered' | 'available'>('all');
 
   // API data states
   const [courses, setCourses] = useState<CourseDTO[]>([]);
   const [registeredCourses, setRegisteredCourses] = useState<CourseDTO[]>([]);
+  const [registeredDetails, setRegisteredDetails] = useState<StudentCourseDTO[]>([]);
   const [departments, setDepartments] = useState<DepartmentDTO[]>([]);
 
   // Loading states
@@ -70,7 +72,7 @@ export default function CoursePage() {
       ]);
 
       // Try to load registered courses if user is logged in
-      let registeredData: { course: CourseDTO }[] = [];
+      let registeredData: StudentCourseDTO[] = [];
       if (studentId) {
         try {
           const studentCourses = await courseApi.getStudentCourses(studentId);
@@ -85,6 +87,7 @@ export default function CoursePage() {
       setCourses(coursesData);
       setDepartments(departmentsData);
       setRegisteredCourses(registeredData.map((sc) => sc.course || sc));
+      setRegisteredDetails(registeredData);
       
     } catch (error) {
       console.error("Error loading course data:", error);
@@ -137,6 +140,7 @@ export default function CoursePage() {
             studentId
           );
           setRegisteredCourses(updatedRegistered.map((sc) => sc.course));
+          setRegisteredDetails(updatedRegistered);
         }
       } catch (apiError: unknown) {
         // Simulate successful registration when API is not available
@@ -179,7 +183,7 @@ export default function CoursePage() {
     }
   };
 
-  // Filter courses based on search and filters
+  // Filter courses based on search, filters, and tabs
   const filteredCourses = useMemo(() => {
     if (loading) return [];
 
@@ -197,9 +201,20 @@ export default function CoursePage() {
       const matchesStatus =
         selectedStatus === "" || course.status === selectedStatus;
 
-      return matchesSearch && matchesDepartment && matchesStatus;
+      const isRegistered = registeredCourses.some((r) => r.id === course.id);
+      const matchesTab =
+        selectedTab === 'all' ||
+        (selectedTab === 'registered' && isRegistered) ||
+        (selectedTab === 'available' && !isRegistered);
+
+      return matchesSearch && matchesDepartment && matchesStatus && matchesTab;
     });
-  }, [courses, searchTerm, selectedDepartment, selectedStatus, loading]);
+  }, [courses, searchTerm, selectedDepartment, selectedStatus, selectedTab, registeredCourses, loading]);
+
+  // Get registration status for a course
+  const getRegistrationStatus = (courseId: number) => {
+    return registeredDetails.find(r => r.courseId === courseId);
+  };
 
   if (loading) {
     return (
@@ -240,10 +255,22 @@ export default function CoursePage() {
       <div className="space-y-8 p-6">
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12">
-            <h1 className="text-2xl font-bold text-gray-900">Khóa học</h1>
-            <p className="mt-1 text-gray-600">
-              Tìm kiếm và đăng ký các khóa học phù hợp
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Khóa học</h1>
+                <p className="mt-1 text-gray-600">
+                  Tìm kiếm và đăng ký các khóa học phù hợp
+                </p>
+              </div>
+              <button
+                onClick={() => loadData()}
+                className="flex items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                disabled={loading}
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                Làm mới
+              </button>
+            </div>
             {user?.role === 'ADMIN' && registeredCount === 0 && (
               <div className="mt-2 rounded-md bg-blue-50 border border-blue-200 px-3 py-2">
                 <p className="text-sm text-blue-700">
@@ -251,6 +278,49 @@ export default function CoursePage() {
                 </p>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12">
+            <div className="rounded-lg border border-gray-200 bg-white p-2">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSelectedTab('all')}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    selectedTab === 'all'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <Filter className="h-4 w-4" />
+                  Tất cả ({courses.length})
+                </button>
+                <button
+                  onClick={() => setSelectedTab('registered')}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    selectedTab === 'registered'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Đã đăng ký ({registeredCount})
+                </button>
+                <button
+                  onClick={() => setSelectedTab('available')}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    selectedTab === 'available'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <Clock className="h-4 w-4" />
+                  Chưa đăng ký ({courses.length - registeredCount})
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -368,6 +438,7 @@ export default function CoursePage() {
                 (r) => r.id === course.id
               );
               const isRegistering = registering === course.id;
+              const registrationStatus = getRegistrationStatus(course.id);
 
               return (
                 <div key={course.id} className="col-span-12">
@@ -395,9 +466,25 @@ export default function CoursePage() {
                               ? "Đã đóng"
                               : "Sắp mở"}
                           </span>
-                          {isRegistered && (
-                            <span className="inline-block rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">
-                              Đã đăng ký
+                          {registrationStatus && (
+                            <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${
+                              registrationStatus.status === 'APPROVED'
+                                ? 'bg-green-100 text-green-700'
+                                : registrationStatus.status === 'PENDING'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : registrationStatus.status === 'REJECTED'
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-gray-100 text-gray-700'
+                            }`}>
+                              {registrationStatus.status === 'APPROVED' ? (
+                                <><CheckCircle className="h-3 w-3" /> Đã xác nhận</>
+                              ) : registrationStatus.status === 'PENDING' ? (
+                                <><Clock className="h-3 w-3" /> Chờ duyệt</>
+                              ) : registrationStatus.status === 'REJECTED' ? (
+                                <><XCircle className="h-3 w-3" /> Bị từ chối</>
+                              ) : (
+                                <><XCircle className="h-3 w-3" /> {registrationStatus.status}</>
+                              )}
                             </span>
                           )}
                         </div>

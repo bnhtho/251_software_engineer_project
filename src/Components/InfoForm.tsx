@@ -80,7 +80,7 @@ const InfoForm: React.FC = () => {
           phoneNumber: formData.phone, 
         };
 
-        const response = await axios.put(
+        const response = await axios.post(
           `http://localhost:8081/students/profile/${user.id}`,
           apiPayload,
           {

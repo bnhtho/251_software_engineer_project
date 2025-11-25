@@ -26,7 +26,7 @@ const api = axios.create({
 
 // Request interceptor to add JWT token
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("authToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -39,7 +39,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Token expired or invalid - redirect to login
-      localStorage.removeItem("token");
+      localStorage.removeItem("authToken");
       window.location.href = "/login";
     }
     return Promise.reject(error);
@@ -364,6 +364,60 @@ export const tutorApi = {
     const tutor = tutors.find(t => t.id === id);
     if (!tutor) throw new Error('Tutor not found');
     return tutor;
+  },
+
+  // Tutor Dashboard & Statistics
+  getDashboardStats: async (_tutorId: number): Promise<any> => {
+    // TODO: Replace with actual endpoint when available
+    // const response = await api.get<BaseResponse<any>>(`/tutors/${tutorId}/dashboard`);
+    // return response.data.data;
+    throw new Error('Dashboard stats API not yet implemented in backend');
+  },
+
+  // Tutor Sessions Management
+  getTutorSessions: async (_tutorId: number, _params?: any): Promise<BackendSessionDTO[]> => {
+    // TODO: Replace with actual endpoint when available
+    // const response = await api.get<BaseResponse<BackendSessionDTO[]>>(`/tutors/${tutorId}/sessions`, { params });
+    // return response.data.data;
+    
+    // Fallback: Use GET /sessions and filter by tutor
+    const response = await api.get<BaseResponse<BackendSessionDTO[]>>("/sessions");
+    return response.data.data;
+  },
+
+  // Student Registration Management
+  getPendingRegistrations: async (_tutorId: number): Promise<any[]> => {
+    // TODO: Replace with actual endpoint when available
+    // const response = await api.get<BaseResponse<any[]>>(`/tutors/${tutorId}/registrations`);
+    // return response.data.data;
+    throw new Error('Pending registrations API not yet implemented in backend');
+  },
+
+  approveRegistration: async (studentSessionId: number): Promise<void> => {
+    // Backend endpoint exists
+    await api.post(`/tutors/approveStudentSession?studentSessionId=${studentSessionId}`);
+  },
+
+  rejectRegistration: async (studentSessionId: number): Promise<void> => {
+    // Backend endpoint exists
+    await api.post(`/tutors/rejectStudentSession?studentSessionId=${studentSessionId}`);
+  },
+
+  // Tutor Schedule
+  getTutorSchedule: async (_tutorId: number, _startDate: string, _endDate: string): Promise<any[]> => {
+    // TODO: Replace with actual endpoint when available
+    // const response = await api.get<BaseResponse<any[]>>(`/tutors/${tutorId}/schedule`, {
+    //   params: { startDate, endDate }
+    // });
+    // return response.data.data;
+    throw new Error('Tutor schedule API not yet implemented in backend');
+  },
+
+  // Tutor Profile Management
+  registerAsTutor: async (data: any): Promise<any> => {
+    // Endpoint used in BecomeTutor.tsx
+    const response = await api.post<BaseResponse<any>>('/api/tutor-profiles', data);
+    return response.data.data;
   },
 };
 
