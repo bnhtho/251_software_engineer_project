@@ -49,7 +49,7 @@ export default function CoursePage() {
         coursesData = await courseApi.getCourses();
       } catch (error: any) {
         console.error("Course API error:", error);
-        
+
         // Handle 401 (unauthorized) - token expired
         if (error?.response?.status === 401) {
           toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
@@ -59,7 +59,7 @@ export default function CoursePage() {
           }, 2000);
           return;
         }
-        
+
         coursesData = [];
         toast.error("Không thể tải danh sách khoá học từ server");
       }
@@ -88,7 +88,7 @@ export default function CoursePage() {
       setDepartments(departmentsData);
       setRegisteredCourses(registeredData.map((sc) => sc.course || sc));
       setRegisteredDetails(registeredData);
-      
+
     } catch (error) {
       console.error("Error loading course data:", error);
       toast.error("Không thể tải dữ liệu khóa học");
@@ -166,14 +166,14 @@ export default function CoursePage() {
     } catch (error: unknown) {
       const errorMessage =
         error &&
-        typeof error === "object" &&
-        "response" in error &&
-        error.response &&
-        typeof error.response === "object" &&
-        "data" in error.response &&
-        error.response.data &&
-        typeof error.response.data === "object" &&
-        "message" in error.response.data
+          typeof error === "object" &&
+          "response" in error &&
+          error.response &&
+          typeof error.response === "object" &&
+          "data" in error.response &&
+          error.response.data &&
+          typeof error.response.data === "object" &&
+          "message" in error.response.data
           ? String(error.response.data.message)
           : "Đăng ký thất bại";
       setMessage(`❌ ${errorMessage}`);
@@ -288,33 +288,30 @@ export default function CoursePage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setSelectedTab('all')}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    selectedTab === 'all'
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${selectedTab === 'all'
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   <Filter className="h-4 w-4" />
                   Tất cả ({courses.length})
                 </button>
                 <button
                   onClick={() => setSelectedTab('registered')}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    selectedTab === 'registered'
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${selectedTab === 'registered'
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   <CheckCircle className="h-4 w-4" />
                   Đã đăng ký ({registeredCount})
                 </button>
                 <button
                   onClick={() => setSelectedTab('available')}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    selectedTab === 'available'
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${selectedTab === 'available'
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   <Clock className="h-4 w-4" />
                   Chưa đăng ký ({courses.length - registeredCount})
@@ -334,7 +331,7 @@ export default function CoursePage() {
                     <input
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Tìm kiếm khóa học theo tên, mã, giảng viên..."
+                      placeholder="Tìm kiếm khóa học theo tên, mã, gia sư..."
                       className="w-full text-sm placeholder-gray-400 outline-none"
                     />
                   </div>
@@ -404,11 +401,10 @@ export default function CoursePage() {
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12">
               <div
-                className={`rounded-md p-3 text-sm ${
-                  message.startsWith("❌")
+                className={`rounded-md p-3 text-sm ${message.startsWith("❌")
                     ? "bg-red-50 text-red-700"
                     : "bg-blue-50 text-blue-700"
-                }`}
+                  }`}
               >
                 {message}
               </div>
@@ -450,32 +446,30 @@ export default function CoursePage() {
                             {course.name}
                           </h3>
                           <span
-                            className={`inline-block rounded px-2 py-0.5 text-xs ${
-                              course.status === "OPEN"
+                            className={`inline-block rounded px-2 py-0.5 text-xs ${course.status === "OPEN"
                                 ? "bg-green-100 text-green-700"
                                 : course.status === "FULL"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
-                            }`}
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-yellow-100 text-yellow-700"
+                              }`}
                           >
                             {course.status === "OPEN"
                               ? "Đang mở"
                               : course.status === "FULL"
-                              ? "Đã đầy"
-                              : course.status === "CLOSED"
-                              ? "Đã đóng"
-                              : "Sắp mở"}
+                                ? "Đã đầy"
+                                : course.status === "CLOSED"
+                                  ? "Đã đóng"
+                                  : "Sắp mở"}
                           </span>
                           {registrationStatus && (
-                            <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${
-                              registrationStatus.status === 'APPROVED'
+                            <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${registrationStatus.status === 'APPROVED'
                                 ? 'bg-green-100 text-green-700'
                                 : registrationStatus.status === 'PENDING'
-                                ? 'bg-yellow-100 text-yellow-700'
-                                : registrationStatus.status === 'REJECTED'
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-gray-100 text-gray-700'
-                            }`}>
+                                  ? 'bg-yellow-100 text-yellow-700'
+                                  : registrationStatus.status === 'REJECTED'
+                                    ? 'bg-red-100 text-red-700'
+                                    : 'bg-gray-100 text-gray-700'
+                              }`}>
                               {registrationStatus.status === 'APPROVED' ? (
                                 <><CheckCircle className="h-3 w-3" /> Đã xác nhận</>
                               ) : registrationStatus.status === 'PENDING' ? (
@@ -546,14 +540,14 @@ export default function CoursePage() {
                           {user?.role === 'ADMIN'
                             ? "Không thể đăng ký"
                             : isRegistering
-                            ? "Đang xử lý..."
-                            : isRegistered
-                            ? "Đã đăng ký"
-                            : course.status === "FULL"
-                            ? "Đã đầy"
-                            : course.status === "CLOSED"
-                            ? "Đã đóng"
-                            : "Đăng ký"}
+                              ? "Đang xử lý..."
+                              : isRegistered
+                                ? "Đã đăng ký"
+                                : course.status === "FULL"
+                                  ? "Đã đầy"
+                                  : course.status === "CLOSED"
+                                    ? "Đã đóng"
+                                    : "Đăng ký"}
                         </button>
                       </div>
                     </div>

@@ -24,7 +24,7 @@ const sampleTutors: Tutor[] = [
     title: "Tiến sĩ",
     department: "Khoa Toán - Tin học",
     description:
-      "Giảng viên với hơn 8 năm kinh nghiệm giảng dạy Toán Cao Cấp, tận tâm hỗ trợ sinh viên.",
+      "Với hơn 8 năm kinh nghiệm giảng dạy Toán Cao Cấp, tận tâm hỗ trợ sinh viên.",
     specializations: ["Toán Cao Cấp", "Giải tích", "Đại số"],
     rating: 4.9,
     reviewCount: 124,

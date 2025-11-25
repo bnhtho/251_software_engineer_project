@@ -19,7 +19,7 @@ import toast from 'react-hot-toast';
 export default function SchedulePage() {
   const { user } = useUser();
   const studentId = user?.id || 0;
-  
+
   const [weekStart, setWeekStart] = useState("04/11/2025");
   const [weekEnd, setWeekEnd] = useState("10/11/2025");
   const [sessions, setSessions] = useState<SessionDTO[]>([]);
@@ -30,17 +30,17 @@ export default function SchedulePage() {
   const changeWeek = (direction: 'prev' | 'next') => {
     const [day, month, year] = weekStart.split('/').map(Number);
     const currentDate = new Date(year, month - 1, day);
-    
+
     if (direction === 'prev') {
       currentDate.setDate(currentDate.getDate() - 7);
     } else {
       currentDate.setDate(currentDate.getDate() + 7);
     }
-    
+
     const newStart = currentDate.toLocaleDateString('en-GB');
     currentDate.setDate(currentDate.getDate() + 6);
     const newEnd = currentDate.toLocaleDateString('en-GB');
-    
+
     setWeekStart(newStart);
     setWeekEnd(newEnd);
   };
@@ -52,13 +52,13 @@ export default function SchedulePage() {
       setLoading(false);
       return;
     }
-    
+
     try {
       setLoading(true);
       // Convert date format for API (assuming YYYY-MM-DD format)
       const startDate = convertToApiDate(weekStart);
       const endDate = convertToApiDate(weekEnd);
-      
+
       // Now using the correct endpoint: GET /students/history/{userId}
       const sessionsData = await scheduleApi.getStudentSessions(studentId, {
         startDate,
@@ -67,7 +67,7 @@ export default function SchedulePage() {
       setSessions(sessionsData);
     } catch (error: any) {
       console.error('Error loading sessions:', error);
-      
+
       // Handle 403 - could be empty history or permission issue
       if (error?.response?.status === 403) {
         console.log('Cannot access student history (403) - probably no sessions registered yet');
@@ -100,7 +100,7 @@ export default function SchedulePage() {
     const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
     const dayName = dayNames[sessionDate.getDay()];
     const dateStr = session.sessionDate.split('-').reverse().join('/'); // Convert YYYY-MM-DD to DD/MM/YYYY
-    
+
     return {
       id: session.id,
       courseName: session.course?.name || 'N/A',
@@ -142,7 +142,7 @@ METHOD:PUBLISH
     sessions.forEach(session => {
       const startDateTime = `${session.sessionDate.replace(/-/g, '')}T${session.startTime.replace(/:/g, '')}00`;
       const endDateTime = `${session.sessionDate.replace(/-/g, '')}T${session.endTime.replace(/:/g, '')}00`;
-      
+
       ical += `BEGIN:VEVENT
 `;
       ical += `UID:session-${session.id}@tutorsystem.com
@@ -155,7 +155,7 @@ METHOD:PUBLISH
 `;
       ical += `SUMMARY:${session.course?.name || 'Session'}
 `;
-      ical += `DESCRIPTION:Giảng viên: ${session.course?.tutorName || 'N/A'}
+      ical += `DESCRIPTION:gia sư: ${session.course?.tutorName || 'N/A'}
 `;
       ical += `LOCATION:${session.location || (session.locationType === 'ONLINE' ? 'Online' : 'N/A')}
 `;
@@ -252,33 +252,30 @@ METHOD:PUBLISH
               <div className="flex gap-2">
                 <button
                   onClick={() => setLocationFilter('all')}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    locationFilter === 'all'
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${locationFilter === 'all'
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   <Filter className="h-4 w-4" />
                   Tất cả ({sessions.length})
                 </button>
                 <button
                   onClick={() => setLocationFilter('online')}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    locationFilter === 'online'
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${locationFilter === 'online'
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   <Laptop className="h-4 w-4" />
                   Online ({onlineCount})
                 </button>
                 <button
                   onClick={() => setLocationFilter('offline')}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    locationFilter === 'offline'
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${locationFilter === 'offline'
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   <MapPin className="h-4 w-4" />
                   Offline ({offlineCount})
@@ -291,7 +288,7 @@ METHOD:PUBLISH
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 md:col-span-8 md:col-start-3">
             <div className="flex items-center justify-center gap-4 rounded-lg border border-gray-200 bg-white p-6">
-              <button 
+              <button
                 onClick={() => changeWeek('prev')}
                 className="rounded-md border border-gray-300 px-3 py-2 transition-colors hover:bg-gray-50"
               >
@@ -303,7 +300,7 @@ METHOD:PUBLISH
                   Tuần: {weekStart} - {weekEnd}
                 </p>
               </div>
-              <button 
+              <button
                 onClick={() => changeWeek('next')}
                 className="rounded-md border border-gray-300 px-3 py-2 transition-colors hover:bg-gray-50"
               >
@@ -376,7 +373,7 @@ METHOD:PUBLISH
                   {sessions.length === 0 ? 'Chưa có buổi học nào' : 'Không có kết quả'}
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  {sessions.length === 0 
+                  {sessions.length === 0
                     ? 'Bạn chưa đăng ký buổi học nào hoặc không có buổi học trong tuần này'
                     : `Không có buổi học ${locationFilter === 'online' ? 'online' : 'offline'} trong tuần này`
                   }
@@ -407,7 +404,7 @@ METHOD:PUBLISH
                           Mã môn
                         </th>
                         <th className="hidden px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 sm:px-4 sm:table-cell">
-                          Giảng viên
+                          gia sư
                         </th>
                         <th className="px-2 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 sm:px-4">
                           Ngày
@@ -457,11 +454,10 @@ METHOD:PUBLISH
                           </td>
                           <td className="px-2 py-4 sm:px-4">
                             <span
-                              className={`inline-flex items-center gap-1 rounded px-3 py-1 text-xs font-medium ${
-                                course.locationType === "OFFLINE"
+                              className={`inline-flex items-center gap-1 rounded px-3 py-1 text-xs font-medium ${course.locationType === "OFFLINE"
                                   ? "bg-green-100 text-green-800"
                                   : "bg-blue-100 text-blue-800"
-                              }`}
+                                }`}
                             >
                               {course.locationType === "OFFLINE" ? (
                                 <MapPin className="h-3 w-3" />

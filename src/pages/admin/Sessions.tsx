@@ -28,7 +28,7 @@ const AdminSessions = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingSession, setEditingSession] = useState<BackendSessionDTO | null>(null);
-  
+
   // Form state
   const [formData, setFormData] = useState({
     subjectId: 0,
@@ -76,12 +76,12 @@ const AdminSessions = () => {
       loadData();
     } catch (error: any) {
       console.error("Error saving session:", error);
-      
+
       // Handle 403 - only tutor can edit their own sessions
       if (error?.response?.status === 403) {
-        toast.error(editingSession 
-          ? "Chỉ giảng viên tạo buổi học mới có quyền chỉnh sửa" 
-          : "Không có quyền tạo buổi học. Vui lòng đăng nhập bằng tài khoản giảng viên.");
+        toast.error(editingSession
+          ? "Chỉ gia sư tạo buổi học mới có quyền chỉnh sửa"
+          : "Không có quyền tạo buổi học. Vui lòng đăng nhập bằng tài khoản gia sư.");
       } else {
         toast.error(editingSession ? "Không thể cập nhật" : "Không thể tạo buổi học");
       }
@@ -96,10 +96,10 @@ const AdminSessions = () => {
       loadData();
     } catch (error: any) {
       console.error("Error deleting session:", error);
-      
+
       // Handle 403 - only tutor can delete their own sessions
       if (error?.response?.status === 403) {
-        toast.error("Chỉ giảng viên tạo buổi học mới có quyền xóa");
+        toast.error("Chỉ gia sư tạo buổi học mới có quyền xóa");
       } else {
         toast.error("Không thể xóa buổi học");
       }
@@ -174,7 +174,7 @@ const AdminSessions = () => {
           <div className="flex-1">
             <h3 className="text-sm font-semibold text-yellow-800">Lưu ý về quyền hạn</h3>
             <p className="mt-1 text-sm text-yellow-700">
-              Chỉ <strong>giảng viên tạo buổi học</strong> mới có quyền chỉnh sửa hoặc xóa. 
+              Chỉ <strong>gia sư tạo buổi học</strong> mới có quyền chỉnh sửa hoặc xóa.
               Admin chỉ có thể xem danh sách và tạo buổi học mới (nếu đăng nhập với role Tutor).
             </p>
           </div>
@@ -229,7 +229,7 @@ const AdminSessions = () => {
                   Môn học
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                  Giảng viên
+                  gia sư
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
                   Thời gian
@@ -280,11 +280,10 @@ const AdminSessions = () => {
                     </td>
                     <td className="px-4 py-4 text-sm">
                       <span
-                        className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium ${
-                          session.currentQuantity >= session.maxQuantity
+                        className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium ${session.currentQuantity >= session.maxQuantity
                             ? "bg-red-100 text-red-700"
                             : "bg-green-100 text-green-700"
-                        }`}
+                          }`}
                       >
                         {session.currentQuantity}/{session.maxQuantity}
                       </span>

@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useUser } from "../Context/UserContext";
 import { useState, useEffect, useRef } from "react";
 import { ChevronRight, Home, Users, BookOpen, FileText, Settings, Bell, User, Menu, LogOut, UserCircle, ChevronDown, Calendar, MessageSquare } from "lucide-react";
-import React from "react"; 
+import React from "react";
 import Avatar from "./Avatar";
 
 type NavItemType = {
@@ -19,7 +19,7 @@ type NavItemDividerType = {
 
 export default function Sidebar() {
     const { user, logout } = useUser();
-      const name = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
+    const name = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
 
     // Hàm lấy label cho tài liệu dựa trên role
     const getMaterialsLabel = () => {
@@ -30,19 +30,17 @@ export default function Sidebar() {
 
     const mainNavItems: (NavItemType | NavItemDividerType)[] = [
         { icon: Home, label: "Trang chủ", path: "" },
-        { icon: BookOpen , label: "Lịch học", path: "schedule" },
+        { icon: BookOpen, label: "Lịch học", path: "schedule" },
         { icon: Calendar, label: "Khóa học", path: "courses" },
         { icon: Users, label: "Danh sách Gia sư", path: "tutors" },
         { icon: FileText, label: getMaterialsLabel(), path: "materials" },
         // NOTE:  Khi nào có chức năng phản hồi và báo cáo thì mở lại
         // { icon: MessageSquare , label: "Phản hồi", path: "feedback" },
         // { icon: Menu, label: "Báo cáo", path: "reports" },
-        { divider: true }, 
+        { divider: true },
     ];
 
-    const bottomItems: NavItemType[] = [
-        { icon: Bell, label: "Thông báo", path: "notifications", isFooter: true },
-    ];
+
     const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -63,14 +61,14 @@ export default function Sidebar() {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []); 
+    }, []);
 
     // Hàm render link (sử dụng NavLink hoặc Button)
     const renderNavItem = (item: NavItemType, key: number) => {
         // Nếu là mục footer, dùng button
         if (item.isFooter) {
             return (
-                <button 
+                <button
                     key={key}
                     onClick={() => { /* Xử lý sự kiện footer click */ }}
                     className="w-full flex items-center gap-3 px-4 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 transition-colors"
@@ -90,24 +88,23 @@ export default function Sidebar() {
                 to={toPath}
                 end={item.path === ""}
                 className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium ${
-                        isActive
-                            ? "bg-gray-100 text-[#0E7AA0]" // Sử dụng màu xanh HCMUT
-                            : "text-gray-700 hover:bg-gray-100 transition-colors"
+                    `flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium ${isActive
+                        ? "bg-gray-100 text-[#0E7AA0]" // Sử dụng màu xanh HCMUT
+                        : "text-gray-700 hover:bg-gray-100 transition-colors"
                     }`
                 }
             >
                 <item.icon className="h-5 w-5" />
                 <span>{item.label}</span>
                 {/* Thêm lại ChevronRight nếu bạn muốn nó xuất hiện */}
-                <ChevronRight className="ml-auto h-4 w-4 text-gray-400" /> 
+                <ChevronRight className="ml-auto h-4 w-4 text-gray-400" />
             </NavLink>
         );
     };
 
     return (
-              <aside
-          className={`
+        <aside
+            className={`
             flex flex-col h-full w-full bg-white border-r border-gray-200 
             
           `}
@@ -123,9 +120,7 @@ export default function Sidebar() {
             </nav>
 
             {/* --- 3. Bottom Menu (Dính ở đáy nhờ Flexbox) --- */}
-            <div className="w-full border-t border-gray-200 bg-white px-2 py-4 space-y-1 shrink-0"> 
-                {bottomItems.map((item, idx) => renderNavItem(item, idx + mainNavItems.length))}
-                
+            <div className="w-full border-t border-gray-200 bg-white px-2 py-4 space-y-1 shrink-0">
                 {/* Account Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                     <button
@@ -136,22 +131,22 @@ export default function Sidebar() {
                         <span>Tài khoản</span>
                         <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${accountDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
-                    
+
                     {/* Dropdown Menu */}
                     {accountDropdownOpen && (
                         <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                             {/* User Info */}
                             <div className="px-4 py-3 border-b border-gray-100">
                                 <div className="flex items-center gap-3">
-                                    
-                                    <Avatar name={`${user?.firstName} ${user?.lastName}`} />
+
+                                    <Avatar name={`${user?.lastName}`} />
                                     <div>
                                         <p className="text-sm font-medium text-gray-900">{name || ''}</p>
                                         <p className="text-xs text-gray-500 capitalize">{user?.role || 'student'}</p>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* Menu Items */}
                             <div className="py-1">
                                 <NavLink
@@ -162,18 +157,10 @@ export default function Sidebar() {
                                     <UserCircle className="h-4 w-4" />
                                     <span>Thông tin cá nhân</span>
                                 </NavLink>
-                                
-                                <NavLink
-                                    to="/dashboard/settings"
-                                    onClick={() => setAccountDropdownOpen(false)}
-                                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                                >
-                                    <Settings className="h-4 w-4" />
-                                    <span>Cài đặt</span>
-                                </NavLink>
-                                
+
+
                                 <hr className="my-1 border-gray-100" />
-                                
+
                                 <button
                                     onClick={handleLogout}
                                     className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"

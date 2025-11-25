@@ -42,9 +42,6 @@ export default function TutorSidebar() {
     { divider: true },
   ];
 
-  const bottomItems: NavItemType[] = [
-    { icon: Bell, label: "Thông báo", path: "notifications", isFooter: true },
-  ];
 
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -97,10 +94,9 @@ export default function TutorSidebar() {
         to={toPath}
         end={item.path === ""}
         className={({ isActive }) =>
-          `flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium ${
-            isActive
-              ? "bg-blue-50 text-blue-600"
-              : "text-gray-700 hover:bg-gray-100 transition-colors"
+          `flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium ${isActive
+            ? "bg-blue-50 text-blue-600"
+            : "text-gray-700 hover:bg-gray-100 transition-colors"
           }`
         }
       >
@@ -125,10 +121,6 @@ export default function TutorSidebar() {
 
       {/* Bottom Menu */}
       <div className="w-full border-t border-gray-200 bg-white px-2 py-4 space-y-1 shrink-0">
-        {bottomItems.map((item, idx) =>
-          renderNavItem(item, idx + mainNavItems.length)
-        )}
-
         {/* Account Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
@@ -138,9 +130,8 @@ export default function TutorSidebar() {
             <User className="h-5 w-5" />
             <span>Tài khoản</span>
             <ChevronDown
-              className={`ml-auto h-4 w-4 transition-transform ${
-                accountDropdownOpen ? "rotate-180" : ""
-              }`}
+              className={`ml-auto h-4 w-4 transition-transform ${accountDropdownOpen ? "rotate-180" : ""
+                }`}
             />
           </button>
 
@@ -151,7 +142,7 @@ export default function TutorSidebar() {
               <div className="px-4 py-3 border-b border-gray-100">
                 <div className="flex items-center gap-3">
                   <Avatar
-                    name={`${user?.firstName} ${user?.lastName}`}
+                    name={`${user?.lastName}`}
                   />
                   <div>
                     <p className="text-sm font-medium text-gray-900">
@@ -175,14 +166,7 @@ export default function TutorSidebar() {
                   <span>Thông tin cá nhân</span>
                 </NavLink>
 
-                <NavLink
-                  to="/tutor/settings"
-                  onClick={() => setAccountDropdownOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                >
-                  <Settings className="h-4 w-4" />
-                  <span>Cài đặt</span>
-                </NavLink>
+
 
                 <hr className="my-1 border-gray-100" />
 
@@ -198,6 +182,6 @@ export default function TutorSidebar() {
           )}
         </div>
       </div>
-    </aside>
+    </aside >
   );
 }

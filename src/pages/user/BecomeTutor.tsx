@@ -33,7 +33,7 @@ export default function BecomeTutorPage() {
     subjects: [],
     experienceYears: 1
   });
-  
+
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [majors, setMajors] = useState<Major[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,7 +56,7 @@ export default function BecomeTutorPage() {
         setLoading(false);
       }
     };
-    
+
     loadData();
   }, []);
 
@@ -79,23 +79,23 @@ export default function BecomeTutorPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formData.title.trim()) {
       toast.error('Vui lòng nhập chức danh');
       return;
     }
-    
+
     if (formData.majorId === 0) {
       toast.error('Vui lòng chọn ngành học');
       return;
     }
-    
+
     if (formData.subjects.length === 0) {
       toast.error('Vui lòng chọn ít nhất 1 môn học');
       return;
     }
-    
+
     if (!formData.description.trim()) {
       toast.error('Vui lòng nhập mô tả kinh nghiệm');
       return;
@@ -108,11 +108,11 @@ export default function BecomeTutorPage() {
         toast.error('Vui lòng đăng nhập');
         return;
       }
-
+      console.log(formData)
       await tutorApi.registerAsTutor(formData);
-      
+
       toast.success('Đơn đăng ký đã được gửi thành công! Vui lòng chờ admin phê duyệt.');
-      
+
       // Reset form
       setFormData({
         title: '',
@@ -121,7 +121,7 @@ export default function BecomeTutorPage() {
         subjects: [],
         experienceYears: 1
       });
-      
+
       // Redirect after 2 seconds
       setTimeout(() => {
         window.location.href = '/dashboard';
@@ -153,7 +153,7 @@ export default function BecomeTutorPage() {
     );
   }
 
-  if (user.role !== 'STUDENT') {
+  if (user.role !== 'student') {
     return (
       <div className="flex items-center justify-center min-h-96">
         <div className="text-center max-w-md">
@@ -287,11 +287,10 @@ export default function BecomeTutorPage() {
                 {subjects.map(subject => (
                   <label
                     key={subject.id}
-                    className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                      formData.subjects.includes(subject.id)
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${formData.subjects.includes(subject.id)
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                      }`}
                   >
                     <input
                       type="checkbox"

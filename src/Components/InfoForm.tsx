@@ -42,7 +42,7 @@ const InfoForm: React.FC = () => {
         hcmutId: user.hcmutId || "",
         firstName: user.firstName || "",
         lastName: user.lastName || "",
-        dob: user.dob ? user.dob.toString().substring(0, 10) : "", 
+        dob: user.dob ? user.dob.toString().substring(0, 10) : "",
         otherMethodContact: user.otherMethodContact || "",
         phone: user.phone || "",
       };
@@ -61,7 +61,7 @@ const InfoForm: React.FC = () => {
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (!user?.id) return;
-      
+
       const token = localStorage.getItem("authToken");
       if (!token) {
         toast.error("Phiên đăng nhập hết hạn.");
@@ -77,10 +77,10 @@ const InfoForm: React.FC = () => {
           dob: formData.dob,
           otherMethodContact: formData.otherMethodContact,
           phone: formData.phone,
-          phoneNumber: formData.phone, 
+          phoneNumber: formData.phone,
         };
 
-        const response = await axios.post(
+        const response = await axios.put(
           `http://localhost:8081/students/profile/${user.id}`,
           apiPayload,
           {
@@ -92,22 +92,22 @@ const InfoForm: React.FC = () => {
         );
 
         console.log(">>> Update Success:", response.data);
-        
+
         // --- LOGIC UPDATE UI NHANH ---
         const responseData = response.data?.data || response.data || {};
-        
+
         const updatedUser = {
-            ...user,
-            ...responseData,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            dob: formData.dob,
-            otherMethodContact: formData.otherMethodContact,
-            phone: formData.phone
+          ...user,
+          ...responseData,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          dob: formData.dob,
+          otherMethodContact: formData.otherMethodContact,
+          phone: formData.phone
         };
 
         setUserDirectly(updatedUser);
-        
+
         setInitialFormData(formData);
         toast.success('Cập nhật thông tin thành công!');
 
@@ -222,7 +222,7 @@ const InfoForm: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setFormData(initialFormData)}
-                disabled={isSubmitting} 
+                disabled={isSubmitting}
                 className="px-6 py-2 border border-gray-300 text-gray-700 font-medium text-sm rounded-lg hover:bg-gray-50 transition duration-150 disabled:opacity-50"
               >
                 Hủy

@@ -18,7 +18,7 @@ import Avatar from "../../Components/Avatar";
 
 const adminNavItems = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/admin" },
-  { icon: Users, label: "Danh sách gia sư chờ duyệt", to: "/admin/tutors" },
+  { icon: Users, label: "Danh sách gia sư", to: "/admin/tutors" },
   { icon: BookOpen, label: "Khóa học", to: "/admin/courses" },
   { icon: CalendarCheck, label: "Buổi học", to: "/admin/sessions" },
 ];
@@ -110,13 +110,13 @@ const AdminLayout = () => {
           <div className="ml-auto flex items-center gap-3">
             <div className="hidden text-right md:block">
               <p className="text-sm font-semibold text-gray-900">
-                {user?.name ?? "Admin"}
+                {user?.firstName} {user?.lastName ?? "Admin"}
               </p>
               <p className="text-xs text-gray-500 capitalize">
                 {user?.role ?? "admin"}
               </p>
             </div>
-            <Avatar name={user?.name ?? "Admin"} className="h-10 w-10" />
+            <Avatar name={user?.firstName ?? "Admin"} className="h-10 w-10" />
           </div>
         </header>
 
