@@ -6,6 +6,7 @@ import HomePage from "./pages/user/HomePage";
 import Profile from "./pages/user/Profile";
 import CoursePage from "./pages/user/Course";
 import TutorList from "./pages/user/TutorList";
+import BecomeTutor from "./pages/user/BecomeTutor";
 import Materials from "./pages/shared/materials";
 import UserLayout from "./layouts/user/UserLayout";
 import AdminLayout from "./layouts/admin/AdminLayout";
@@ -22,6 +23,9 @@ import { UserProvider } from "./Context/UserContext";
 // Tutor
 import TutorHomePage from "./pages/tutor/TutorHomepage";
 import TutorProfilePage from "./pages/tutor/TutorProfile";
+import TutorSessions from "./pages/tutor/TutorSessions";
+import TutorRegistrations from "./pages/tutor/TutorRegistrations";
+import TutorSchedule from "./pages/tutor/TutorSchedule";
 // import StudentHomePage from "./pages/student/StudentHomePage"; // Student dashboard
 import { Home } from "lucide-react";
 export default function App() {
@@ -51,6 +55,7 @@ export default function App() {
             <Route path="courses" element={<CoursePage />} />
             <Route path="tutors" element={<TutorList />} />
             <Route path="materials" element={<Materials />} />
+            <Route path="become-tutor" element={<BecomeTutor />} />
           </Route>
 
           {/* ========== TUTOR ROUTES ========== */}
@@ -65,7 +70,10 @@ export default function App() {
             <Route index element={<TutorHomePage />} /> {/* Tutor Dashboard */}
             <Route path="dashboard" element={<TutorHomePage />} />
             <Route path="profile" element={<TutorProfilePage />} />
-            {/* Các route khác của tutor */}
+            <Route path="sessions" element={<TutorSessions />} />
+            <Route path="registrations" element={<TutorRegistrations />} />
+            <Route path="schedule" element={<TutorSchedule />} />
+            <Route path="materials" element={<Materials />} />
           </Route>
 
           {/* ========== ADMIN ROUTES ========== */}
