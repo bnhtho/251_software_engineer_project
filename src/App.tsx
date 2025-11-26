@@ -26,78 +26,84 @@ import TutorProfilePage from "./pages/tutor/TutorProfile";
 import TutorSessions from "./pages/tutor/TutorSessions";
 import TutorRegistrations from "./pages/tutor/TutorRegistrations";
 import TutorSchedule from "./pages/tutor/TutorSchedule";
+import { ToastContainer, toast } from 'react-toastify';
+
 // import StudentHomePage from "./pages/student/StudentHomePage"; // Student dashboard
 import { Home } from "lucide-react";
 export default function App() {
   return (
-    <UserProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* ========== ROOT REDIRECT ========== */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+    <>
 
-          {/* ========== PUBLIC ROUTES ========== */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
+      <UserProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* ========== ROOT REDIRECT ========== */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
 
-          {/* ========== PROTECTED ROUTES (User Dashboard) ========== */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <UserLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<HomePage />} /> {/* Student Dashboard */}
-            <Route path="profile" element={<Profile />} />
-            <Route path="schedule" element={<Schedule />} />
-            <Route path="courses" element={<CoursePage />} />
-            <Route path="tutors" element={<TutorList />} />
-            <Route path="materials" element={<Materials />} />
-            <Route path="become-tutor" element={<BecomeTutor />} />
-          </Route>
+            {/* ========== PUBLIC ROUTES ========== */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/admin/login" element={<AdminLoginPage />} />
 
-          {/* ========== TUTOR ROUTES ========== */}
-          <Route
-            path="/tutor"
-            element={
-              <ProtectedRoute requireTutor> {/* Đảm bảo người dùng là tutor */}
-                <UserLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<TutorHomePage />} /> {/* Tutor Dashboard */}
-            <Route path="dashboard" element={<TutorHomePage />} />
-            <Route path="profile" element={<TutorProfilePage />} />
-            <Route path="sessions" element={<TutorSessions />} />
-            <Route path="registrations" element={<TutorRegistrations />} />
-            <Route path="schedule" element={<TutorSchedule />} />
-            <Route path="materials" element={<Materials />} />
-          </Route>
+            {/* ========== PROTECTED ROUTES (User Dashboard) ========== */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <UserLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<HomePage />} /> {/* Student Dashboard */}
+              <Route path="profile" element={<Profile />} />
+              <Route path="schedule" element={<Schedule />} />
+              <Route path="courses" element={<CoursePage />} />
+              <Route path="tutors" element={<TutorList />} />
+              <Route path="materials" element={<Materials />} />
+              <Route path="become-tutor" element={<BecomeTutor />} />
+            </Route>
 
-          {/* ========== ADMIN ROUTES ========== */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute requireAdmin>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<AdminDashboard />} />
-            <Route path="tutors" element={<AdminTutorsPending />} />
-            <Route path="courses" element={<AdminCourses />} />
-            <Route path="sessions" element={<AdminSessions />} />
-            <Route path="reports" element={<AdminReports />} />
-            <Route path="feedback" element={<AdminFeedback />} />
-            <Route path="settings" element={<AdminSettings />} />
-          </Route>
+            {/* ========== TUTOR ROUTES ========== */}
+            <Route
+              path="/tutor"
+              element={
+                <ProtectedRoute requireTutor> {/* Đảm bảo người dùng là tutor */}
+                  <UserLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<TutorHomePage />} /> {/* Tutor Dashboard */}
+              <Route path="dashboard" element={<TutorHomePage />} />
+              <Route path="profile" element={<TutorProfilePage />} />
+              <Route path="sessions" element={<TutorSessions />} />
+              <Route path="registrations" element={<TutorRegistrations />} />
+              <Route path="schedule" element={<TutorSchedule />} />
+              <Route path="materials" element={<Materials />} />
+            </Route>
 
-          {/* ========== ERROR HANDLING ========== */}
-          <Route path="*" element={<PageNotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </UserProvider>
+            {/* ========== ADMIN ROUTES ========== */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="tutors" element={<AdminTutorsPending />} />
+              <Route path="courses" element={<AdminCourses />} />
+              <Route path="sessions" element={<AdminSessions />} />
+              <Route path="reports" element={<AdminReports />} />
+              <Route path="feedback" element={<AdminFeedback />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
+
+            {/* ========== ERROR HANDLING ========== */}
+            <Route path="*" element={<PageNotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </UserProvider>
+      <ToastContainer />
+    </>
   );
 }

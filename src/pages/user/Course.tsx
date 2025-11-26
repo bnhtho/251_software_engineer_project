@@ -116,7 +116,7 @@ export default function CoursePage() {
     }
 
     // Check if user is admin
-    if (user?.role === 'ADMIN') {
+    if (user?.role === 'admin') {
       toast.error("Admin không thể đăng ký khoá học. Vui lòng đăng nhập bằng tài khoản sinh viên.");
       return;
     }
@@ -271,7 +271,7 @@ export default function CoursePage() {
                 Làm mới
               </button>
             </div>
-            {user?.role === 'ADMIN' && registeredCount === 0 && (
+            {user?.role === 'admin' && registeredCount === 0 && (
               <div className="mt-2 rounded-md bg-blue-50 border border-blue-200 px-3 py-2">
                 <p className="text-sm text-blue-700">
                   ℹ️ Bạn đang xem với quyền <strong>Admin</strong>. Không hiển thị danh sách đã đăng ký.
@@ -289,8 +289,8 @@ export default function CoursePage() {
                 <button
                   onClick={() => setSelectedTab('all')}
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${selectedTab === 'all'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
                     }`}
                 >
                   <Filter className="h-4 w-4" />
@@ -299,8 +299,8 @@ export default function CoursePage() {
                 <button
                   onClick={() => setSelectedTab('registered')}
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${selectedTab === 'registered'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
                     }`}
                 >
                   <CheckCircle className="h-4 w-4" />
@@ -309,8 +309,8 @@ export default function CoursePage() {
                 <button
                   onClick={() => setSelectedTab('available')}
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${selectedTab === 'available'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
                     }`}
                 >
                   <Clock className="h-4 w-4" />
@@ -402,8 +402,8 @@ export default function CoursePage() {
             <div className="col-span-12">
               <div
                 className={`rounded-md p-3 text-sm ${message.startsWith("❌")
-                    ? "bg-red-50 text-red-700"
-                    : "bg-blue-50 text-blue-700"
+                  ? "bg-red-50 text-red-700"
+                  : "bg-blue-50 text-blue-700"
                   }`}
               >
                 {message}
@@ -447,10 +447,10 @@ export default function CoursePage() {
                           </h3>
                           <span
                             className={`inline-block rounded px-2 py-0.5 text-xs ${course.status === "OPEN"
-                                ? "bg-green-100 text-green-700"
-                                : course.status === "FULL"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
+                              ? "bg-green-100 text-green-700"
+                              : course.status === "FULL"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
                               }`}
                           >
                             {course.status === "OPEN"
@@ -463,12 +463,12 @@ export default function CoursePage() {
                           </span>
                           {registrationStatus && (
                             <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${registrationStatus.status === 'APPROVED'
-                                ? 'bg-green-100 text-green-700'
-                                : registrationStatus.status === 'PENDING'
-                                  ? 'bg-yellow-100 text-yellow-700'
-                                  : registrationStatus.status === 'REJECTED'
-                                    ? 'bg-red-100 text-red-700'
-                                    : 'bg-gray-100 text-gray-700'
+                              ? 'bg-green-100 text-green-700'
+                              : registrationStatus.status === 'PENDING'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : registrationStatus.status === 'REJECTED'
+                                  ? 'bg-red-100 text-red-700'
+                                  : 'bg-gray-100 text-gray-700'
                               }`}>
                               {registrationStatus.status === 'APPROVED' ? (
                                 <><CheckCircle className="h-3 w-3" /> Đã xác nhận</>
@@ -531,13 +531,13 @@ export default function CoursePage() {
                             isRegistered ||
                             isRegistering ||
                             course.status !== "OPEN" ||
-                            user?.role === 'ADMIN'
+                            user?.role === 'admin'
                           }
                           className="w-full rounded-md px-4 py-2 text-sm text-white lg:w-auto disabled:opacity-50 disabled:cursor-not-allowed
                             bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
-                          title={user?.role === 'ADMIN' ? 'Admin không thể đăng ký khoá học' : ''}
+                          title={user?.role === 'admin' ? 'Admin không thể đăng ký khoá học' : ''}
                         >
-                          {user?.role === 'ADMIN'
+                          {user?.role === 'admin'
                             ? "Không thể đăng ký"
                             : isRegistering
                               ? "Đang xử lý..."

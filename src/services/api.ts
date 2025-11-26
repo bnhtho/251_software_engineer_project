@@ -416,7 +416,7 @@ export const tutorApi = {
   // Tutor Profile Management
   registerAsTutor: async (data: any): Promise<any> => {
     // Endpoint used in BecomeTutor.tsx
-    const response = await api.post<BaseResponse<any>>('/api/tutor-profiles', data);
+    const response = await api.post<BaseResponse<any>>('/tutors', data);
     // console.log
     console.log(response)
     return response.data.data;

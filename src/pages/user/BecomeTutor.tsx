@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../../Context/UserContext';
 import { publicApi, tutorApi } from '../../services/api';
-import toast from 'react-hot-toast';
+import { ToastContainer, toast } from 'react-toastify';
 import { GraduationCap, BookOpen, Award, ArrowLeft } from 'lucide-react';
 
 interface TutorRegistrationForm {
@@ -110,9 +110,6 @@ export default function BecomeTutorPage() {
       }
       console.log(formData)
       await tutorApi.registerAsTutor(formData);
-
-      toast.success('Đơn đăng ký đã được gửi thành công! Vui lòng chờ admin phê duyệt.');
-
       // Reset form
       setFormData({
         title: '',
@@ -122,9 +119,10 @@ export default function BecomeTutorPage() {
         experienceYears: 1
       });
 
+
       // Redirect after 2 seconds
       setTimeout(() => {
-        window.location.href = '/dashboard';
+        toast.success('Đơn đăng ký đã được gửi thành công! Vui lòng chờ admin phê duyệt.');
       }, 2000);
     } catch (error: any) {
       console.error('Registration failed:', error);
@@ -368,6 +366,7 @@ export default function BecomeTutorPage() {
           Nếu bạn có câu hỏi, vui lòng liên hệ admin qua email: admin@hcmut.edu.vn
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 }

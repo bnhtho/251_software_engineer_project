@@ -13,6 +13,7 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireTutor = false }
 
   if (isLoading) return <div className="text-center py-10">Loading...</div>;
 
+  console.log(user?.role)
   if (!user) {
     return <Navigate to="/login" replace />;
   }
