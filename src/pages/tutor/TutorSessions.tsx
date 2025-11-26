@@ -15,7 +15,7 @@ import {
 import { useUser } from "../../Context/UserContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-
+import axios from "axios";
 interface Session {
   id: number;
   subjectName: string;
@@ -33,7 +33,7 @@ interface Session {
 const TutorSessions = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  
+
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,51 +49,22 @@ const TutorSessions = () => {
 
     try {
       setLoading(true);
-      // TODO: Call real API
-      // const response = await tutorApi.getTutorSessions(user.id);
-      
-      // Mock data
-      setSessions([
-        {
-          id: 1,
-          subjectName: "Giải tích 1",
-          subjectId: 101,
-          startTime: "2025-11-26T08:00:00",
-          endTime: "2025-11-26T10:00:00",
-          format: "ONLINE",
-          location: "Google Meet",
-          maxQuantity: 10,
-          currentQuantity: 8,
-          status: "OPEN",
-          studentNames: ["Nguyễn A", "Trần B"],
-        },
-        {
-          id: 2,
-          subjectName: "Vật lý 1",
-          subjectId: 102,
-          startTime: "2025-11-27T14:00:00",
-          endTime: "2025-11-27T16:00:00",
-          format: "OFFLINE",
-          location: "H1-101",
-          maxQuantity: 15,
-          currentQuantity: 15,
-          status: "FULL",
-          studentNames: ["Lê C", "Phạm D"],
-        },
-        {
-          id: 3,
-          subjectName: "Toán rời rạc",
-          subjectId: 103,
-          startTime: "2025-11-28T10:00:00",
-          endTime: "2025-11-28T12:00:00",
-          format: "ONLINE",
-          location: "Zoom",
-          maxQuantity: 12,
-          currentQuantity: 5,
-          status: "OPEN",
-          studentNames: ["Hoàng E"],
-        },
-      ]);
+      try {
+        // TODO: Call real API
+        // Hiện danh sách các môn học đã được admin duyệt
+        const response = await axios.get(
+          "http://localhost:8081/sessions",
+        );
+        console.log(response)
+        // Const listSession
+        const listSession: Session[] = response.data.data || [];
+        console.log(listSession)
+        // setTutorDataList(filtered);
+        setSessions(listSession)
+
+      } catch (error) {
+        console.log(error)
+      }
     } catch (error) {
       console.error("Error loading sessions:", error);
       toast.error("Không thể tải danh sách buổi học");
@@ -138,10 +109,10 @@ const TutorSessions = () => {
     const matchesSearch =
       searchTerm === "" ||
       session.subjectName.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus =
       statusFilter === "ALL" || session.status === statusFilter;
-    
+
     const matchesFormat =
       formatFilter === "ALL" || session.format === formatFilter;
 
@@ -334,11 +305,10 @@ const TutorSessions = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
-                            session.format === "ONLINE"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-green-100 text-green-700"
-                          }`}
+                          className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${session.format === "ONLINE"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-green-100 text-green-700"
+                            }`}
                         >
                           {session.format === "ONLINE" ? (
                             <><Laptop className="h-3 w-3" /> Online</>
@@ -360,23 +330,22 @@ const TutorSessions = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                            session.status === "OPEN"
-                              ? "bg-green-100 text-green-800"
-                              : session.status === "FULL"
+                          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${session.status === "OPEN"
+                            ? "bg-green-100 text-green-800"
+                            : session.status === "FULL"
                               ? "bg-orange-100 text-orange-800"
                               : session.status === "CLOSED"
-                              ? "bg-gray-100 text-gray-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
+                                ? "bg-gray-100 text-gray-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
                         >
                           {session.status === "OPEN"
                             ? "Đang mở"
                             : session.status === "FULL"
-                            ? "Đã đầy"
-                            : session.status === "CLOSED"
-                            ? "Đã đóng"
-                            : "Đã hủy"}
+                              ? "Đã đầy"
+                              : session.status === "CLOSED"
+                                ? "Đã đóng"
+                                : "Đã hủy"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
