@@ -7,18 +7,17 @@ import React, {
 } from "react";
 import { jwtDecode } from "jwt-decode";
 
-interface User {
-  // User info taken from JWT and profile API
+export interface User {
   id: number;
   role: string;
   firstName?: string;
   lastName?: string;
-    hcmutId: string;        // MSSV
-    dob: string;            // Ngày sinh
-    otherMethodContact: string; //phương 
-    phone: string;          // Số điện thoại
-    bio: string;
-    majorName :string; // ngành học
+  hcmutId: string;
+  dob: string;
+  otherMethodContact: string;
+  phone: string;
+  bio: string;
+  majorName: string;
 }
 
 interface UserContextType {
@@ -31,10 +30,9 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// --------------------------------------------------------------
+// --------------------------------------------
 // Helpers
-// --------------------------------------------------------------
-
+// --------------------------------------------
 const getToken = () => localStorage.getItem("authToken");
 
 export const decodeToken = (token: string) => {
@@ -43,64 +41,84 @@ export const decodeToken = (token: string) => {
   return decoded;
 };
 
-const fetchProfile = async (id: number, token: string) => {
-  const res = await fetch(`http://localhost:8081/students/profile/${id}`, {
+const fetchProfile = async (token: string) => {
+  const decoded = jwtDecode<{ role: string }>(token);
+
+  // Map role to API path
+  const roleMap: Record<string, string> = {
+    TUTOR: "tutors",
+    STUDENT: "students",
+    ADMIN: "admin",
+  };
+
+  const rolePath = roleMap[decoded.role];
+
+  if (!rolePath) {
+    throw new Error("Invalid role in token");
+  }
+
+  const res = await fetch(`http://localhost:8081/${rolePath}/profile`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
   if (!res.ok) throw new Error("Failed to fetch profile");
 
   const json = await res.json();
-  return json.data ?? json; // phòng trường hợp API bọc { data: {...} }
+  return json.data ?? json;
 };
 
-// --------------------------------------------------------------
+// --------------------------------------------
 // Provider
-// --------------------------------------------------------------
-
+// --------------------------------------------
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  // Allow loginPage to set token
+
   const setToken = async (token: string) => {
     localStorage.setItem("authToken", token);
     await loadUserFromToken(token);
   };
-// Load dữ liệu user từ token
-const loadUserFromToken = async (token: string) => {
-  try {
-    const decoded = decodeToken(token);
-    const profile = await fetchProfile(Number(decoded.sub), token);
-    setUser({ ...decoded, ...profile });
-  } catch (err) {
-    setUser(null);
-    localStorage.removeItem("authToken");
-  } finally {
+
+  const loadUserFromToken = async (token: string) => {
+    try {
+      const decoded = decodeToken(token);
+      const profile = await fetchProfile(token);
+
+      const normalizedRole = decoded.role.toLowerCase();
+
+      setUser({
+        ...profile,
+        id: decoded.id,
+        role: normalizedRole,
+      });
+    } catch (err) {
+      setUser(null);
+      localStorage.removeItem("authToken");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const setUserDirectly = (fetchedUser: User) => {
+    setUser(fetchedUser);
     setIsLoading(false);
-  }
-};
+  };
 
-const setUserDirectly = (fetchedUser: User) => {
-  setUser(fetchedUser);
-  setIsLoading(false);
-};
-  
-
-  // Load user on refresh
   useEffect(() => {
     const token = getToken();
     if (token) loadUserFromToken(token);
     else setIsLoading(false);
   }, []);
 
-  // Logout
   const logout = () => {
     localStorage.removeItem("authToken");
     setUser(null);
   };
 
   return (
-    <UserContext.Provider value={{ user, isLoading, setToken, logout, setUserDirectly }}>
+    <UserContext.Provider
+      value={{ user, isLoading, setToken, logout, setUserDirectly }}
+    >
       {children}
     </UserContext.Provider>
   );

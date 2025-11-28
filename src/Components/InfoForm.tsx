@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import type { FormEvent } from "react";
-import axios from "axios";
 import { useUser } from "../Context/UserContext";
-import toast from 'react-hot-toast';
-
+// import { useProfileUpdate } from ; // Import hook mới
+import { useProfileUpdate } from "../hooks/updateProfile"
 interface ProfileFormData {
   hcmutId: string;
   firstName: string;
@@ -13,35 +12,32 @@ interface ProfileFormData {
   phone: string;
 }
 
-const InfoForm: React.FC = () => {
-  const {
-    user,
-    isLoading: isUserLoading,
-    setUserDirectly
-  } = useUser();
+// Giá trị mặc định
+const defaultState: ProfileFormData = {
+  hcmutId: "",
+  firstName: "",
+  lastName: "",
+  dob: "",
+  otherMethodContact: "",
+  phone: "",
+};
 
-  // Giá trị mặc định
-  const defaultState: ProfileFormData = {
-    hcmutId: "",
-    firstName: "",
-    lastName: "",
-    dob: "",
-    otherMethodContact: "",
-    phone: "",
-  };
+const InfoForm: React.FC = () => {
+  const { user, isLoading: isUserLoading } = useUser();
+  const { updateProfile, isSubmitting } = useProfileUpdate(); // Sử dụng hook custom
 
   const [formData, setFormData] = useState<ProfileFormData>(defaultState);
-  // Vẫn giữ initialFormData để dùng cho nút "Hủy" (Reset về cũ)
   const [initialFormData, setInitialFormData] = useState<ProfileFormData>(defaultState);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. Sync data từ User Context vào Form
+  // 1. Sync data từ User Context vào Form & Initial Data
   useEffect(() => {
     if (user) {
+      // Chuẩn hóa dữ liệu từ Context sang Form
       const mapped: ProfileFormData = {
         hcmutId: user.hcmutId || "",
         firstName: user.firstName || "",
         lastName: user.lastName || "",
+        // Đảm bảo ngày tháng là định dạng YYYY-MM-DD
         dob: user.dob ? user.dob.toString().substring(0, 10) : "",
         otherMethodContact: user.otherMethodContact || "",
         phone: user.phone || "",
@@ -57,70 +53,29 @@ const InfoForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Tối ưu hóa: Kiểm tra xem form có thay đổi so với dữ liệu ban đầu không
+  const isFormChanged = useMemo(() => {
+    return JSON.stringify(formData) !== JSON.stringify(initialFormData);
+  }, [formData, initialFormData]);
+
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      if (!user?.id) return;
 
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        toast.error("Phiên đăng nhập hết hạn.");
-        return;
-      }
+      const result = await updateProfile(formData);
 
-      setIsSubmitting(true);
-      try {
-        const apiPayload = {
-          hcmutId: formData.hcmutId,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          dob: formData.dob,
-          otherMethodContact: formData.otherMethodContact,
-          phone: formData.phone,
-          phoneNumber: formData.phone,
-        };
-
-        const response = await axios.put(
-          `http://localhost:8081/students/profile/${user.id}`,
-          apiPayload,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        console.log(">>> Update Success:", response.data);
-
-        // --- LOGIC UPDATE UI NHANH ---
-        const responseData = response.data?.data || response.data || {};
-
-        const updatedUser = {
-          ...user,
-          ...responseData,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          dob: formData.dob,
-          otherMethodContact: formData.otherMethodContact,
-          phone: formData.phone
-        };
-
-        setUserDirectly(updatedUser);
-
-        setInitialFormData(formData);
-        toast.success('Cập nhật thông tin thành công!');
-
-      } catch (err: any) {
-        console.error("Update failed", err);
-        const errorMsg = err.response?.data?.message || 'Cập nhật thất bại.';
-        toast.error(errorMsg);
-      } finally {
-        setIsSubmitting(false);
+      // Nếu cập nhật thành công, set lại initialFormData để form không còn được xem là 'đã thay đổi'
+      if (result?.success && result.newInitialData) {
+        setInitialFormData(result.newInitialData);
       }
     },
-    [formData, user, setUserDirectly]
+    [formData, updateProfile]
   );
+
+  // Hàm Reset form về trạng thái ban đầu
+  const handleReset = useCallback(() => {
+    setFormData(initialFormData);
+  }, [initialFormData]);
 
   if (isUserLoading) {
     return <div className="p-4 text-center">Đang tải...</div>;
@@ -135,6 +90,8 @@ const InfoForm: React.FC = () => {
           </h3>
 
           <div className="space-y-6">
+            {/* ... (Các trường input giữ nguyên) ... */}
+
             {/* Hàng 1: Họ tên */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -221,8 +178,8 @@ const InfoForm: React.FC = () => {
             <div className="flex justify-end gap-3 pt-4">
               <button
                 type="button"
-                onClick={() => setFormData(initialFormData)}
-                disabled={isSubmitting}
+                onClick={handleReset} // Dùng handleReset
+                disabled={isSubmitting || !isFormChanged} // Tắt nếu không có thay đổi
                 className="px-6 py-2 border border-gray-300 text-gray-700 font-medium text-sm rounded-lg hover:bg-gray-50 transition duration-150 disabled:opacity-50"
               >
                 Hủy
@@ -230,7 +187,6 @@ const InfoForm: React.FC = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
                 className="px-6 py-2 bg-cyan-600 text-white font-medium text-sm rounded-lg hover:bg-cyan-700 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]"
               >
                 {isSubmitting ? (
