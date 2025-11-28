@@ -32,6 +32,7 @@ const InfoForm: React.FC = () => {
   // 1. Sync data từ User Context vào Form & Initial Data
   useEffect(() => {
     if (user) {
+      console.log("Debug inforform:", user)
       // Chuẩn hóa dữ liệu từ Context sang Form
       const mapped: ProfileFormData = {
         hcmutId: user.hcmutId || "",
@@ -53,18 +54,14 @@ const InfoForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Tối ưu hóa: Kiểm tra xem form có thay đổi so với dữ liệu ban đầu không
   const isFormChanged = useMemo(() => {
     return JSON.stringify(formData) !== JSON.stringify(initialFormData);
   }, [formData, initialFormData]);
-
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-
       const result = await updateProfile(formData);
-
-      // Nếu cập nhật thành công, set lại initialFormData để form không còn được xem là 'đã thay đổi'
+      // result = undefined
       if (result?.success && result.newInitialData) {
         setInitialFormData(result.newInitialData);
       }

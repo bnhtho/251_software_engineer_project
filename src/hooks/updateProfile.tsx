@@ -13,15 +13,12 @@ interface ProfileFormData {
     phone: string;
 }
 
-// Hàm này sẽ đảm nhiệm việc gọi API và quản lý trạng thái
 export const useProfileUpdate = () => {
     const { user, setUserDirectly } = useUser();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const updateProfile = useCallback(
         async (formData: ProfileFormData) => {
-            if (!user?.id) return;
-
             const token = localStorage.getItem("authToken");
             if (!token) {
                 toast.error("Phiên đăng nhập hết hạn.");
@@ -56,7 +53,7 @@ export const useProfileUpdate = () => {
 
                 // --- Cập nhật UI/Context thành công ---
                 const responseData = response.data?.data || response.data || {};
-
+                console.log(">>> Update Success:", response.data);
                 // Cập nhật Context: Ghi đè các trường đã được cập nhật
                 const updatedUser: User = {
                     ...user,
@@ -67,7 +64,6 @@ export const useProfileUpdate = () => {
                     dob: formData.dob,
                     otherMethodContact: formData.otherMethodContact,
                     phone: formData.phone,
-                    // (Thêm các trường khác nếu có)
                 };
 
                 setUserDirectly(updatedUser);
