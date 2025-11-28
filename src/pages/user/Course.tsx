@@ -48,8 +48,6 @@ export default function CoursePage() {
       try {
         coursesData = await courseApi.getCourses();
       } catch (error: any) {
-        console.error("Course API error:", error);
-
         // Handle 401 (unauthorized) - token expired
         if (error?.response?.status === 401) {
           toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
@@ -79,7 +77,6 @@ export default function CoursePage() {
           registeredData = studentCourses;
         } catch (error: any) {
           // Silently handle errors - admin won't have student courses
-          console.log("Student courses not available:", error?.response?.status || error.message);
           registeredData = [];
         }
       }
@@ -90,7 +87,6 @@ export default function CoursePage() {
       setRegisteredDetails(registeredData);
 
     } catch (error) {
-      console.error("Error loading course data:", error);
       toast.error("Không thể tải dữ liệu khóa học");
       // Set empty data on error
       setCourses([]);
@@ -164,18 +160,41 @@ export default function CoursePage() {
         }
       }
     } catch (error: unknown) {
-      const errorMessage =
-        error &&
-          typeof error === "object" &&
-          "response" in error &&
-          error.response &&
-          typeof error.response === "object" &&
-          "data" in error.response &&
-          error.response.data &&
-          typeof error.response.data === "object" &&
-          "message" in error.response.data
-          ? String(error.response.data.message)
-          : "Đăng ký thất bại";
+      let errorMessage = "Đăng ký thất bại";
+      
+      if (error && typeof error === "object") {
+        if ("response" in error && error.response && typeof error.response === "object") {
+          const response = error.response as any;
+          
+          // Try to get message from response.data
+          if ("data" in response && response.data) {
+            if (typeof response.data === "object" && "message" in response.data) {
+              errorMessage = String(response.data.message);
+            } else if (typeof response.data === "string") {
+              errorMessage = response.data;
+            }
+          }
+          
+          // Add status code info
+          if ("status" in response) {
+            errorMessage = `${errorMessage} (HTTP ${response.status})`;
+          }
+        } else if ("message" in error) {
+          const rawMessage = String((error as Error).message);
+          
+          // Make error messages more user-friendly
+          if (rawMessage.includes("not available for registration")) {
+            errorMessage = "⚠️ Khóa học này không còn khả dụng. Có thể đã đầy, đã qua thời gian hoặc đã đóng đăng ký.";
+          } else if (rawMessage.includes("already registered")) {
+            errorMessage = "ℹ️ Bạn đã đăng ký khóa học này rồi.";
+          } else if (rawMessage.includes("full") || rawMessage.includes("capacity")) {
+            errorMessage = "⚠️ Khóa học đã đầy. Vui lòng chọn khóa học khác.";
+          } else {
+            errorMessage = rawMessage;
+          }
+        }
+      }
+      
       setMessage(`❌ ${errorMessage}`);
       toast.error(errorMessage);
     } finally {
@@ -435,6 +454,8 @@ export default function CoursePage() {
               );
               const isRegistering = registering === course.id;
               const registrationStatus = getRegistrationStatus(course.id);
+              const isFull = course.status === 'FULL' || course.enrolled >= course.capacity;
+              const isNearlyFull = progress >= 80 && !isFull;
 
               return (
                 <div key={course.id} className="col-span-12">
@@ -446,20 +467,26 @@ export default function CoursePage() {
                             {course.name}
                           </h3>
                           <span
-                            className={`inline-block rounded px-2 py-0.5 text-xs ${course.status === "OPEN"
-                              ? "bg-green-100 text-green-700"
-                              : course.status === "FULL"
+                            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold ${
+                              isFull
                                 ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
+                                : isNearlyFull
+                                  ? "bg-orange-100 text-orange-700"
+                                  : course.status === "OPEN"
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-yellow-100 text-yellow-700"
                               }`}
                           >
-                            {course.status === "OPEN"
-                              ? "Đang mở"
-                              : course.status === "FULL"
-                                ? "Đã đầy"
-                                : course.status === "CLOSED"
-                                  ? "Đã đóng"
-                                  : "Sắp mở"}
+                            {isFull && <XCircle className="h-3 w-3" />}
+                            {isFull
+                              ? "Đã đầy"
+                              : isNearlyFull
+                                ? `Sắp đầy (${progress}%)`
+                                : course.status === "OPEN"
+                                  ? "Đang mở"
+                                  : course.status === "CLOSED"
+                                    ? "Đã đóng"
+                                    : "Sắp mở"}
                           </span>
                           {registrationStatus && (
                             <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${registrationStatus.status === 'APPROVED'
@@ -508,7 +535,13 @@ export default function CoursePage() {
                         <div className="mt-4">
                           <div className="h-1.5 rounded bg-gray-200">
                             <div
-                              className="h-1.5 rounded bg-blue-600"
+                              className={`h-1.5 rounded transition-colors ${
+                                isFull
+                                  ? 'bg-red-500'
+                                  : isNearlyFull
+                                    ? 'bg-orange-500'
+                                    : 'bg-blue-600'
+                              }`}
                               style={{ width: `${progress}%` }}
                             />
                           </div>
@@ -517,8 +550,10 @@ export default function CoursePage() {
                               ⭐ {course.rating?.toFixed(1) || "N/A"} (
                               {course.ratingCount || 0})
                             </span>
-                            <span>
+                            <span className={isFull ? 'text-red-600 font-semibold' : isNearlyFull ? 'text-orange-600 font-semibold' : ''}>
                               {course.enrolled}/{course.capacity} học viên
+                              {isFull && ' - Đã đầy'}
+                              {isNearlyFull && ' - Chỉ còn ' + (course.capacity - course.enrolled) + ' chỗ'}
                             </span>
                           </div>
                         </div>
@@ -530,20 +565,36 @@ export default function CoursePage() {
                           disabled={
                             isRegistered ||
                             isRegistering ||
-                            course.status !== "OPEN" ||
+                            isFull ||
+                            course.status === "CLOSED" ||
                             user?.role === 'admin'
                           }
-                          className="w-full rounded-md px-4 py-2 text-sm text-white lg:w-auto disabled:opacity-50 disabled:cursor-not-allowed
-                            bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
-                          title={user?.role === 'admin' ? 'Admin không thể đăng ký khoá học' : ''}
+                          className={`w-full rounded-md px-4 py-2 text-sm lg:w-auto disabled:cursor-not-allowed flex items-center justify-center gap-2
+                            ${isRegistered 
+                              ? 'bg-green-100 text-green-700 border-2 border-green-300' 
+                              : isFull || course.status === "CLOSED" || user?.role === 'admin'
+                                ? 'bg-gray-400 text-white opacity-50'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          title={
+                            user?.role === 'admin' 
+                              ? 'Admin không thể đăng ký khoá học' 
+                              : isRegistered 
+                                ? 'Bạn đã đăng ký khóa học này'
+                                : isFull
+                                  ? 'Khóa học đã đầy'
+                                  : ''
+                          }
                         >
+                          {isRegistered && <CheckCircle className="h-4 w-4" />}
+                          {isFull && <XCircle className="h-4 w-4" />}
                           {user?.role === 'admin'
                             ? "Không thể đăng ký"
                             : isRegistering
                               ? "Đang xử lý..."
                               : isRegistered
                                 ? "Đã đăng ký"
-                                : course.status === "FULL"
+                                : isFull
                                   ? "Đã đầy"
                                   : course.status === "CLOSED"
                                     ? "Đã đóng"

@@ -125,30 +125,58 @@ interface BackendSessionDTO {
 // Protected endpoints - require auth
 export const courseApi = {
   // Map Sessions from Backend to Course-like structure for FE compatibility
-  getCourses: async (params?: CourseSearchParams): Promise<CourseDTO[]> => {
+  getCourses: async (_params?: CourseSearchParams): Promise<CourseDTO[]> => {
     // Try student endpoint first, fallback to sessions endpoint for admin
     let sessions: BackendSessionDTO[] = [];
     
     try {
       // Try GET /students/available-sessions (for STUDENT role)
-      const response = await api.get<BaseResponse<BackendSessionDTO[]>>("/students/available-sessions");
-      sessions = response.data.data;
+      const response = await api.get<BaseResponse<any>>("/students/available-sessions");
+      
+      let data = response.data.data;
+      
+      // Check if data has pagination structure (PaginationUtil format)
+      if (data && typeof data === 'object' && 'content' in data) {
+        data = data.content;
+      }
+      
+      // Ensure data is array
+      if (Array.isArray(data)) {
+        sessions = data;
+      } else {
+        sessions = [];
+      }
       
       // If empty, try /sessions as fallback
       if (!sessions || sessions.length === 0) {
-        console.log("No available sessions, trying /sessions as fallback...");
-        const fallbackResponse = await api.get<BaseResponse<BackendSessionDTO[]>>("/sessions");
-        sessions = fallbackResponse.data.data;
+        try {
+          const fallbackResponse = await api.get<BaseResponse<any>>("/sessions");
+          let fallbackData = fallbackResponse.data.data;
+          
+          // Handle pagination if present
+          if (fallbackData && typeof fallbackData === 'object' && 'content' in fallbackData) {
+            fallbackData = fallbackData.content;
+          }
+          
+          sessions = Array.isArray(fallbackData) ? fallbackData : [];
+        } catch (fallbackError) {
+          sessions = [];
+        }
       }
     } catch (error: any) {
       // If 403, user might be ADMIN, try GET /sessions instead
       if (error?.response?.status === 403) {
-        console.log("Student endpoint forbidden, trying /sessions for admin...");
         const response = await api.get<BaseResponse<BackendSessionDTO[]>>("/sessions");
-        sessions = response.data.data;
+        const data = response.data.data;
+        sessions = Array.isArray(data) ? data : [];
       } else {
-        throw error; // Re-throw other errors
+        sessions = []; // Return empty array instead of throwing
       }
+    }
+    
+    // Ensure sessions is array before mapping
+    if (!Array.isArray(sessions)) {
+      return [];
     }
     
     // Transform sessions to course-like structure
@@ -198,15 +226,28 @@ export const courseApi = {
   registerCourse: async (
     registration: CourseRegistrationRequest
   ): Promise<CourseRegistrationResponse> => {
-    // Use POST /students/register-session with query param
-    const response = await api.post<BaseResponse<any>>(
-      `/students/register-session?sessionId=${registration.courseId}`
-    );
-    return {
-      id: response.data.data.id,
-      status: 'PENDING',
-      message: response.data.message,
-    };
+    try {
+      // Use POST /students/register-session with query param
+      const response = await api.post<BaseResponse<any>>(
+        `/students/register-session?sessionId=${registration.courseId}`
+      );
+      
+      // Check if backend returned error (statusCode 500, 400, etc.)
+      if (response.data.statusCode >= 400) {
+        const error = new Error(response.data.message || 'Đăng ký thất bại');
+        (error as any).statusCode = response.data.statusCode;
+        (error as any).apiMessage = response.data.message;
+        throw error;
+      }
+      
+      return {
+        id: response.data.data?.id || registration.courseId,
+        status: 'PENDING',
+        message: response.data.message || 'Đăng ký thành công',
+      };
+    } catch (error: any) {
+      throw error;
+    }
   },
 
   getStudentCourses: async (studentId: number): Promise<StudentCourseDTO[]> => {
@@ -236,14 +277,13 @@ export const courseApi = {
     } catch (error: any) {
       // If 403, user might be ADMIN viewing student page - return empty
       if (error?.response?.status === 403) {
-        console.log("Cannot access student history (probably admin viewing student page)");
         return [];
       }
       throw error;
     }
   },
 
-  cancelRegistration: async (registrationId: number): Promise<boolean> => {
+  cancelRegistration: async (_registrationId: number): Promise<boolean> => {
     // No cancel endpoint exists, return false
     throw new Error('Cancel registration not supported yet');
   },
@@ -387,20 +427,35 @@ export const tutorApi = {
 
   // Student Registration Management
   getPendingRegistrations: async (_tutorId: number): Promise<any[]> => {
-    // TODO: Replace with actual endpoint when available
-    // const response = await api.get<BaseResponse<any[]>>(`/tutors/${tutorId}/registrations`);
-    // return response.data.data;
-    throw new Error('Pending registrations API not yet implemented in backend');
+    try {
+      const response = await api.get<BaseResponse<any>>('/tutors/pending-registrations');
+      let data = response.data.data;
+      
+      // Handle pagination if present
+      if (data && typeof data === 'object' && 'content' in data) {
+        return data.content;
+      }
+      
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      return [];
+    }
   },
 
   approveRegistration: async (studentSessionId: number): Promise<void> => {
-    // Backend endpoint exists
-    await api.post(`/tutors/approveStudentSession?studentSessionId=${studentSessionId}`);
+    // API expects array of IDs
+    await api.put<BaseResponse<any>>(
+      '/tutors/student-sessions/approve',
+      [studentSessionId]
+    );
   },
 
   rejectRegistration: async (studentSessionId: number): Promise<void> => {
-    // Backend endpoint exists
-    await api.post(`/tutors/rejectStudentSession?studentSessionId=${studentSessionId}`);
+    // API expects array of IDs
+    await api.put<BaseResponse<any>>(
+      '/tutors/student-sessions/reject',
+      [studentSessionId]
+    );
   },
 
   // Tutor Schedule
@@ -417,8 +472,6 @@ export const tutorApi = {
   registerAsTutor: async (data: any): Promise<any> => {
     // Endpoint used in BecomeTutor.tsx
     const response = await api.post<BaseResponse<any>>('/tutors', data);
-    // console.log
-    console.log(response)
     return response.data.data;
   },
 };

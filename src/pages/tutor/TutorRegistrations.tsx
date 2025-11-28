@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useUser } from "../../Context/UserContext";
 import toast from "react-hot-toast";
+import { tutorApi } from "../../services/api";
 
 interface Registration {
   id: number;
@@ -45,65 +46,29 @@ const TutorRegistrations = () => {
 
     try {
       setLoading(true);
-      // TODO: Call real API
-      // const response = await tutorApi.getPendingRegistrations(user.id);
       
-      // Mock data
-      setRegistrations([
-        {
-          id: 1,
-          studentId: 101,
-          studentName: "Nguyễn Văn A",
-          studentEmail: "nguyenvana@hcmut.edu.vn",
-          sessionId: 1,
-          sessionSubject: "Giải tích 1",
-          sessionStartTime: "2025-11-26T08:00:00",
-          sessionEndTime: "2025-11-26T10:00:00",
-          status: "PENDING",
-          registrationDate: "2025-11-25T10:30:00",
-          notes: "Muốn học thêm về tích phân",
-        },
-        {
-          id: 2,
-          studentId: 102,
-          studentName: "Trần Thị B",
-          studentEmail: "tranthib@hcmut.edu.vn",
-          sessionId: 2,
-          sessionSubject: "Vật lý 1",
-          sessionStartTime: "2025-11-27T14:00:00",
-          sessionEndTime: "2025-11-27T16:00:00",
-          status: "PENDING",
-          registrationDate: "2025-11-25T11:15:00",
-        },
-        {
-          id: 3,
-          studentId: 103,
-          studentName: "Lê Văn C",
-          studentEmail: "levanc@hcmut.edu.vn",
-          sessionId: 3,
-          sessionSubject: "Toán rời rạc",
-          sessionStartTime: "2025-11-28T10:00:00",
-          sessionEndTime: "2025-11-28T12:00:00",
-          status: "APPROVED",
-          registrationDate: "2025-11-24T09:00:00",
-        },
-        {
-          id: 4,
-          studentId: 104,
-          studentName: "Phạm Thị D",
-          studentEmail: "phamthid@hcmut.edu.vn",
-          sessionId: 1,
-          sessionSubject: "Giải tích 1",
-          sessionStartTime: "2025-11-26T08:00:00",
-          sessionEndTime: "2025-11-26T10:00:00",
-          status: "REJECTED",
-          registrationDate: "2025-11-24T15:30:00",
-          notes: "Buổi học đã đầy",
-        },
-      ]);
+      // Call API to get pending registrations
+      const data = await tutorApi.getPendingRegistrations(user.id);
+      
+      // Map backend data to frontend interface
+      const mappedData: Registration[] = data.map((item: any) => ({
+        id: item.id,
+        studentId: item.studentId,
+        studentName: item.studentName || `Student ${item.studentId}`,
+        studentEmail: item.studentEmail || '',
+        sessionId: item.sessionId,
+        sessionSubject: item.sessionSubject || item.subjectName || 'N/A',
+        sessionStartTime: item.sessionStartTime || item.startTime,
+        sessionEndTime: item.sessionEndTime || item.endTime,
+        status: item.status || item.registrationStatus || 'PENDING',
+        registrationDate: item.registrationDate || item.registeredDate || new Date().toISOString(),
+        notes: item.notes || '',
+      }));
+      
+      setRegistrations(mappedData);
     } catch (error) {
-      console.error("Error loading registrations:", error);
       toast.error("Không thể tải danh sách đăng ký");
+      setRegistrations([]);
     } finally {
       setLoading(false);
     }
@@ -113,15 +78,15 @@ const TutorRegistrations = () => {
     try {
       setProcessingIds(prev => new Set(prev).add(registrationId));
       
-      // TODO: Call real API
-      // await tutorApi.approveRegistration(registrationId);
+      // Call API to approve registration
+      await tutorApi.approveRegistration(registrationId);
       
+      // Update local state
       setRegistrations(registrations.map(r => 
         r.id === registrationId ? { ...r, status: "APPROVED" as const } : r
       ));
       toast.success("Đã chấp nhận yêu cầu đăng ký");
     } catch (error) {
-      console.error("Error approving registration:", error);
       toast.error("Không thể chấp nhận đăng ký");
     } finally {
       setProcessingIds(prev => {
@@ -136,15 +101,15 @@ const TutorRegistrations = () => {
     try {
       setProcessingIds(prev => new Set(prev).add(registrationId));
       
-      // TODO: Call real API
-      // await tutorApi.rejectRegistration(registrationId);
+      // Call API to reject registration
+      await tutorApi.rejectRegistration(registrationId);
       
+      // Update local state
       setRegistrations(registrations.map(r => 
         r.id === registrationId ? { ...r, status: "REJECTED" as const } : r
       ));
       toast.success("Đã từ chối yêu cầu đăng ký");
     } catch (error) {
-      console.error("Error rejecting registration:", error);
       toast.error("Không thể từ chối đăng ký");
     } finally {
       setProcessingIds(prev => {
