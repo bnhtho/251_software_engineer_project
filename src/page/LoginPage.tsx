@@ -27,6 +27,9 @@ export const LoginPage = () => {
       case "tutor":
         redirectPath = "/tutor/dashboard";
         break;
+      case "admin":
+        redirectPath = "/admin";
+        break;
       default:
         toast.error("Không xác định được role!")
         // Xử lý vai trò không xác định hoặc mặc định

@@ -1,6 +1,5 @@
 import ReviewCard from "../../Components/ReviewCard";
 import Announcement from "../../Components/AnnoucementCard";
-
 const HomePage = () => {
   return (
     <>
@@ -23,7 +22,7 @@ const HomePage = () => {
         </div>
 
         {/* Callout */}
-        
+
       </div>
     </>
   );
