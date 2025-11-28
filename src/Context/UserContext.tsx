@@ -40,24 +40,24 @@ export const decodeToken = (token: string) => {
   if (decoded.exp * 1000 < Date.now()) throw new Error("Token expired");
   return decoded;
 };
-
 const fetchProfile = async (token: string) => {
   const decoded = jwtDecode<{ role: string }>(token);
 
-  // Map role to API path
+  // Ánh xạ role tới đường dẫn API (endpoint) đầy đủ
   const roleMap: Record<string, string> = {
-    TUTOR: "tutors",
-    STUDENT: "students",
-    ADMIN: "admin",
+    // Role STUDENT và TUTOR vẫn dùng endpoint có cấu trúc /role/profile
+    TUTOR: "tutors/profile",
+    STUDENT: "students/profile",
+    ADMIN: "admin/users",
   };
-
   const rolePath = roleMap[decoded.role];
 
   if (!rolePath) {
     throw new Error("Invalid role in token");
   }
 
-  const res = await fetch(`http://localhost:8081/${rolePath}/profile`, {
+  // Sử dụng rolePath làm endpoint đầy đủ. KHÔNG nối thêm "/profile"
+  const res = await fetch(`http://localhost:8081/${rolePath}`, { // <-- Bỏ /profile ở đây
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -83,14 +83,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       const decoded = decodeToken(token);
       const profile = await fetchProfile(token);
-
-      const normalizedRole = decoded.role.toLowerCase();
-
+      console.log(profile)
+      const normalizedRole = profile.role || decoded.role;
       setUser({
         ...profile,
         // decode (id) = sub
         id: decoded.sub,
-        role: normalizedRole,
+        role: normalizedRole.toLowerCase(),
       });
     } catch (err) {
       setUser(null);

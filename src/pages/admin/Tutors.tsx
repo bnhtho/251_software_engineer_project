@@ -44,7 +44,7 @@ const AdminTutorsPending = () => {
 
       try {
         const response = await axios.get(
-          "http://localhost:8081/admin/tutor/pending?page=0",
+          "http://localhost:8081/admin/tutor/pending",
           {
             headers: { Authorization: `Bearer ${authToken}` },
           }
@@ -52,7 +52,7 @@ const AdminTutorsPending = () => {
 
         const tutorList: TutorData[] = response.data.data.content || [];
         const filtered = tutorList.filter(
-          (t) => t.user.role === "student"
+          (t) => t.user.role === "STUDENT"
         );
 
         setTutorDataList(filtered);
@@ -61,6 +61,7 @@ const AdminTutorsPending = () => {
         if (axiosError.response) {
           console.log(`Lỗi API ${axiosError.response.status}`);
         } else {
+          console.log(err)
           console.log("Lỗi kết nối server");
         }
       } finally {
@@ -101,8 +102,6 @@ const AdminTutorsPending = () => {
       );
 
       toast.success(`Duyệt thành công ID: ${id}`);
-
-      // 👉 Xóa dòng ngay lập tức (Fast UI Update)
       setTutorDataList((prev) => prev.filter((item) => item.user.id !== id));
     } catch (error) {
       toast.error("Có lỗi khi duyệt!");
@@ -125,10 +124,9 @@ const AdminTutorsPending = () => {
 
       toast.warning(`Đã từ chối ID: ${id}`);
 
-      // 👉 Xóa dòng ngay lập tức (Fast UI Update)
       setTutorDataList((prev) => prev.filter((item) => item.user.id !== id));
     } catch (error) {
-      toast.error("Có lỗi khi duyệt!");
+      toast.error("Có lỗi khi từ chối!");
       console.log(error);
     }
   };

@@ -1,60 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  BookOpen,
-  Calendar,
-  Clock,
-  FileText,
-  ArrowRight,
-  CheckCircle2,
-  User,
-  MapPin,
-} from "lucide-react";
-import { useUser } from "../../Context/UserContext";
-import moment from "moment";
-
-interface HistoryItem {
-  studentSessionId: number;
-  sessionId: number;
-  subjectName: string;
-  tutorName: string;
-  startTime: string;
-  endTime: string;
-  location: string;
-  format: string;
-  registrationStatus: string;
-  sessionStatus: string;
-  registeredDate: string;
-  updatedDate: string | null;
-  subjectCode: string | null;
-}
-
-interface StatCardProps {
-  icon: React.ReactNode;
-  value: string | number;
-  label: string;
-  color: string;
-  trend?: string;
-}
-
-const StatCard = ({ icon, value, label, color, trend }: StatCardProps) => (
-  <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
-    <div className="flex items-start justify-between">
-      <div className="flex items-center gap-4">
-        <div className={`p-3 rounded-lg ${color}`}>{icon}</div>
-        <div>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
-          <p className="text-sm text-gray-600 mt-1">{label}</p>
-        </div>
-      </div>
-      {trend && (
-        <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded">
-          {trend}
-        </span>
-      )}
-    </div>
-  </div>
-);
+import ReviewCard from "../../Components/ReviewCard";
+import Announcement from "../../Components/AnnoucementCard";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -379,54 +324,8 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Recent Completed Sessions */}
-        {getRecentCompletedSessions().length > 0 && (
-          <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Hoạt động gần đây
-                  </h2>
-                </div>
-                <button
-                  onClick={() => navigate("/dashboard/schedule")}
-                  className="flex items-center gap-1 text-sm text-[#0E7AA0] hover:underline"
-                >
-                  Xem lịch sử
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="space-y-3">
-                {getRecentCompletedSessions().map((item) => (
-                  <div
-                    key={item.studentSessionId}
-                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                        <CheckCircle2 className="w-5 h-5 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {item.subjectName}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {item.tutorName} •{" "}
-                          {moment(item.startTime).format("DD/MM/YYYY")}
-                        </p>
-                      </div>
-                    </div>
-                    {getStatusBadge(item.sessionStatus)}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Callout */}
+        
       </div>
     </>
   );

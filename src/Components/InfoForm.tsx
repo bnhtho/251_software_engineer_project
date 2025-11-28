@@ -32,7 +32,6 @@ const InfoForm: React.FC = () => {
   // 1. Sync data từ User Context vào Form & Initial Data
   useEffect(() => {
     if (user) {
-      console.log("Debug inforform:", user)
       // Chuẩn hóa dữ liệu từ Context sang Form
       const mapped: ProfileFormData = {
         hcmutId: user.hcmutId || "",
