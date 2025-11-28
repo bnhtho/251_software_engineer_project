@@ -55,7 +55,7 @@ const AdminCourses = () => {
     const totalSessions = subjectSessions.length;
     const totalStudents = subjectSessions.reduce((sum, s) => sum + s.currentQuantity, 0);
     const totalCapacity = subjectSessions.reduce((sum, s) => sum + s.maxQuantity, 0);
-    
+
     return { totalSessions, totalStudents, totalCapacity };
   };
 
@@ -143,10 +143,10 @@ const AdminCourses = () => {
           ) : (
             filteredSubjects.map((subject) => {
               const stats = getSubjectStats(subject.name);
-              const utilizationRate = stats.totalCapacity > 0 
-                ? Math.round((stats.totalStudents / stats.totalCapacity) * 100) 
+              const utilizationRate = stats.totalCapacity > 0
+                ? Math.round((stats.totalStudents / stats.totalCapacity) * 100)
                 : 0;
-              
+
               return (
                 <div key={subject.id} className="p-4 hover:bg-gray-50">
                   <div className="flex items-start justify-between">
@@ -162,7 +162,7 @@ const AdminCourses = () => {
                           <p className="text-sm text-gray-500">ID: {subject.id}</p>
                         </div>
                       </div>
-                      
+
                       <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
                         <div className="rounded-lg bg-gray-50 p-3">
                           <p className="text-xs text-gray-600">Buổi học</p>
@@ -201,7 +201,7 @@ const AdminCourses = () => {
       {/* Info Note */}
       <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
         <p className="text-sm text-blue-800">
-          <strong>Lưu ý:</strong> Trang này hiển thị thống kê các môn học từ hệ thống. 
+          <strong>Lưu ý:</strong> Trang này hiển thị thống kê các môn học từ hệ thống.
           Để tạo buổi học mới cho môn học, vui lòng truy cập trang <strong>Quản lý Buổi học</strong>.
         </p>
       </div>

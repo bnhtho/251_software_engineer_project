@@ -259,7 +259,7 @@ export const scheduleApi = {
   ): Promise<SessionDTO[]> => {
     // Use GET /students/history/{userId} to get enrolled sessions
     const response = await api.get<BaseResponse<any[]>>(
-      `/students/history/${studentId}`
+      `/students/history`
     );
     const history = response.data.data;
     

@@ -88,7 +88,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       setUser({
         ...profile,
-        id: decoded.id,
+        // decode (id) = sub
+        id: decoded.sub,
         role: normalizedRole,
       });
     } catch (err) {

@@ -15,7 +15,7 @@ export const LoginPage = () => {
 
   useEffect(() => {
     if (!user || window.location.pathname !== "/login") return;
-
+    console.log(user)
     const role = user.role;
     console.log(role)
     let redirectPath = "/"; // Đường dẫn mặc định (Fallback)
