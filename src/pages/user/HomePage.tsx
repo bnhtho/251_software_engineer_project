@@ -1,5 +1,60 @@
-import ReviewCard from "../../Components/ReviewCard";
-import Announcement from "../../Components/AnnoucementCard";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  BookOpen,
+  Calendar,
+  Clock,
+  FileText,
+  ArrowRight,
+  CheckCircle2,
+  User,
+  MapPin,
+} from "lucide-react";
+import { useUser } from "../../Context/UserContext";
+import moment from "moment";
+
+interface HistoryItem {
+  studentSessionId: number;
+  sessionId: number;
+  subjectName: string;
+  tutorName: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  format: string;
+  registrationStatus: string;
+  sessionStatus: string;
+  registeredDate: string;
+  updatedDate: string | null;
+  subjectCode: string | null;
+}
+
+interface StatCardProps {
+  icon: React.ReactNode;
+  value: string | number;
+  label: string;
+  color: string;
+  trend?: string;
+}
+
+const StatCard = ({ icon, value, label, color, trend }: StatCardProps) => (
+  <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
+    <div className="flex items-start justify-between">
+      <div className="flex items-center gap-4">
+        <div className={`p-3 rounded-lg ${color}`}>{icon}</div>
+        <div>
+          <p className="text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm text-gray-600 mt-1">{label}</p>
+        </div>
+      </div>
+      {trend && (
+        <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded">
+          {trend}
+        </span>
+      )}
+    </div>
+  </div>
+);
 
 const HomePage = () => {
   const navigate = useNavigate();
