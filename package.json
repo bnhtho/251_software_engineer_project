@@ -17,6 +17,7 @@
     "@tailwindcss/vite": "^4.1.16",
     "axios": "^1.13.2",
     "chart.js": "^4.5.1",
+    "framer-motion": "^12.23.24",
     "i": "^0.3.7",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.552.0",

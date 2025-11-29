@@ -57,7 +57,7 @@ const fetchProfile = async (token: string) => {
   }
 
   // Sử dụng rolePath làm endpoint đầy đủ. KHÔNG nối thêm "/profile"
-  const res = await fetch(`http://localhost:8081/${rolePath}`, { // <-- Bỏ /profile ở đây
+  const res = await fetch(`http://localhost:8081/${rolePath}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -65,6 +65,7 @@ const fetchProfile = async (token: string) => {
 
   const json = await res.json();
   return json.data ?? json;
+
 };
 
 // --------------------------------------------
@@ -83,7 +84,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       const decoded = decodeToken(token);
       const profile = await fetchProfile(token);
-      console.log(profile)
+      console.log("DECODED TOKEN:", decoded);
+      console.log("PROFILE:", profile);
       const normalizedRole = profile.role || decoded.role;
       setUser({
         ...profile,

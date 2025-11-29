@@ -12,14 +12,17 @@ import {
   Users,
   RefreshCw,
 } from "lucide-react";
+import SessionForm from "../../Components/SessionForm";
+import { motion, AnimatePresence } from 'framer-motion';
+import { useUser } from "../../Context/UserContext";
 
+// import 
+
+// --- MOCK DEPENDENCIES START ---
 const mockNavigate = (path: string) => {
   console.log(`[MOCK NAVIGATION] Navigating to: ${path}`);
 };
-const mockToast = {
-  success: (message: string) => console.log(`[MOCK TOAST SUCCESS]: ${message}`),
-  error: (message: string) => console.error(`[MOCK TOAST ERROR]: ${message}`),
-};
+
 // --- MOCK DEPENDENCIES END ---
 
 interface Session {
@@ -36,105 +39,42 @@ interface Session {
   studentNames: string[];
 }
 
-const mockSessionsData: Session[] = [
-  {
-    id: 101,
-    subjectName: "Giải tích 1 (Calculus I)",
-    subjectId: 1,
-    startTime: "2025-12-05T19:00:00Z",
-    endTime: "2025-12-05T21:00:00Z",
-    format: "ONLINE",
-    location: "Google Meet Link",
-    maxQuantity: 20,
-    currentQuantity: 18,
-    status: "OPEN",
-    studentNames: ["Nguyen A", "Tran B"],
+const EMPTY_SESSIONS_DATA: Session[] = [];
+
+// --- FRAMER MOTION VARIANTS ---
+const slideDownVariants: any = {
+  hidden: {
+    height: 0,
+    opacity: 0,
   },
-  {
-    id: 102,
-    subjectName: "Cấu trúc dữ liệu và giải thuật",
-    subjectId: 2,
-    startTime: "2025-12-08T14:30:00Z",
-    endTime: "2025-12-08T16:00:00Z",
-    format: "OFFLINE",
-    location: "Phòng A301, Đại học Bách Khoa",
-    maxQuantity: 10,
-    currentQuantity: 10,
-    status: "FULL",
-    studentNames: ["Le C", "Pham D"],
+  visible: {
+    height: "auto",
+    opacity: 1,
   },
-  {
-    id: 103,
-    subjectName: "Lập trình Web Frontend (React)",
-    subjectId: 3,
-    startTime: "2025-12-10T10:00:00Z",
-    endTime: "2025-12-10T12:00:00Z",
-    format: "ONLINE",
-    location: "Zoom ID: 876-543-210",
-    maxQuantity: 15,
-    currentQuantity: 5,
-    status: "OPEN",
-    studentNames: ["Hoang E"],
-  },
-  {
-    id: 104,
-    subjectName: "Cơ sở dữ liệu (SQL)",
-    subjectId: 4,
-    startTime: "2025-12-01T08:00:00Z",
-    endTime: "2025-12-01T09:30:00Z",
-    format: "OFFLINE",
-    location: "Thư viện Quận 1, Tầng 3",
-    maxQuantity: 8,
-    currentQuantity: 8,
-    status: "CLOSED", // Giả lập đã qua thời gian hoặc đã đóng thủ công
-    studentNames: ["Bui F", "Do G"],
-  },
-  {
-    id: 105,
-    subjectName: "Vật lý Đại cương 2",
-    subjectId: 5,
-    startTime: "2025-12-15T17:00:00Z",
-    endTime: "2025-12-15T18:30:00Z",
-    format: "ONLINE",
-    location: "Microsoft Teams",
-    maxQuantity: 12,
-    currentQuantity: 0,
-    status: "CANCELLED",
-    studentNames: [],
-  },
-];
+};
+// -----------------------------
+
 
 const TutorSessions: React.FC = () => {
-  // Thay thế useUser, useNavigate, axios, toast bằng các giá trị/hàm mock
   const navigate = mockNavigate;
-  const toast = mockToast;
-
-  const [loading, setLoading] = useState(false); // Giảm bớt loading ban đầu
+  const [loading, setLoading] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [formatFilter, setFormatFilter] = useState<string>("ALL");
-  // ------------------- Modal Call
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const loadSessions = async () => {
-    setLoading(true);
-    console.log("[MOCK API] Loading sessions...");
-    // Giả lập độ trễ 1 giây cho API call
+    if (sessions.length === 0) setLoading(true);
+
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     try {
-      // ** FIX: Đảm bảo dữ liệu trả về luôn là một mảng **
-      // Trong trường hợp này, ta dùng dữ liệu mock.
-      const listSession: Session[] = mockSessionsData;
+      const listSession: Session[] = EMPTY_SESSIONS_DATA;
       setSessions(listSession);
-      mockToast.success("Đã tải danh sách buổi học");
+      console.log("Đã tải danh sách buổi học");
     } catch (error) {
-      console.error("Error loading sessions:", error);
-      mockToast.error("Không thể tải danh sách buổi học (Mock Error)");
-      // Quan trọng: Đảm bảo sessions vẫn là mảng rỗng nếu lỗi
+      console.log("Không thể tải danh sách buổi học (Mock Error)");
       setSessions([]);
     } finally {
       setLoading(false);
@@ -143,26 +83,21 @@ const TutorSessions: React.FC = () => {
 
   useEffect(() => {
     loadSessions();
-  }, []); // Tải dữ liệu mẫu khi component mount
+  }, []);
 
   const handleDelete = (sessionId: number) => {
-    // Thay thế confirm() bằng modal/confirm box
-    if (!window.confirm("Bạn có chắc muốn xóa buổi học này? (Sử dụng Modal/Custom Confirm trong thực tế)")) return;
-
+    // Logic xác nhận xóa (thay thế bằng Modal trong thực tế)
     try {
-      // Giả lập xóa thành công
       setSessions(sessions.filter(s => s.id !== sessionId));
-      toast.success("Đã xóa buổi học thành công (Mock)");
+      console.log("Tạo buổi học thành công")
     } catch (error) {
-      console.error("Error deleting session:", error);
-      toast.error("Không thể xóa buổi học (Mock Error)");
+      console.log(error)
     }
   };
 
   const formatDateTime = (dateString: string): string => {
     try {
       const date = new Date(dateString);
-      // Kiểm tra nếu date là Invalid Date
       if (isNaN(date.getTime())) return dateString;
 
       return date.toLocaleDateString("vi-VN", {
@@ -179,7 +114,6 @@ const TutorSessions: React.FC = () => {
   const formatTime = (dateString: string): string => {
     try {
       const date = new Date(dateString);
-      // Kiểm tra nếu date là Invalid Date
       if (isNaN(date.getTime())) return '';
 
       return date.toLocaleTimeString("vi-VN", {
@@ -191,11 +125,8 @@ const TutorSessions: React.FC = () => {
     }
   };
 
-  // Sử dụng useMemo để tối ưu hóa việc lọc dữ liệu và sửa lỗi Type Error
   const filteredSessions = useMemo(() => {
-    // ** FIX: Sử dụng sessions?.filter để đảm bảo nó là mảng (optional chaining) 
-    // Mặc dù ta đã khởi tạo nó là [], dùng optional chaining là tốt nhất.
-    return sessions?.filter((session) => {
+    return sessions.filter((session) => {
       const matchesSearch =
         searchTerm === "" ||
         session.subjectName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -207,7 +138,7 @@ const TutorSessions: React.FC = () => {
         formatFilter === "ALL" || session.format === formatFilter;
 
       return matchesSearch && matchesStatus && matchesFormat;
-    }) ?? []; // Default to empty array if sessions is null/undefined
+    });
   }, [sessions, searchTerm, statusFilter, formatFilter]);
 
   const totalSessions = sessions.length;
@@ -215,6 +146,7 @@ const TutorSessions: React.FC = () => {
   const fullSessions = sessions.filter(s => s.status === "FULL").length;
   const totalStudents = sessions.reduce((sum, s) => sum + s.currentQuantity, 0);
 
+  // --- TRẠNG THÁI LOADING BAN ĐẦU ---
   if (loading && totalSessions === 0) {
     return (
       <div className="flex items-center justify-center min-h-64 p-6">
@@ -229,8 +161,10 @@ const TutorSessions: React.FC = () => {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="space-y-8 p-4 sm:p-6 max-w-7xl mx-auto">
-        {/* Header */}
+
+        {/* KHU VỰC 1: HEADER & NÚT HÀNH ĐỘNG */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          {/* Tiêu đề */}
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900">
               Quản lý Buổi học
@@ -239,21 +173,67 @@ const TutorSessions: React.FC = () => {
               Tạo, chỉnh sửa và quản lý các buổi học đã lên lịch của bạn
             </p>
           </div>
+
+          {/* Nút Hành động */}
           <div className="flex gap-2">
             <button
               onClick={loadSessions}
               disabled={loading}
               className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-100 disabled:opacity-50"
+              title="Làm mới danh sách"
             >
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               Làm mới
             </button>
-            <button onClick={openModal}>Open Modal</button>
 
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center bg-blue-600 gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
+              type="button"
+            >
+              <Plus className="h-4 w-4" />
+              {isDropdownOpen ? 'Huỷ' : 'Tạo buổi học mới'}
+            </button>
           </div>
         </div>
 
-        {/* Filters */}
+        {/* KHU VỰC 2: DROPDOWN TẠO BUỔI HỌC (FRAMER MOTION) */}
+        <AnimatePresence>
+          {isDropdownOpen && (
+            <motion.div
+              key="create-session-dropdown"
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={slideDownVariants}
+              style={{ overflow: 'hidden' }}
+              className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 space-y-4"
+            >
+              {/* components form */}
+              <SessionForm />
+              <div className="pt-4 flex justify-end gap-3">
+                <button
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-100"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={() => {
+                    // Logic xử lý Form và lưu dữ liệu
+                    console.log("Submitting new session form...");
+                    setIsDropdownOpen(false);
+                  }}
+                  className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-md hover:bg-blue-700"
+                >
+                  Tạo ngay
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* KHU VỰC 3: BỘ LỌC (FILTERS) */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="lg:col-span-6">
             <label htmlFor="search" className="sr-only">Tìm kiếm theo môn học</label>
@@ -307,7 +287,7 @@ const TutorSessions: React.FC = () => {
           </div>
         </div>
 
-        {/* Statistics */}
+        {/* KHU VỰC 4: THỐNG KÊ (STATISTICS) */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard title="Tổng buổi học" value={totalSessions} color="text-gray-900" icon={<Calendar className="h-6 w-6 text-indigo-500" />} />
           <StatCard title="Đang mở" value={openSessions} color="text-green-600" icon={<Clock className="h-6 w-6 text-green-500" />} />
@@ -315,7 +295,7 @@ const TutorSessions: React.FC = () => {
           <StatCard title="Tổng sinh viên" value={totalStudents} color="text-blue-600" icon={<Users className="h-6 w-6 text-blue-500" />} />
         </div>
 
-        {/* Sessions List */}
+        {/* KHU VỰC 5: DANH SÁCH BUỔI HỌC (SESSIONS LIST) */}
         <div className="rounded-xl border border-gray-200 bg-white shadow-lg">
           {filteredSessions.length === 0 ? (
             <div className="p-12 text-center">
@@ -327,7 +307,7 @@ const TutorSessions: React.FC = () => {
                 Thử thay đổi bộ lọc hoặc tạo buổi học mới.
               </p>
               <button
-                onClick={() => navigate("/tutor/sessions/new")}
+                onClick={() => setIsDropdownOpen(true)}
                 className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-md hover:bg-blue-700"
               >
                 <Plus className="h-4 w-4" />
@@ -369,6 +349,7 @@ const TutorSessions: React.FC = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-600 max-w-[150px] truncate" title={session.location}>
+                          <MapPin className="h-3 w-3 inline mr-1 text-gray-400" />
                           {session.location}
                         </div>
                       </td>
@@ -414,8 +395,7 @@ const TutorSessions: React.FC = () => {
   );
 };
 
-// --- Helper Components ---
-
+// --- Helper Components (Giữ nguyên) ---
 const StatusBadge: React.FC<{ status: Session['status'] }> = ({ status }) => {
   const statusMap = {
     OPEN: { text: "Đang mở", bg: "bg-green-100", color: "text-green-800" },
