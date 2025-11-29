@@ -13,20 +13,21 @@ import {
 import { useUser } from "../../Context/UserContext";
 import moment from "moment";
 
-interface HistoryItem {
-  studentSessionId: number;
+interface ScheduleItem {
+  id: number;
+  studentId: number;
+  studentName: string;
   sessionId: number;
-  subjectName: string;
-  tutorName: string;
-  startTime: string;
-  endTime: string;
-  location: string;
-  format: string;
-  registrationStatus: string;
-  sessionStatus: string;
+  sessionSubject: string;
+  sessionStartTime: string;
+  sessionEndTime: string;
+  sessionLocation: string;
+  sessionFormat: string;
+  status: string;
+  sessionDayOfWeek: string;
+  confirmedDate: string;
   registeredDate: string;
-  updatedDate: string | null;
-  subjectCode: string | null;
+  updatedDate: string;
 }
 
 interface StatCardProps {
@@ -59,11 +60,10 @@ const StatCard = ({ icon, value, label, color, trend }: StatCardProps) => (
 const HomePage = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useUser();
-  const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+  const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("authToken") || "";
-
   useEffect(() => {
     if (user && !isLoading) {
       fetchHistory();
@@ -74,65 +74,61 @@ const HomePage = () => {
     if (!user?.id) return;
     try {
       const res = await fetch(
-        `http://localhost:8081/students/history/${user.id}`,
+        `http://localhost:8081/students/schedule/0`, // API lấy lịch
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
+
       if (!res.ok) {
-        // If 403 or other error, just set empty array
-        setHistoryItems([]);
+        setScheduleItems([]);
         return;
       }
-      
+
       const data = await res.json();
-      setHistoryItems(Array.isArray(data.data) ? data.data : []);
+      // Đảm bảo data.data là mảng, nếu không thì fallback về mảng rỗng
+      setScheduleItems(Array.isArray(data.data) ? data.data : []);
     } catch (err) {
-      setHistoryItems([]);
+      console.error("Lỗi fetch lịch:", err);
+      setScheduleItems([]);
     } finally {
       setLoading(false);
     }
   };
+  // 1.1 Fetch status of pending
+  const studentID = user?.id
 
+  // 2. Logic lọc "Sắp tới" dựa trên field name mới
   const getUpcomingSessions = () => {
-    return historyItems
+    return scheduleItems
       .filter((item) => {
-        const sessionDate = moment(item.startTime);
+        const sessionDate = moment(item.sessionStartTime);
         return (
           sessionDate.isAfter(moment()) &&
-          (item.sessionStatus === "SCHEDULED" ||
-            item.sessionStatus === "IN_PROGRESS")
+          (item.status === "CONFIRMED" || item.status === "IN_PROGRESS" || item.status === "SCHEDULED")
         );
       })
-      .sort((a, b) => moment(a.startTime).diff(moment(b.startTime)))
+      .sort((a, b) => moment(a.sessionStartTime).diff(moment(b.sessionStartTime)))
       .slice(0, 3);
   };
 
-  const getRecentCompletedSessions = () => {
-    return historyItems
-      .filter((item) => item.sessionStatus === "COMPLETED")
-      .sort((a, b) => moment(b.startTime).diff(moment(a.startTime)))
-      .slice(0, 3);
-  };
-
+  // Logic tính toán thống kê (cập nhật field name mới)
   const stats = {
-    totalCourses: historyItems.length,
-    completedCourses: historyItems.filter(
-      (item) => item.sessionStatus === "COMPLETED"
+    totalCourses: scheduleItems.length,
+    completedCourses: scheduleItems.filter(
+      (item) => item.status === "COMPLETED"
     ).length,
-    upcomingSessions: historyItems.filter((item) => {
-      const sessionDate = moment(item.startTime);
+    upcomingSessions: scheduleItems.filter((item) => {
+      const sessionDate = moment(item.sessionStartTime);
       return (
         sessionDate.isAfter(moment()) &&
-        (item.sessionStatus === "SCHEDULED" ||
-          item.sessionStatus === "IN_PROGRESS")
+        (item.status === "CONFIRMED" || item.status === "SCHEDULED" || item.status === "IN_PROGRESS")
       );
     }).length,
     totalHours: Math.round(
-      historyItems.reduce((acc, item) => {
+      scheduleItems.reduce((acc, item) => {
         const duration = moment
-          .duration(moment(item.endTime).diff(moment(item.startTime)))
+          .duration(moment(item.sessionEndTime).diff(moment(item.sessionStartTime)))
           .asHours();
         return acc + duration;
       }, 0)
@@ -141,6 +137,7 @@ const HomePage = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case "CONFIRMED":
       case "SCHEDULED":
         return (
           <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
@@ -174,14 +171,15 @@ const HomePage = () => {
     }
   };
 
+
+
   return (
     <>
       <title>Dashboard - Học viên</title>
       <div className="min-h-screen bg-gray-50 p-6">
-        {/* Welcome Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Xin chào, {user?.firstName || "Học viên"}! 👋
+            Xin chào, {user?.firstName} {user?.lastName} 👋
           </h1>
           <p className="text-gray-600 mt-2">
             Đây là tổng quan về tiến trình học tập của bạn
@@ -193,7 +191,7 @@ const HomePage = () => {
           <StatCard
             icon={<BookOpen className="w-6 h-6 text-blue-600" />}
             value={stats.totalCourses}
-            label="Tổng khóa học"
+            label="Tổng buổi học"
             color="bg-blue-50"
           />
           <StatCard
@@ -249,36 +247,33 @@ const HomePage = () => {
                 <div className="space-y-4">
                   {getUpcomingSessions().map((item) => (
                     <div
-                      key={item.studentSessionId}
+                      key={item.id} // Sử dụng ID mới từ JSON
                       className="p-4 border border-gray-200 rounded-lg hover:border-[#0E7AA0] hover:bg-blue-50/50 transition-all cursor-pointer"
                       onClick={() => navigate("/dashboard/schedule")}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
+                            {/* 3. Cập nhật field name hiển thị */}
                             <h3 className="font-semibold text-gray-900">
-                              {item.subjectName}
+                              {item.sessionSubject}
                             </h3>
-                            {getStatusBadge(item.sessionStatus)}
+                            {getStatusBadge(item.status)}
                           </div>
                           <div className="space-y-1 text-sm text-gray-600">
                             <div className="flex items-center gap-2">
-                              <User className="w-4 h-4" />
-                              <span>{item.tutorName}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
                               <Clock className="w-4 h-4" />
                               <span>
-                                {moment(item.startTime).format(
+                                {moment(item.sessionStartTime).format(
                                   "DD/MM/YYYY HH:mm"
                                 )}{" "}
-                                - {moment(item.endTime).format("HH:mm")}
+                                - {moment(item.sessionEndTime).format("HH:mm")}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <MapPin className="w-4 h-4" />
                               <span>
-                                {item.location} ({item.format})
+                                {item.sessionLocation} ({item.sessionFormat})
                               </span>
                             </div>
                           </div>
@@ -293,20 +288,13 @@ const HomePage = () => {
                   <p className="text-gray-500">
                     Chưa có lịch học sắp tới nào
                   </p>
-                  <button
-                    onClick={() => navigate("/dashboard/courses")}
-                    className="mt-4 px-4 py-2 bg-[#0E7AA0] text-white rounded-lg hover:bg-[#0a5f7a] transition-colors"
-                  >
-                    Đăng ký khóa học
-                  </button>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Quick Actions */}
+          {/* Quick Actions (Giữ nguyên) */}
           <div className="space-y-6">
-            {/* Actions Card */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Thao tác nhanh
@@ -330,57 +318,18 @@ const HomePage = () => {
                     Xem lịch học
                   </span>
                 </button>
-                <button
-                  onClick={() => navigate("/dashboard/materials")}
-                  className="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-[#0E7AA0] hover:bg-blue-50 transition-all"
-                >
-                  <FileText className="w-5 h-5 text-[#0E7AA0]" />
-                  <span className="font-medium text-gray-900">Tài liệu</span>
-                </button>
               </div>
             </div>
 
             {/* Progress Card */}
             <div className="bg-gradient-to-br from-[#0E7AA0] to-[#0a5f7a] rounded-xl shadow-sm p-6 text-white">
-              <h3 className="text-lg font-bold mb-2">Tiến độ học tập</h3>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Hoàn thành</span>
-                    <span className="font-semibold">
-                      {stats.totalCourses > 0
-                        ? Math.round(
-                            (stats.completedCourses / stats.totalCourses) * 100
-                          )
-                        : 0}
-                      %
-                    </span>
-                  </div>
-                  <div className="w-full bg-white/20 rounded-full h-2">
-                    <div
-                      className="bg-white rounded-full h-2 transition-all"
-                      style={{
-                        width: `${
-                          stats.totalCourses > 0
-                            ? (stats.completedCourses / stats.totalCourses) *
-                              100
-                            : 0
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-                <p className="text-sm text-blue-100">
-                  Bạn đã hoàn thành {stats.completedCourses} trong{" "}
-                  {stats.totalCourses} khóa học
-                </p>
-              </div>
+              <h3 className="text-lg font-bold mb-2">Tiến độ</h3>
+              <p className="text-sm text-blue-100">
+                {stats.completedCourses} / {stats.totalCourses} buổi đã hoàn thành.
+              </p>
             </div>
           </div>
         </div>
-
-        {/* Callout */}
-        
       </div>
     </>
   );

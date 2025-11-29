@@ -27,17 +27,14 @@ const ProfilePage = () => {
 
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-4">
-            <ProfileCard/>
+            <ProfileCard />
           </div>
           <div className="col-span-12 lg:col-span-8">
-            {/* NOTE: [x] Đã fetch xong Data từ API */}
             <InfoForm />
           </div>
         </div>
-    {/* NOTE [x] History  */}
-    <HistoryLearning/>
-    {/* NOTE: [ ] Edit profile */}
-    
+        {/* <HistoryLearning /> */}
+
       </div>
     </>
   );

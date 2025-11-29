@@ -14,8 +14,8 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import AdminTutorsPending from "./pages/admin/Tutors";
 import AdminCourses from "./pages/admin/Courses";
 import AdminSessions from "./pages/admin/Sessions";
-import AdminReports from "./pages/admin/Reports";
-import AdminFeedback from "./pages/admin/Feedback";
+// import AdminReports from "./pages/admin/Reports";
+// import AdminFeedback from "./pages/admin/Feedback";
 import AdminSettings from "./pages/admin/Settings";
 import PageNotFound from "./page/PageNotFound";
 import ProtectedRoute from "./Components/ProtectedRoute";
@@ -93,8 +93,8 @@ export default function App() {
               <Route path="tutors" element={<AdminTutorsPending />} />
               <Route path="courses" element={<AdminCourses />} />
               <Route path="sessions" element={<AdminSessions />} />
-              <Route path="reports" element={<AdminReports />} />
-              <Route path="feedback" element={<AdminFeedback />} />
+              {/* <Route path="reports" element={<AdminReports />} /> */}
+              {/* <Route path="feedback" element={<AdminFeedback />} /> */}
               <Route path="settings" element={<AdminSettings />} />
             </Route>
 

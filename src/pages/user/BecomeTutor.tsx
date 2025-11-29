@@ -31,7 +31,7 @@ export default function BecomeTutorPage() {
     majorId: 0,
     description: '',
     subjects: [],
-    experienceYears: 1
+    experienceYears: 1,
   });
 
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -112,18 +112,13 @@ export default function BecomeTutorPage() {
       await tutorApi.registerAsTutor(formData);
       // Reset form
       setFormData({
-        title: '',
+        title: '', //bio
         majorId: 0,
         description: '',
         subjects: [],
-        experienceYears: 1
+        experienceYears: 1,
       });
-
-
-      // Redirect after 2 seconds
-      setTimeout(() => {
-        toast.success('Đơn đăng ký đã được gửi thành công! Vui lòng chờ admin phê duyệt.');
-      }, 2000);
+      toast.success('Đơn đăng ký đã được gửi thành công! Vui lòng chờ admin phê duyệt.');
     } catch (error: any) {
       console.error('Registration failed:', error);
       const errorMsg = error?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
