@@ -3,6 +3,7 @@ import { Search, RefreshCw, Filter, CheckCircle, Clock, XCircle } from "lucide-r
 import { useUser } from "../../Context/UserContext";
 import { courseApi, publicApi } from "../../services/api";
 import type { CourseDTO, DepartmentDTO, StudentCourseDTO } from "../../types/api";
+import { Award } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function CoursePage() {
@@ -161,11 +162,11 @@ export default function CoursePage() {
       }
     } catch (error: unknown) {
       let errorMessage = "Đăng ký thất bại";
-      
+
       if (error && typeof error === "object") {
         if ("response" in error && error.response && typeof error.response === "object") {
           const response = error.response as any;
-          
+
           // Try to get message from response.data
           if ("data" in response && response.data) {
             if (typeof response.data === "object" && "message" in response.data) {
@@ -174,14 +175,14 @@ export default function CoursePage() {
               errorMessage = response.data;
             }
           }
-          
+
           // Add status code info
           if ("status" in response) {
             errorMessage = `${errorMessage} (HTTP ${response.status})`;
           }
         } else if ("message" in error) {
           const rawMessage = String((error as Error).message);
-          
+
           // Make error messages more user-friendly
           if (rawMessage.includes("not available for registration")) {
             errorMessage = "⚠️ Khóa học này không còn khả dụng. Có thể đã đầy, đã qua thời gian hoặc đã đóng đăng ký.";
@@ -194,7 +195,7 @@ export default function CoursePage() {
           }
         }
       }
-      
+
       setMessage(`❌ ${errorMessage}`);
       toast.error(errorMessage);
     } finally {
@@ -268,18 +269,46 @@ export default function CoursePage() {
     );
   }
 
+
+  if (user?.role !== 'student') {
+    return (
+      <div className="flex items-center justify-center min-h-96">
+        <div className="text-center max-w-md">
+          <Award className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Chỉ dành cho sinh viên</h3>
+          <p className="text-gray-600">Chức năng này chỉ dành cho tài khoản sinh viên muốn đăng ký làm gia sư.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      <title>Danh sách Khoá học</title>
+      <title>Danh sách buổi học hiện có</title>
+
       <div className="space-y-8 p-6">
+        <h1 className="text-2xl font-bold text-gray-900">Danh sách buổi học hiện có</h1>
+        {/* Giới thiệu */}
+        {/* Information Banner */}
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <div className="flex gap-3">
+            <Award className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-medium text-blue-900 mb-1">Quy trình đăng ký buổi học</h3>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>1. <b>Sinh viên</b> chọn khoá học cần đăng ký</li>
+                <li>2. Nhấp vào <b>đăng ký</b></li>
+                <li>3. Sẽ hiện thông báo thành công nếu đủ điều kiện</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        {/* 
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Khóa học</h1>
-                <p className="mt-1 text-gray-600">
-                  Tìm kiếm và đăng ký các khóa học phù hợp
-                </p>
+
               </div>
               <button
                 onClick={() => loadData()}
@@ -290,15 +319,8 @@ export default function CoursePage() {
                 Làm mới
               </button>
             </div>
-            {user?.role === 'admin' && registeredCount === 0 && (
-              <div className="mt-2 rounded-md bg-blue-50 border border-blue-200 px-3 py-2">
-                <p className="text-sm text-blue-700">
-                  ℹ️ Bạn đang xem với quyền <strong>Admin</strong>. Không hiển thị danh sách đã đăng ký.
-                </p>
-              </div>
-            )}
           </div>
-        </div>
+        </div> */}
 
         {/* Filter Tabs */}
         <div className="grid grid-cols-12 gap-6">
@@ -467,14 +489,13 @@ export default function CoursePage() {
                             {course.name}
                           </h3>
                           <span
-                            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold ${
-                              isFull
-                                ? "bg-red-100 text-red-700"
-                                : isNearlyFull
-                                  ? "bg-orange-100 text-orange-700"
-                                  : course.status === "OPEN"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-yellow-100 text-yellow-700"
+                            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold ${isFull
+                              ? "bg-red-100 text-red-700"
+                              : isNearlyFull
+                                ? "bg-orange-100 text-orange-700"
+                                : course.status === "OPEN"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-yellow-100 text-yellow-700"
                               }`}
                           >
                             {isFull && <XCircle className="h-3 w-3" />}
@@ -535,13 +556,12 @@ export default function CoursePage() {
                         <div className="mt-4">
                           <div className="h-1.5 rounded bg-gray-200">
                             <div
-                              className={`h-1.5 rounded transition-colors ${
-                                isFull
-                                  ? 'bg-red-500'
-                                  : isNearlyFull
-                                    ? 'bg-orange-500'
-                                    : 'bg-blue-600'
-                              }`}
+                              className={`h-1.5 rounded transition-colors ${isFull
+                                ? 'bg-red-500'
+                                : isNearlyFull
+                                  ? 'bg-orange-500'
+                                  : 'bg-blue-600'
+                                }`}
                               style={{ width: `${progress}%` }}
                             />
                           </div>
@@ -570,16 +590,16 @@ export default function CoursePage() {
                             user?.role === 'admin'
                           }
                           className={`w-full rounded-md px-4 py-2 text-sm lg:w-auto disabled:cursor-not-allowed flex items-center justify-center gap-2
-                            ${isRegistered 
-                              ? 'bg-green-100 text-green-700 border-2 border-green-300' 
+                            ${isRegistered
+                              ? 'bg-green-100 text-green-700 border-2 border-green-300'
                               : isFull || course.status === "CLOSED" || user?.role === 'admin'
                                 ? 'bg-gray-400 text-white opacity-50'
                                 : 'bg-blue-600 text-white hover:bg-blue-700'
                             }`}
                           title={
-                            user?.role === 'admin' 
-                              ? 'Admin không thể đăng ký khoá học' 
-                              : isRegistered 
+                            user?.role === 'admin'
+                              ? 'Admin không thể đăng ký khoá học'
+                              : isRegistered
                                 ? 'Bạn đã đăng ký khóa học này'
                                 : isFull
                                   ? 'Khóa học đã đầy'

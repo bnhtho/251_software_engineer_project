@@ -28,7 +28,7 @@ interface Session {
 
 const TutorSchedule = () => {
   const { user } = useUser();
-  
+
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [weekStart, setWeekStart] = useState("25/11/2025");
@@ -45,7 +45,7 @@ const TutorSchedule = () => {
       setLoading(true);
       // TODO: Call real API
       // const response = await tutorApi.getTutorSchedule(user.id, weekStart, weekEnd);
-      
+
       // Mock data
       setSessions([
         {
@@ -104,19 +104,19 @@ const TutorSchedule = () => {
   const changeWeek = (direction: "prev" | "next") => {
     const [day, month, year] = weekStart.split("/").map(Number);
     const currentDate = new Date(year, month - 1, day);
-    
+
     if (direction === "prev") {
       currentDate.setDate(currentDate.getDate() - 7);
     } else {
       currentDate.setDate(currentDate.getDate() + 7);
     }
-    
+
     const newStart = currentDate.toLocaleDateString("en-GB");
-    
+
     const endDate = new Date(currentDate);
     endDate.setDate(endDate.getDate() + 6);
     const newEnd = endDate.toLocaleDateString("en-GB");
-    
+
     setWeekStart(newStart);
     setWeekEnd(newEnd);
   };
@@ -132,7 +132,7 @@ const TutorSchedule = () => {
     sessions.forEach(session => {
       const startDateTime = `${session.date.replace(/-/g, "")}T${session.startTime.replace(/:/g, "")}00`;
       const endDateTime = `${session.date.replace(/-/g, "")}T${session.endTime.replace(/:/g, "")}00`;
-      
+
       ical += `BEGIN:VEVENT\n`;
       ical += `UID:session-${session.id}@tutorsystem.com\n`;
       ical += `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0]}Z\n`;
@@ -230,21 +230,21 @@ const TutorSchedule = () => {
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 md:col-span-8 md:col-start-3">
             <div className="flex items-center justify-center gap-4 rounded-lg border border-gray-200 bg-white p-6">
-              <button 
+              <button
                 onClick={() => changeWeek("prev")}
                 className="rounded-md border border-gray-300 px-3 py-2 transition-colors hover:bg-gray-50"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
-              
+
               <div className="text-center">
                 <p className="text-sm text-gray-600">Tuần</p>
                 <p className="text-lg font-semibold text-gray-900">
                   {weekStart} - {weekEnd}
                 </p>
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => changeWeek("next")}
                 className="rounded-md border border-gray-300 px-3 py-2 transition-colors hover:bg-gray-50"
               >
@@ -366,11 +366,10 @@ const TutorSchedule = () => {
                       </td>
                       <td className="px-4 py-4">
                         <span
-                          className={`inline-flex items-center gap-1 rounded px-3 py-1 text-xs font-medium ${
-                            session.format === "OFFLINE"
+                          className={`inline-flex items-center gap-1 rounded px-3 py-1 text-xs font-medium ${session.format === "OFFLINE"
                               ? "bg-green-100 text-green-800"
                               : "bg-blue-100 text-blue-800"
-                          }`}
+                            }`}
                         >
                           {session.format === "OFFLINE" ? (
                             <><MapPin className="h-3 w-3" /> Offline</>
@@ -386,11 +385,10 @@ const TutorSchedule = () => {
                         </div>
                         <div className="mt-1 w-full bg-gray-200 rounded-full h-1.5">
                           <div
-                            className={`h-1.5 rounded-full ${
-                              session.studentCount === session.maxStudents
+                            className={`h-1.5 rounded-full ${session.studentCount === session.maxStudents
                                 ? "bg-orange-500"
                                 : "bg-blue-600"
-                            }`}
+                              }`}
                             style={{
                               width: `${(session.studentCount / session.maxStudents) * 100}%`,
                             }}

@@ -16,6 +16,7 @@ export interface Subject {
 export interface User {
   id: number;
   role: string;
+  // role: string;
   firstName?: string;
   lastName?: string;
   hcmutId: string;
