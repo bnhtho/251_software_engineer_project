@@ -474,6 +474,31 @@ export const tutorApi = {
     const response = await api.post<BaseResponse<any>>('/tutors', data);
     return response.data.data;
   },
+
+  // Get tutor profile with subjects
+  getTutorProfile: async (): Promise<any> => {
+    // GET /tutors/profile - requires authentication
+    const response = await api.get<BaseResponse<any>>('/tutors/profile');
+    return response.data.data;
+  },
+
+  // Get subjects that tutor can teach
+  getTutorSubjects: async (): Promise<any[]> => {
+    try {
+      // Use existing endpoint that returns tutor profile with subjects
+      const tutorProfile = await tutorApi.getTutorProfile();
+      return tutorProfile.subjects || [];
+    } catch (error) {
+      console.log('Failed to get tutor subjects:', error);
+      // Fallback to all subjects if tutor profile not available
+      try {
+        const response = await api.get<BaseResponse<any[]>>('/subjects');
+        return response.data.data;
+      } catch (fallbackError) {
+        return [];
+      }
+    }
+  },
 };
 
 export default api;

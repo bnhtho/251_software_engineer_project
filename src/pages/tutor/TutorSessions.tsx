@@ -15,8 +15,7 @@ import {
 import SessionForm from "../../Components/SessionForm";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from "../../Context/UserContext";
-
-// import 
+import { scheduleApi } from "../../services/api";
 
 // --- MOCK DEPENDENCIES START ---
 const mockNavigate = (path: string) => {
@@ -27,19 +26,20 @@ const mockNavigate = (path: string) => {
 
 interface Session {
   id: number;
+  tutorName: string;
+  studentNames: string[];
   subjectName: string;
-  subjectId: number;
   startTime: string;
   endTime: string;
-  format: "ONLINE" | "OFFLINE";
+  format: string; // "ONLINE" or "OFFLINE"
   location: string;
   maxQuantity: number;
   currentQuantity: number;
-  status: "OPEN" | "CLOSED" | "FULL" | "CANCELLED";
-  studentNames: string[];
+  updatedDate: string;
+  statusId?: number;
+  sessionStatusName?: string;
+  status?: "OPEN" | "CLOSED" | "FULL" | "CANCELLED";
 }
-
-const EMPTY_SESSIONS_DATA: Session[] = [];
 
 // --- FRAMER MOTION VARIANTS ---
 const slideDownVariants: any = {
@@ -52,8 +52,6 @@ const slideDownVariants: any = {
     opacity: 1,
   },
 };
-// -----------------------------
-
 
 const TutorSessions: React.FC = () => {
   const navigate = mockNavigate;
@@ -67,14 +65,14 @@ const TutorSessions: React.FC = () => {
   const loadSessions = async () => {
     if (sessions.length === 0) setLoading(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
     try {
-      const listSession: Session[] = EMPTY_SESSIONS_DATA;
+      const response = await scheduleApi.getAllSessions();
+      // Backend returns paginated response: {pagination: {...}, content: Array}
+      const listSession = Array.isArray(response) ? response : (response as any).content || [];
       setSessions(listSession);
-      console.log("Đã tải danh sách buổi học");
+      console.log("Đã tải danh sách buổi học:", listSession);
     } catch (error) {
-      console.log("Không thể tải danh sách buổi học (Mock Error)");
+      console.error("Không thể tải danh sách buổi học:", error);
       setSessions([]);
     } finally {
       setLoading(false);
@@ -85,13 +83,16 @@ const TutorSessions: React.FC = () => {
     loadSessions();
   }, []);
 
-  const handleDelete = (sessionId: number) => {
-    // Logic xác nhận xóa (thay thế bằng Modal trong thực tế)
+  const handleDelete = async (sessionId: number) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa buổi học này?")) return;
+    
     try {
+      await scheduleApi.deleteSession(sessionId);
       setSessions(sessions.filter(s => s.id !== sessionId));
-      console.log("Tạo buổi học thành công")
+      console.log("Xóa buổi học thành công");
     } catch (error) {
-      console.log(error)
+      console.error("Không thể xóa buổi học:", error);
+      alert("Không thể xóa buổi học. Vui lòng thử lại.");
     }
   };
 
@@ -131,8 +132,9 @@ const TutorSessions: React.FC = () => {
         searchTerm === "" ||
         session.subjectName.toLowerCase().includes(searchTerm.toLowerCase());
 
+      // Sử dụng sessionStatusName từ backend (join với session_status)
       const matchesStatus =
-        statusFilter === "ALL" || session.status === statusFilter;
+        statusFilter === "ALL" || session.sessionStatusName === statusFilter;
 
       const matchesFormat =
         formatFilter === "ALL" || session.format === formatFilter;
@@ -142,8 +144,9 @@ const TutorSessions: React.FC = () => {
   }, [sessions, searchTerm, statusFilter, formatFilter]);
 
   const totalSessions = sessions.length;
-  const openSessions = sessions.filter(s => s.status === "OPEN").length;
-  const fullSessions = sessions.filter(s => s.status === "FULL").length;
+  // Lấy status từ sessionStatusName (đã join với bảng session_status qua status_id)
+  const scheduledSessions = sessions.filter(s => s.sessionStatusName === "SCHEDULED").length;
+  const completedSessions = sessions.filter(s => s.sessionStatusName === "COMPLETED").length;
   const totalStudents = sessions.reduce((sum, s) => sum + s.currentQuantity, 0);
 
   // --- TRẠNG THÁI LOADING BAN ĐẦU ---
@@ -245,9 +248,10 @@ const TutorSessions: React.FC = () => {
                 className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm appearance-none"
               >
                 <option value="ALL">Tất cả trạng thái</option>
-                <option value="OPEN">Đang mở</option>
-                <option value="FULL">Đã đầy</option>
-                <option value="CLOSED">Đã đóng</option>
+                <option value="PENDING">Chờ xác nhận</option>
+                <option value="SCHEDULED">Đã lên lịch</option>
+                <option value="IN_PROGRESS">Đang diễn ra</option>
+                <option value="COMPLETED">Hoàn thành</option>
                 <option value="CANCELLED">Đã hủy</option>
               </select>
             </div>
@@ -274,8 +278,8 @@ const TutorSessions: React.FC = () => {
         {/* KHU VỰC 4: THỐNG KÊ (STATISTICS) */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard title="Tổng buổi học" value={totalSessions} color="text-gray-900" icon={<Calendar className="h-6 w-6 text-indigo-500" />} />
-          <StatCard title="Đang mở" value={openSessions} color="text-green-600" icon={<Clock className="h-6 w-6 text-green-500" />} />
-          <StatCard title="Đã đầy" value={fullSessions} color="text-orange-600" icon={<Users className="h-6 w-6 text-orange-500" />} />
+          <StatCard title="Đã lên lịch" value={scheduledSessions} color="text-green-600" icon={<Clock className="h-6 w-6 text-green-500" />} />
+          <StatCard title="Hoàn thành" value={completedSessions} color="text-orange-600" icon={<Users className="h-6 w-6 text-orange-500" />} />
           <StatCard title="Tổng sinh viên" value={totalStudents} color="text-blue-600" icon={<Users className="h-6 w-6 text-blue-500" />} />
         </div>
 
@@ -347,7 +351,7 @@ const TutorSessions: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <StatusBadge status={session.status} />
+                        <StatusBadge status={session.sessionStatusName || "PENDING"} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-3">
@@ -380,20 +384,21 @@ const TutorSessions: React.FC = () => {
 };
 
 // --- Helper Components (Giữ nguyên) ---
-const StatusBadge: React.FC<{ status: Session['status'] }> = ({ status }) => {
-  const statusMap = {
-    OPEN: { text: "Đang mở", bg: "bg-green-100", color: "text-green-800" },
-    FULL: { text: "Đã đầy", bg: "bg-orange-100", color: "text-orange-800" },
-    CLOSED: { text: "Đã đóng", bg: "bg-gray-100", color: "text-gray-800" },
+const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
+  const statusMap: Record<string, { text: string; bg: string; color: string }> = {
+    PENDING: { text: "Chờ xác nhận", bg: "bg-yellow-100", color: "text-yellow-800" },
+    SCHEDULED: { text: "Đã lên lịch", bg: "bg-green-100", color: "text-green-800" },
+    IN_PROGRESS: { text: "Đang diễn ra", bg: "bg-blue-100", color: "text-blue-800" },
+    COMPLETED: { text: "Hoàn thành", bg: "bg-gray-100", color: "text-gray-800" },
     CANCELLED: { text: "Đã hủy", bg: "bg-red-100", color: "text-red-800" },
   };
-  const { text, bg, color } = statusMap[status];
+  const statusInfo = statusMap[status] || { text: status, bg: "bg-gray-100", color: "text-gray-800" };
 
   return (
     <span
-      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${bg} ${color}`}
+      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusInfo.bg} ${statusInfo.color}`}
     >
-      {text}
+      {statusInfo.text}
     </span>
   );
 };
