@@ -7,6 +7,12 @@ import React, {
 } from "react";
 import { jwtDecode } from "jwt-decode";
 
+export interface Subject {
+  id: number;
+  name: string;
+}
+
+
 export interface User {
   id: number;
   role: string;
@@ -18,7 +24,10 @@ export interface User {
   phone: string;
   bio: string;
   majorName: string;
+  // subject: [];
+  subjects: Subject[];
 }
+
 
 interface UserContextType {
   user: User | null;
@@ -84,8 +93,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       const decoded = decodeToken(token);
       const profile = await fetchProfile(token);
-      console.log("DECODED TOKEN:", decoded);
-      console.log("PROFILE:", profile);
       const normalizedRole = profile.role || decoded.role;
       setUser({
         ...profile,

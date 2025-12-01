@@ -209,26 +209,10 @@ const TutorSessions: React.FC = () => {
               style={{ overflow: 'hidden' }}
               className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 space-y-4"
             >
-              {/* components form */}
+              {/*SECTION: components form */}
               <SessionForm />
-              <div className="pt-4 flex justify-end gap-3">
-                <button
-                  onClick={() => setIsDropdownOpen(false)}
-                  className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-100"
-                >
-                  Hủy
-                </button>
-                <button
-                  onClick={() => {
-                    // Logic xử lý Form và lưu dữ liệu
-                    console.log("Submitting new session form...");
-                    setIsDropdownOpen(false);
-                  }}
-                  className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-md hover:bg-blue-700"
-                >
-                  Tạo ngay
-                </button>
-              </div>
+
+              {/* </div> */}
             </motion.div>
           )}
         </AnimatePresence>

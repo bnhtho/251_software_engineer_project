@@ -75,7 +75,9 @@ export default function App() {
               <Route path="dashboard" element={<TutorHomePage />} />
               <Route path="profile" element={<TutorProfilePage />} />
               <Route path="sessions" element={<TutorSessions />} />
-              <Route path="registrations" element={<TutorRegistrations />} />
+              {/* <Route path="registrations" element={<TutorRegistrations />} /> */}
+              {/* NOTE: Bug register here -> to commetn */}
+              {/* <Route path="registrations" element={< TutorRegistrations />} /> */}
               <Route path="schedule" element={<TutorSchedule />} />
               <Route path="materials" element={<Materials />} />
             </Route>
