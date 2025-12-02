@@ -118,7 +118,7 @@ export interface SessionDTO {
   location?: string;
   locationType: 'ONLINE' | 'OFFLINE';
   meetingLink?: string;
-  status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED';
+  sessionStatus: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED'; // Updated to match backend
   notes?: string;
   createdDate: string; // Instant
   updateDate: string; // Instant

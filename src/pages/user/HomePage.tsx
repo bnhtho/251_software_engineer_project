@@ -1,13 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BookOpen,
   Calendar,
   Clock,
-  FileText,
   ArrowRight,
   CheckCircle2,
-  User,
   MapPin,
 } from "lucide-react";
 import { useUser } from "../../Context/UserContext";
@@ -23,7 +21,7 @@ interface ScheduleItem {
   sessionEndTime: string;
   sessionLocation: string;
   sessionFormat: string;
-  status: string;
+  sessionStatus: string; // Updated to match backend field
   sessionDayOfWeek: string;
   confirmedDate: string;
   registeredDate: string;
@@ -64,13 +62,8 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("authToken") || "";
-  useEffect(() => {
-    if (user && !isLoading) {
-      fetchHistory();
-    }
-  }, [user, isLoading]);
-
-  const fetchHistory = async () => {
+  
+  const fetchHistory = useCallback(async () => {
     if (!user?.id) return;
     try {
       const res = await fetch(
@@ -94,18 +87,22 @@ const HomePage = () => {
     } finally {
       setLoading(false);
     }
-  };
-  // 1.1 Fetch status of pending
-  const studentID = user?.id
+  }, [user?.id, token]);
 
-  // 2. Logic lọc "Sắp tới" dựa trên field name mới
+  useEffect(() => {
+    if (user && !isLoading) {
+      fetchHistory();
+    }
+  }, [user, isLoading, fetchHistory]);
+
+  // Logic lọc "Sắp tới" dựa trên field name mới
   const getUpcomingSessions = () => {
     return scheduleItems
       .filter((item) => {
         const sessionDate = moment(item.sessionStartTime);
         return (
           sessionDate.isAfter(moment()) &&
-          (item.status === "CONFIRMED" || item.status === "IN_PROGRESS" || item.status === "SCHEDULED")
+          (item.sessionStatus === "CONFIRMED" || item.sessionStatus === "IN_PROGRESS" || item.sessionStatus === "SCHEDULED")
         );
       })
       .sort((a, b) => moment(a.sessionStartTime).diff(moment(b.sessionStartTime)))
@@ -116,13 +113,13 @@ const HomePage = () => {
   const stats = {
     totalCourses: scheduleItems.length,
     completedCourses: scheduleItems.filter(
-      (item) => item.status === "COMPLETED"
+      (item) => item.sessionStatus === "COMPLETED"
     ).length,
     upcomingSessions: scheduleItems.filter((item) => {
       const sessionDate = moment(item.sessionStartTime);
       return (
         sessionDate.isAfter(moment()) &&
-        (item.status === "CONFIRMED" || item.status === "SCHEDULED" || item.status === "IN_PROGRESS")
+        (item.sessionStatus === "CONFIRMED" || item.sessionStatus === "SCHEDULED" || item.sessionStatus === "IN_PROGRESS")
       );
     }).length,
     totalHours: Math.round(
@@ -226,10 +223,10 @@ const HomePage = () => {
                   </h2>
                 </div>
                 <button
-                  onClick={() => navigate("/dashboard/schedule")}
+                  onClick={() => navigate("/dashboard/tutors")}
                   className="flex items-center gap-1 text-sm text-[#0E7AA0] hover:underline"
                 >
-                  Xem tất cả
+                  Tìm gia sư
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -247,18 +244,18 @@ const HomePage = () => {
                 <div className="space-y-4">
                   {getUpcomingSessions().map((item) => (
                     <div
-                      key={item.id} // Sử dụng ID mới từ JSON
+                      key={item.id}
                       className="p-4 border border-gray-200 rounded-lg hover:border-[#0E7AA0] hover:bg-blue-50/50 transition-all cursor-pointer"
-                      onClick={() => navigate("/dashboard/schedule")}
+                      onClick={() => navigate("/dashboard/tutors")}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            {/* 3. Cập nhật field name hiển thị */}
+                            {/* Update field name display */}
                             <h3 className="font-semibold text-gray-900">
                               {item.sessionSubject}
                             </h3>
-                            {getStatusBadge(item.status)}
+                            {getStatusBadge(item.sessionStatus)}
                           </div>
                           <div className="space-y-1 text-sm text-gray-600">
                             <div className="flex items-center gap-2">
@@ -293,7 +290,7 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* Quick Actions (Giữ nguyên) */}
+          {/* Quick Actions */}
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -301,21 +298,21 @@ const HomePage = () => {
               </h2>
               <div className="space-y-3">
                 <button
-                  onClick={() => navigate("/dashboard/courses")}
+                  onClick={() => navigate("/dashboard/tutors")}
                   className="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-[#0E7AA0] hover:bg-blue-50 transition-all"
                 >
                   <BookOpen className="w-5 h-5 text-[#0E7AA0]" />
                   <span className="font-medium text-gray-900">
-                    Tìm khóa học
+                    Tìm gia sư
                   </span>
                 </button>
                 <button
-                  onClick={() => navigate("/dashboard/schedule")}
+                  onClick={() => navigate("/dashboard/materials")}
                   className="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-[#0E7AA0] hover:bg-blue-50 transition-all"
                 >
                   <Calendar className="w-5 h-5 text-[#0E7AA0]" />
                   <span className="font-medium text-gray-900">
-                    Xem lịch học
+                    Tài liệu học tập
                   </span>
                 </button>
               </div>

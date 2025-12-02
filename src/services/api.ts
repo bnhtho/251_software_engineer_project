@@ -331,7 +331,7 @@ export const scheduleApi = {
       location: item.sessionLocation || 'N/A',
       locationType: item.sessionFormat === 'ONLINE' ? 'ONLINE' : 'OFFLINE',
       meetingLink: item.sessionFormat === 'ONLINE' ? item.sessionLocation : undefined,
-      status: item.status === 'CONFIRMED' ? 'SCHEDULED' : item.status,
+      sessionStatus: item.status === 'CONFIRMED' ? 'SCHEDULED' : item.status, // Updated to sessionStatus
       notes: '',
       createdDate: item.registeredDate,
       updateDate: item.updatedDate,
@@ -342,6 +342,45 @@ export const scheduleApi = {
     // Actual backend endpoint
     const response = await api.get<BaseResponse<BackendSessionDTO[]>>("/sessions");
     return response.data.data;
+  },
+
+  getTutorSessions: async (page: number = 0): Promise<{ content: BackendSessionDTO[], totalPages: number, totalElements: number }> => {
+    // Sử dụng endpoint GET /sessions với authentication để chỉ lấy sessions của tutor hiện tại
+    try {
+      const response = await api.get<BaseResponse<any>>(`/sessions?page=${page}`);
+      let data = response.data.data;
+      
+      // Nếu API trả về pagination
+      if (data && typeof data === 'object' && 'content' in data) {
+        return {
+          content: data.content || [],
+          totalPages: data.totalPages || 0,
+          totalElements: data.totalElements || 0
+        };
+      }
+      
+      // Nếu API trả về array trực tiếp
+      if (Array.isArray(data)) {
+        return {
+          content: data,
+          totalPages: Math.ceil(data.length / 10),
+          totalElements: data.length
+        };
+      }
+      
+      return {
+        content: [],
+        totalPages: 0,
+        totalElements: 0
+      };
+    } catch (error) {
+      console.error('Error fetching tutor sessions:', error);
+      return {
+        content: [],
+        totalPages: 0,
+        totalElements: 0
+      };
+    }
   },
 
   getSessionById: async (sessionId: number): Promise<SessionDTO> => {
@@ -373,7 +412,7 @@ export const scheduleApi = {
       endTime: new Date(session.endTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
       location: session.location,
       locationType: session.format === 'ONLINE' ? 'ONLINE' : 'OFFLINE',
-      status: 'SCHEDULED',
+      sessionStatus: 'SCHEDULED', // Updated to sessionStatus
       createdDate: session.updatedDate,
       updateDate: session.updatedDate,
     } as SessionDTO;

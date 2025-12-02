@@ -4,12 +4,11 @@ import { useState, useEffect, useRef } from "react";
 import {
   Home,
   BookOpen,
-  Calendar,
   FileText,
-  Bell,
+  // Bell,
   User,
   UserCircle,
-  Settings,
+  // Settings,
   LogOut,
   ChevronDown,
   ChevronRight,
@@ -37,7 +36,6 @@ export default function TutorSidebar() {
     { icon: Home, label: "Dashboard", path: "" },
     { icon: BookOpen, label: "Quản lý buổi học", path: "sessions" },
     { icon: ClipboardList, label: "Đăng ký sinh viên", path: "registrations" },
-    { icon: Calendar, label: "Lịch dạy", path: "schedule" },
     { icon: FileText, label: "Tài liệu", path: "materials" },
     { divider: true },
   ];

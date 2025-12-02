@@ -11,10 +11,12 @@ import {
   Laptop,
   Users,
   RefreshCw,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import SessionForm from "../../Components/SessionForm";
 import { motion, AnimatePresence } from 'framer-motion';
-import { useUser } from "../../Context/UserContext";
+import type { Variants } from 'framer-motion';
 import { scheduleApi } from "../../services/api";
 
 // --- MOCK DEPENDENCIES START ---
@@ -24,7 +26,7 @@ const mockNavigate = (path: string) => {
 
 // --- MOCK DEPENDENCIES END ---
 
-interface Session {
+interface SessionDTO {
   id: number;
   tutorName: string;
   studentNames: string[];
@@ -36,13 +38,11 @@ interface Session {
   maxQuantity: number;
   currentQuantity: number;
   updatedDate: string;
-  statusId?: number;
-  sessionStatusName?: string;
-  status?: "OPEN" | "CLOSED" | "FULL" | "CANCELLED";
+  sessionStatus?: string; // Matches backend field
 }
 
 // --- FRAMER MOTION VARIANTS ---
-const slideDownVariants: any = {
+const slideDownVariants: Variants = {
   hidden: {
     height: 0,
     opacity: 0,
@@ -55,32 +55,37 @@ const slideDownVariants: any = {
 
 const TutorSessions: React.FC = () => {
   const navigate = mockNavigate;
-  const [loading, setLoading] = useState(false);
-  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sessions, setSessions] = useState<SessionDTO[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [formatFilter, setFormatFilter] = useState<string>("ALL");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const loadSessions = async () => {
-    if (sessions.length === 0) setLoading(true);
-
+  const loadSessions = async (page: number = 0) => {
     try {
-      const response = await scheduleApi.getAllSessions();
-      // Backend returns paginated response: {pagination: {...}, content: Array}
-      const listSession = Array.isArray(response) ? response : (response as any).content || [];
-      setSessions(listSession);
-      console.log("Đã tải danh sách buổi học:", listSession);
+      // Gọi API riêng cho tutor
+      const response = await scheduleApi.getTutorSessions(page);
+      
+      setSessions(response.content || []);
+      setTotalPages(response.totalPages || 0);
+      setCurrentPage(page);
+      
+      console.log("Đã tải danh sách buổi học của tutor:", response);
     } catch (error) {
       console.error("Không thể tải danh sách buổi học:", error);
       setSessions([]);
+      setTotalPages(0);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadSessions();
+    setLoading(true);
+    loadSessions(0);
   }, []);
 
   const handleDelete = async (sessionId: number) => {
@@ -132,11 +137,9 @@ const TutorSessions: React.FC = () => {
         searchTerm === "" ||
         session.subjectName.toLowerCase().includes(searchTerm.toLowerCase());
 
-      // Sử dụng sessionStatusName từ backend (join với session_status)
-      const matchesStatus =
-        statusFilter === "ALL" || session.sessionStatusName === statusFilter;
-
-      const matchesFormat =
+        // Use proper sessionStatus field from backend
+        const matchesStatus =
+          statusFilter === "ALL" || session.sessionStatus === statusFilter;      const matchesFormat =
         formatFilter === "ALL" || session.format === formatFilter;
 
       return matchesSearch && matchesStatus && matchesFormat;
@@ -144,9 +147,9 @@ const TutorSessions: React.FC = () => {
   }, [sessions, searchTerm, statusFilter, formatFilter]);
 
   const totalSessions = sessions.length;
-  // Lấy status từ sessionStatusName (đã join với bảng session_status qua status_id)
-  const scheduledSessions = sessions.filter(s => s.sessionStatusName === "SCHEDULED").length;
-  const completedSessions = sessions.filter(s => s.sessionStatusName === "COMPLETED").length;
+  // Use proper sessionStatus field for statistics
+  const scheduledSessions = sessions.filter(s => s.sessionStatus === "SCHEDULED").length;
+  const completedSessions = sessions.filter(s => s.sessionStatus === "COMPLETED").length;
   const totalStudents = sessions.reduce((sum, s) => sum + s.currentQuantity, 0);
 
   // --- TRẠNG THÁI LOADING BAN ĐẦU ---
@@ -180,7 +183,7 @@ const TutorSessions: React.FC = () => {
           {/* Nút Hành động */}
           <div className="flex gap-2">
             <button
-              onClick={loadSessions}
+              onClick={() => loadSessions(currentPage)}
               disabled={loading}
               className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-100 disabled:opacity-50"
               title="Làm mới danh sách"
@@ -351,7 +354,7 @@ const TutorSessions: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <StatusBadge status={session.sessionStatusName || "PENDING"} />
+                        <StatusBadge status={session.sessionStatus || "PENDING"} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-3">
@@ -378,6 +381,47 @@ const TutorSessions: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    const newPage = currentPage - 1;
+                    setCurrentPage(newPage);
+                    loadSessions(newPage);
+                  }}
+                  disabled={currentPage === 0}
+                  className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                
+                <span className="px-3 py-1 text-sm text-gray-700">
+                  Trang {currentPage + 1} / {totalPages}
+                </span>
+                
+                <button
+                  onClick={() => {
+                    const newPage = currentPage + 1;
+                    setCurrentPage(newPage);
+                    loadSessions(newPage);
+                  }}
+                  disabled={currentPage >= totalPages - 1}
+                  className="p-2 rounded-md border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <div className="text-sm text-gray-500">
+                Hiển thị {Math.min((currentPage * 10) + 1, totalPages * 10)} - {Math.min((currentPage + 1) * 10, totalPages * 10)} trên tổng số {totalPages * 10}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -403,7 +447,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   );
 };
 
-const FormatBadge: React.FC<{ format: Session['format'] }> = ({ format }) => {
+const FormatBadge: React.FC<{ format: SessionDTO['format'] }> = ({ format }) => {
   const isOnline = format === "ONLINE";
   return (
     <span

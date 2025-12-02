@@ -234,12 +234,6 @@ const TutorHomePage = () => {
               <h2 className="text-lg font-semibold text-gray-900">
                 Buổi học sắp tới
               </h2>
-              <button
-                onClick={() => navigate("/tutor/schedule")}
-                className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
-              >
-                Xem tất cả <ArrowRight className="h-4 w-4" />
-              </button>
             </div>
 
             {upcomingSessions.length === 0 ? (
@@ -349,7 +343,7 @@ const TutorHomePage = () => {
           <h2 className="mb-4 text-lg font-semibold text-gray-900">
             Thao tác nhanh
           </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <button
               onClick={() => navigate("/tutor/sessions/new")}
               className="rounded-lg border border-gray-300 p-4 text-left hover:bg-gray-50 transition-colors"
@@ -357,15 +351,6 @@ const TutorHomePage = () => {
               <BookOpen className="h-6 w-6 text-blue-600 mb-2" />
               <h3 className="font-medium text-gray-900">Tạo buổi học mới</h3>
               <p className="text-sm text-gray-500 mt-1">Thêm lịch dạy mới</p>
-            </button>
-
-            <button
-              onClick={() => navigate("/tutor/schedule")}
-              className="rounded-lg border border-gray-300 p-4 text-left hover:bg-gray-50 transition-colors"
-            >
-              <Calendar className="h-6 w-6 text-green-600 mb-2" />
-              <h3 className="font-medium text-gray-900">Xem lịch dạy</h3>
-              <p className="text-sm text-gray-500 mt-1">Quản lý thời gian biểu</p>
             </button>
 
             <button

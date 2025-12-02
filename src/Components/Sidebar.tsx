@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useUser } from "../Context/UserContext";
 import { useState, useEffect, useRef } from "react";
-import { ChevronRight, Home, Users, BookOpen, FileText, Settings, Bell, User, Menu, LogOut, UserCircle, ChevronDown, Calendar, MessageSquare } from "lucide-react";
+import { ChevronRight, Home, Users, FileText, Settings, Bell, User, Menu, LogOut, UserCircle, ChevronDown, MessageSquare } from "lucide-react";
 import React from "react";
 import Avatar from "./Avatar";
 
@@ -30,8 +30,6 @@ export default function Sidebar() {
 
     const mainNavItems: (NavItemType | NavItemDividerType)[] = [
         { icon: Home, label: "Trang chủ", path: "" },
-        { icon: BookOpen, label: "Lịch học", path: "schedule" },
-        { icon: Calendar, label: "Đăng ký buổi học", path: "courses" },
         { icon: Users, label: "Danh sách Gia sư", path: "tutors" },
         { icon: FileText, label: getMaterialsLabel(), path: "materials" },
         // NOTE:  Khi nào có chức năng phản hồi và báo cáo thì mở lại
