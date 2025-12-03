@@ -123,6 +123,7 @@ export default function CoursePage() {
 
       // Try API call, fallback to simulation
       try {
+        alert("Submit")
         const result = await courseApi.registerCourse({
           courseId,
           studentId,
@@ -456,7 +457,7 @@ export default function CoursePage() {
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12">
             <h2 className="mb-4 text-lg font-semibold text-gray-900">
-              Danh sách khóa học
+              Danh sách buổi học
             </h2>
           </div>
 
@@ -536,7 +537,7 @@ export default function CoursePage() {
                             <div className="mb-2 flex items-center gap-2">
                               <span className="font-medium">Mã khóa học:</span>
                               <span className="inline-block rounded bg-gray-100 px-2 py-0.5 text-gray-800">
-                                {course.code}
+                                {course.id}
                               </span>
                             </div>
                             <div className="space-y-1">

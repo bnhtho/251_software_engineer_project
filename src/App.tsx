@@ -22,6 +22,8 @@ import TutorProfilePage from "./pages/tutor/TutorProfile";
 import TutorSessions from "./pages/tutor/TutorSessions";
 import TutorRegistrationsPage from "./pages/tutor/TutorRegistrationsPage";
 import { ToastContainer } from 'react-toastify';
+import Sessions from "./pages/admin/Sessions";
+import Courses from "./pages/user/Course";
 export default function App() {
   return (
     <>
@@ -50,6 +52,7 @@ export default function App() {
               <Route path="tutors" element={<TutorList />} />
               <Route path="materials" element={<Materials />} />
               <Route path="become-tutor" element={<BecomeTutor />} />
+              <Route path="sessions" element={<Courses />} />
             </Route>
 
             {/* ========== TUTOR ROUTES ========== */}

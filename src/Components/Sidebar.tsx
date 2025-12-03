@@ -31,6 +31,7 @@ export default function Sidebar() {
     const mainNavItems: (NavItemType | NavItemDividerType)[] = [
         { icon: Home, label: "Trang chủ", path: "" },
         { icon: Users, label: "Danh sách Gia sư", path: "tutors" },
+        { icon: User, label: "Đăng ký buổi học", path: "sessions" },
         { icon: FileText, label: getMaterialsLabel(), path: "materials" },
         // NOTE:  Khi nào có chức năng phản hồi và báo cáo thì mở lại
         // { icon: MessageSquare , label: "Phản hồi", path: "feedback" },
