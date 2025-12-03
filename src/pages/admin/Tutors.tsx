@@ -204,7 +204,8 @@ const AdminTutorsPending = () => {
                   <td className="px-4 py-3 text-right">
                     <button
                       className="px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded-lg"
-                      onClick={() => handleAccept(item.user.id)}
+                      // lấy duyệt id
+                      onClick={() => handleAccept(item.id)}
                     >
                       Duyệt
                     </button>
@@ -213,7 +214,7 @@ const AdminTutorsPending = () => {
                   <td className="px-4 py-3 text-right">
                     <button
                       className="px-2 py-1 bg-red-500 hover:bg-green-600 text-white text-xs rounded-lg"
-                      onClick={() => handleDecline(item.user.id)}
+                      onClick={() => handleDecline(item.id)}
                     >
                       Huỷ
                     </button>

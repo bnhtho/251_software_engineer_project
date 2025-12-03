@@ -344,44 +344,45 @@ export const scheduleApi = {
     return response.data.data;
   },
 
-  getTutorSessions: async (page: number = 0): Promise<{ content: BackendSessionDTO[], totalPages: number, totalElements: number }> => {
-    // Sử dụng endpoint GET /sessions với authentication để chỉ lấy sessions của tutor hiện tại
-    try {
-      const response = await api.get<BaseResponse<any>>(`/sessions?page=${page}`);
-      let data = response.data.data;
-      
-      // Nếu API trả về pagination
-      if (data && typeof data === 'object' && 'content' in data) {
-        return {
-          content: data.content || [],
-          totalPages: data.totalPages || 0,
-          totalElements: data.totalElements || 0
-        };
-      }
-      
-      // Nếu API trả về array trực tiếp
-      if (Array.isArray(data)) {
-        return {
-          content: data,
-          totalPages: Math.ceil(data.length / 10),
-          totalElements: data.length
-        };
-      }
-      
+  // Thọ: Cập nhật lại endpoint : /sessions/tutor{id}/page=0
+  getTutorSessions: async (
+  tutorId: number,
+  page: number = 0
+): Promise<{ content: BackendSessionDTO[], totalPages: number, totalElements: number }> => {
+  const defaultResult = { content: [], totalPages: 0, totalElements: 0 };
+
+  try {
+    const response = await api.get<BaseResponse<any>>(
+      `/sessions/tutor/${tutorId}?page=${page}`
+    );
+
+    const data = response.data?.data;
+
+    // Case 1: pagination object
+    if (data && typeof data === 'object' && 'content' in data) {
       return {
-        content: [],
-        totalPages: 0,
-        totalElements: 0
-      };
-    } catch (error) {
-      console.error('Error fetching tutor sessions:', error);
-      return {
-        content: [],
-        totalPages: 0,
-        totalElements: 0
+        content: data.content ?? [],
+        totalPages: data.totalPages ?? 0,
+        totalElements: data.totalElements ?? 0
       };
     }
-  },
+
+    // Case 2: array
+    if (Array.isArray(data)) {
+      return {
+        content: data,
+        totalPages: Math.ceil(data.length / 10),
+        totalElements: data.length
+      };
+    }
+
+    return defaultResult;
+  } catch (error) {
+    console.error("Error fetching tutor sessions:", error);
+    return defaultResult;
+  }
+},
+
 
   getSessionById: async (sessionId: number): Promise<SessionDTO> => {
     // Get all sessions and find by ID

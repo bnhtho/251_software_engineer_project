@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Calendar,
   Clock,
   Users,
@@ -55,7 +55,7 @@ const Sessions = () => {
     try {
       const response = await api.get<BaseResponse<PaginatedResponse>>(`/sessions?page=${page}`);
       const data = response.data.data;
-      
+
       if (data && Array.isArray(data.content)) {
         setSessions(data.content);
         setTotalPages(data.totalPages || 0);
@@ -67,11 +67,12 @@ const Sessions = () => {
   };
 
   // Load pending sessions with pagination
+  // Load pending sessions with pagination COME WITH TUTOR_ID
   const loadPendingSessions = async (page: number = 0) => {
     try {
       const response = await api.get<BaseResponse<PaginatedResponse>>(`/admin/sessions/pending?page=${page}`);
       const data = response.data.data;
-      
+
       if (data && Array.isArray(data.content)) {
         setPendingSessions(data.content);
         setPendingTotalPages(data.totalPages || 0);
@@ -81,7 +82,9 @@ const Sessions = () => {
       toast.error('Không thể tải danh sách buổi học chờ duyệt');
     }
   };
-
+  // --------------------------------------
+  // const fetch
+  // --------------------------------------
   // Approve session
   const approveSession = async (sessionId: number) => {
     try {
@@ -133,13 +136,13 @@ const Sessions = () => {
   // Filter sessions based on search and status
   const getFilteredSessions = (sessionsList: SessionDTO[]) => {
     return sessionsList.filter(session => {
-      const matchesSearch = searchTerm === '' || 
+      const matchesSearch = searchTerm === '' ||
         session.tutorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         session.subjectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         session.location.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       const matchesStatus = statusFilter === '' || session.format === statusFilter;
-      
+
       return matchesSearch && matchesStatus;
     });
   };
@@ -204,21 +207,19 @@ const Sessions = () => {
           <nav className="flex">
             <button
               onClick={() => setActiveTab('pending')}
-              className={`px-6 py-4 text-sm font-medium ${
-                activeTab === 'pending'
-                  ? 'border-b-2 border-blue-500 text-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+              className={`px-6 py-4 text-sm font-medium ${activeTab === 'pending'
+                ? 'border-b-2 border-blue-500 text-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+                }`}
             >
               Buổi học chờ duyệt ({pendingSessions.length})
             </button>
             <button
               onClick={() => setActiveTab('all')}
-              className={`px-6 py-4 text-sm font-medium ${
-                activeTab === 'all'
-                  ? 'border-b-2 border-blue-500 text-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+              className={`px-6 py-4 text-sm font-medium ${activeTab === 'all'
+                ? 'border-b-2 border-blue-500 text-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+                }`}
             >
               Tất cả buổi học ({sessions.length})
             </button>
@@ -257,7 +258,7 @@ const Sessions = () => {
         {/* Sessions List */}
         <div className="p-6">
           {activeTab === 'pending' ? (
-            <SessionsList 
+            <SessionsList
               sessions={getFilteredSessions(pendingSessions)}
               showActions={true}
               onApprove={approveSession}
@@ -265,7 +266,7 @@ const Sessions = () => {
               emptyMessage="Không có buổi học nào chờ duyệt"
             />
           ) : (
-            <SessionsList 
+            <SessionsList
               sessions={getFilteredSessions(sessions)}
               showActions={false}
               emptyMessage="Không có buổi học nào"
@@ -295,12 +296,12 @@ interface SessionsListProps {
   emptyMessage: string;
 }
 
-const SessionsList: React.FC<SessionsListProps> = ({ 
-  sessions, 
-  showActions, 
-  onApprove, 
-  onReject, 
-  emptyMessage 
+const SessionsList: React.FC<SessionsListProps> = ({
+  sessions,
+  showActions,
+  onApprove,
+  onReject,
+  emptyMessage
 }) => {
   const formatDateTime = (dateString: string) => {
     return new Date(dateString).toLocaleString('vi-VN', {
@@ -329,11 +330,10 @@ const SessionsList: React.FC<SessionsListProps> = ({
             <div className="flex-1">
               <div className="flex items-center gap-4 mb-4">
                 <h3 className="text-lg font-medium text-gray-900">{session.subjectName}</h3>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  session.format === 'ONLINE' 
-                    ? 'bg-blue-100 text-blue-800' 
-                    : 'bg-green-100 text-green-800'
-                }`}>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${session.format === 'ONLINE'
+                  ? 'bg-blue-100 text-blue-800'
+                  : 'bg-green-100 text-green-800'
+                  }`}>
                   {session.format === 'ONLINE' ? (
                     <>
                       <Laptop className="w-3 h-3 mr-1" />
@@ -380,7 +380,7 @@ const SessionsList: React.FC<SessionsListProps> = ({
                   <p className="text-gray-500 text-sm mb-2">Học viên đã đăng ký:</p>
                   <div className="flex flex-wrap gap-1">
                     {session.studentNames.map((name, index) => (
-                      <span 
+                      <span
                         key={index}
                         className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
                       >
@@ -437,11 +437,11 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        
+
         <span className="px-3 py-1 text-sm text-gray-700">
           Trang {currentPage + 1} / {totalPages}
         </span>
-        
+
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages - 1}
@@ -450,7 +450,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
-      
+
       <div className="text-sm text-gray-500">
         Hiển thị {Math.min((currentPage * 10) + 1, totalPages * 10)} - {Math.min((currentPage + 1) * 10, totalPages * 10)} trên tổng số {totalPages * 10}
       </div>

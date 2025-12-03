@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useUser } from "../../Context/UserContext";
+
 import {
   Plus,
   Edit,
@@ -12,7 +14,7 @@ import {
   Users,
   RefreshCw,
   ChevronLeft,
-  ChevronRight,
+  ChevronRight, CircleX
 } from "lucide-react";
 import SessionForm from "../../Components/SessionForm";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -38,7 +40,7 @@ interface SessionDTO {
   maxQuantity: number;
   currentQuantity: number;
   updatedDate: string;
-  sessionStatus?: string; // Matches backend field
+  status?: string; // Matches backend field
 }
 
 // --- FRAMER MOTION VARIANTS ---
@@ -63,16 +65,24 @@ const TutorSessions: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [formatFilter, setFormatFilter] = useState<string>("ALL");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { user, isLoading } = useUser();
 
   const loadSessions = async (page: number = 0) => {
     try {
       // Gọi API riêng cho tutor
-      const response = await scheduleApi.getTutorSessions(page);
-      
+      const id_tutor = user?.id
+      // alert(id_tutor)
+      if (!id_tutor) {
+        console.error("Tutor ID không tồn tại!");
+        return;
+      }
+
+      const response = await scheduleApi.getTutorSessions(id_tutor, 0);
+      console.log("loadSessions response", response)
       setSessions(response.content || []);
       setTotalPages(response.totalPages || 0);
       setCurrentPage(page);
-      
+
       console.log("Đã tải danh sách buổi học của tutor:", response);
     } catch (error) {
       console.error("Không thể tải danh sách buổi học:", error);
@@ -90,7 +100,7 @@ const TutorSessions: React.FC = () => {
 
   const handleDelete = async (sessionId: number) => {
     if (!confirm("Bạn có chắc chắn muốn xóa buổi học này?")) return;
-    
+
     try {
       await scheduleApi.deleteSession(sessionId);
       setSessions(sessions.filter(s => s.id !== sessionId));
@@ -137,19 +147,19 @@ const TutorSessions: React.FC = () => {
         searchTerm === "" ||
         session.subjectName.toLowerCase().includes(searchTerm.toLowerCase());
 
-        // Use proper sessionStatus field from backend
-        const matchesStatus =
-          statusFilter === "ALL" || session.sessionStatus === statusFilter;      const matchesFormat =
-        formatFilter === "ALL" || session.format === formatFilter;
+      // Use proper status field from backend
+      const matchesStatus =
+        statusFilter === "ALL" || session.status === statusFilter; const matchesFormat =
+          formatFilter === "ALL" || session.format === formatFilter;
 
       return matchesSearch && matchesStatus && matchesFormat;
     });
   }, [sessions, searchTerm, statusFilter, formatFilter]);
 
   const totalSessions = sessions.length;
-  // Use proper sessionStatus field for statistics
-  const scheduledSessions = sessions.filter(s => s.sessionStatus === "SCHEDULED").length;
-  const completedSessions = sessions.filter(s => s.sessionStatus === "COMPLETED").length;
+  // Use proper status field for statistics
+  const scheduledSessions = sessions.filter(s => s.status === "SCHEDULED").length;
+  const completedSessions = sessions.filter(s => s.status === "COMPLETED").length;
   const totalStudents = sessions.reduce((sum, s) => sum + s.currentQuantity, 0);
 
   // --- TRẠNG THÁI LOADING BAN ĐẦU ---
@@ -354,7 +364,7 @@ const TutorSessions: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <StatusBadge status={session.sessionStatus || "PENDING"} />
+                        <StatusBadge status={session.status || ""} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-3">
@@ -398,11 +408,11 @@ const TutorSessions: React.FC = () => {
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                
+
                 <span className="px-3 py-1 text-sm text-gray-700">
                   Trang {currentPage + 1} / {totalPages}
                 </span>
-                
+
                 <button
                   onClick={() => {
                     const newPage = currentPage + 1;
@@ -415,7 +425,7 @@ const TutorSessions: React.FC = () => {
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
-              
+
               <div className="text-sm text-gray-500">
                 Hiển thị {Math.min((currentPage * 10) + 1, totalPages * 10)} - {Math.min((currentPage + 1) * 10, totalPages * 10)} trên tổng số {totalPages * 10}
               </div>

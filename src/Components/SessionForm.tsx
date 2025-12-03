@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { useUser } from "../Context/UserContext";
 import { scheduleApi, publicApi, tutorApi } from "../services/api";
+import { PlusCircle } from "lucide-react";
 import type { SessionStatusDTO } from "../types/api";
 import moment from "moment";
 const SessionForm = () => {
@@ -138,7 +139,7 @@ const SessionForm = () => {
             setLoading(true);
             await scheduleApi.createSession(sessionData);
             setSuccess("Tạo buổi học thành công!");
-            
+
             // Reset form sử dụng formElement đã lưu trước đó
             formElement.reset();
             setStartTime("");
@@ -147,7 +148,7 @@ const SessionForm = () => {
             setFormat(null);
             setSelectedSubject(null);
             setSelectedStatus(1);
-            
+
             // Reload page after 2 seconds
             setTimeout(() => {
                 window.location.reload();
@@ -208,8 +209,8 @@ const SessionForm = () => {
                         <label className="block text-sm font-medium text-gray-700">
                             Lựa chọn môn học <span className="text-red-500">*</span>
                         </label>
-                        <Select 
-                            name="subjectID" 
+                        <Select
+                            name="subjectID"
                             options={listSubjects}
                             onChange={(val) => setSelectedSubject(val ? val.value : null)}
                             placeholder="Chọn môn học..."
@@ -308,24 +309,7 @@ const SessionForm = () => {
                         />
                     </div>
                 </div>
-                {/* Session Status */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                        Trạng thái buổi học <span className="text-red-500">*</span>
-                    </label>
-                    <Select
-                        options={statusOptions}
-                        value={statusOptions.find(opt => opt.value === selectedStatus)}
-                        onChange={(val) => setSelectedStatus(val ? val.value : 1)} // Default to PENDING (1) - matches SessionStatus constants
-                        placeholder="Chọn trạng thái..."
-                        menuPortalTarget={document.body}
-                        menuPosition="fixed"
-                        styles={{
-                            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-                            menu: (base) => ({ ...base, maxHeight: '300px' })
-                        }}
-                    />
-                </div>
+
 
                 {/* Location / Meet ID */}
                 {format === "OFFLINE" && (

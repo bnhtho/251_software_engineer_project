@@ -70,9 +70,7 @@ const fetchProfile = async (token: string) => {
   const res = await fetch(`http://localhost:8081/${rolePath}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-
   if (!res.ok) throw new Error("Failed to fetch profile");
-
   const json = await res.json();
   return json.data ?? json;
 
