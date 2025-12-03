@@ -104,6 +104,10 @@ export interface StudentCourseDTO {
   registrationDate: string; // Instant
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
   notes?: string;
+  sessionStartTime?: string; // ISO-8601 Instant
+  sessionEndTime?: string; // ISO-8601 Instant
+  sessionLocation?: string;
+  sessionFormat?: string; // ONLINE or OFFLINE
 }
 
 export interface SessionDTO {

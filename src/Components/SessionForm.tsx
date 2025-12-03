@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { useUser } from "../Context/UserContext";
 import { scheduleApi, publicApi, tutorApi } from "../services/api";
-import { PlusCircle } from "lucide-react";
-import type { SessionStatusDTO } from "../types/api";
 import moment from "moment";
 const SessionForm = () => {
     const { user } = useUser();
@@ -14,25 +12,20 @@ const SessionForm = () => {
     const [startTime, setStartTime] = useState<string>(""); // local input
     const [endTime, setEndTime] = useState<string>(""); // ISO UTC
     const [selectedSubject, setSelectedSubject] = useState<number | null>(null);
-    const [selectedStatus, setSelectedStatus] = useState<number>(1); // Default PENDING - matches SessionStatus.PENDING
-    const [sessionStatuses, setSessionStatuses] = useState<SessionStatusDTO[]>([]);
+    const [selectedStatus, setSelectedStatus] = useState<number>(2); // Default SCHEDULED - backend will use this or default to SCHEDULED
     const [subjects, setSubjects] = useState<{ id: number; name: string }[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    // Load session statuses and subjects
+    // Load subjects for tutor
     useEffect(() => {
         const loadData = async () => {
             try {
-                const [statuses, tutorSubjectsList] = await Promise.all([
-                    publicApi.getSessionStatuses(), // Loads from session_status table: PENDING(1), SCHEDULED(2), IN_PROGRESS(3), COMPLETED(4), CANCELLED(5)
-                    tutorApi.getTutorSubjects() // Get only tutor's subjects from tutor profile
-                ]);
-                setSessionStatuses(statuses);
+                const tutorSubjectsList = await tutorApi.getTutorSubjects(); // Get only tutor's subjects from tutor profile
                 setSubjects(tutorSubjectsList);
             } catch (err) {
-                console.error("Failed to load data:", err);
+                console.error("Failed to load tutor subjects:", err);
                 // Fallback to all subjects if tutor subjects fail
                 try {
                     const allSubjects = await publicApi.getSubjects();
@@ -56,11 +49,6 @@ const SessionForm = () => {
         { value: "OFFLINE", label: "Offline" },
         { value: "ONLINE", label: "Online" },
     ];
-
-    const statusOptions = sessionStatuses.map(status => ({
-        value: status.id,
-        label: status.name,
-    }));
 
     // ---------------- Helper ----------------
     const calculateEndTime = (start: string, durationMinutes: number): string => {
@@ -226,6 +214,7 @@ const SessionForm = () => {
                             type="datetime-local"
                             id="startTime"
                             name="startTime"
+                            min={moment().format("YYYY-MM-DDTHH:mm")}
                             onChange={(e) => {
                                 const newStartTime = e.target.value;
                                 setStartTime(newStartTime);

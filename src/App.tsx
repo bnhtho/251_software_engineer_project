@@ -3,9 +3,7 @@ import LoginPage from "./page/LoginPage";
 import AdminLoginPage from "./page/AdminLoginPage";
 import HomePage from "./pages/user/HomePage";
 import Profile from "./pages/user/Profile";
-import TutorList from "./pages/user/TutorList";
-import BecomeTutor from "./pages/user/BecomeTutor";
-import Materials from "./pages/shared/materials";
+import Sessions from "./pages/user/Session";
 import UserLayout from "./layouts/user/UserLayout";
 import AdminLayout from "./layouts/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -22,8 +20,8 @@ import TutorProfilePage from "./pages/tutor/TutorProfile";
 import TutorSessions from "./pages/tutor/TutorSessions";
 import TutorRegistrationsPage from "./pages/tutor/TutorRegistrationsPage";
 import { ToastContainer } from 'react-toastify';
-import Sessions from "./pages/admin/Sessions";
-import Courses from "./pages/user/Course";
+// import Sessions from "./pages/admin/Sessions";
+// import Courses from "./pages/user/Course";
 export default function App() {
   return (
     <>
@@ -49,10 +47,7 @@ export default function App() {
             >
               <Route index element={<HomePage />} /> {/* Student Dashboard */}
               <Route path="profile" element={<Profile />} />
-              <Route path="tutors" element={<TutorList />} />
-              <Route path="materials" element={<Materials />} />
-              <Route path="become-tutor" element={<BecomeTutor />} />
-              <Route path="sessions" element={<Courses />} />
+              <Route path="sessions" element={<Sessions />} />
             </Route>
 
             {/* ========== TUTOR ROUTES ========== */}
@@ -69,7 +64,6 @@ export default function App() {
               <Route path="profile" element={<TutorProfilePage />} />
               <Route path="sessions" element={<TutorSessions />} />
               <Route path="registrations" element={<TutorRegistrationsPage />} />
-              <Route path="materials" element={<Materials />} />
             </Route>
 
             {/* ========== ADMIN ROUTES ========== */}

@@ -11,7 +11,6 @@ import type {
   SessionDTO,
   CourseRegistrationRequest,
   CourseRegistrationResponse,
-  CourseSearchParams,
   LoginRequest,
   LoginResponse,
 } from "../types/api";
@@ -120,55 +119,148 @@ interface BackendSessionDTO {
   maxQuantity: number;
   currentQuantity: number;
   updatedDate: string;
+  status?: string;
+}
+
+// Pagination response structure
+interface PaginationResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  totalItems?: number;
+  pageSize?: number;
+  currentPage?: number;
+}
+
+// Student history item (matches StudentSessionHistoryDTO from backend)
+interface StudentHistoryItem {
+  studentSessionId: number; // Primary ID
+  sessionId: number;
+  tutorName: string;
+  subjectName: string;
+  startTime: string; // Instant ISO-8601
+  endTime: string; // Instant ISO-8601
+  format: string; // ONLINE or OFFLINE
+  location: string;
+  dayOfWeek?: string;
+  sessionStatus: string; // Session status
+  registrationStatus: string; // PENDING, CONFIRMED, REJECTED
+  registeredDate: string; // Instant ISO-8601
+  updatedDate: string; // Instant ISO-8601
+}
+
+// Student Session DTO (matches StudentSessionDTO from backend)
+// Used for tutor pending registrations
+interface StudentSessionItem {
+  id: number; // Primary ID
+  studentId: number;
+  studentName: string;
+  sessionId: number;
+  sessionSubject: string;
+  sessionStartTime: string; // Instant ISO-8601
+  sessionEndTime: string; // Instant ISO-8601
+  sessionFormat: string; // ONLINE or OFFLINE
+  sessionDayOfWeek?: string;
+  status: string; // PENDING, CONFIRMED, REJECTED
+  registeredDate: string; // Instant ISO-8601
+  confirmedDate?: string;
+  updatedDate: string; // Instant ISO-8601
+  sessionLocation: string;
+}
+
+// Registration response
+interface RegistrationResponseData {
+  id?: number;
+  message?: string;
+}
+
+// Session creation data (matches backend SessionRequest)
+interface CreateSessionData {
+  tutorId: number;
+  subjectId: number;
+  startTime: string; // ISO-8601
+  endTime: string; // ISO-8601
+  format: string;
+  location: string;
+  maxQuantity: number;
+  sessionStatusId?: number; // Optional, defaults to SCHEDULED in backend
+}
+
+// Tutor registration data
+interface TutorRegistrationData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  subjects: string[];
+}
+
+// Generic API response for various endpoints
+interface GenericApiResponse {
+  id?: number;
+  message?: string;
+  [key: string]: unknown;
 }
 
 // Protected endpoints - require auth
 export const courseApi = {
   // Map Sessions from Backend to Course-like structure for FE compatibility
-  getCourses: async (_params?: CourseSearchParams): Promise<CourseDTO[]> => {
+  getCourses: async (): Promise<CourseDTO[]> => {
     // Try student endpoint first, fallback to sessions endpoint for admin
     let sessions: BackendSessionDTO[] = [];
     
     try {
       // Try GET /students/available-sessions (for STUDENT role)
-      const response = await api.get<BaseResponse<any>>("/students/available-sessions");
+      const response = await api.get<BaseResponse<PaginationResponse<BackendSessionDTO> | BackendSessionDTO[]>>("/students/available-sessions");
       
-      let data = response.data.data;
-      
-      // Check if data has pagination structure (PaginationUtil format)
-      if (data && typeof data === 'object' && 'content' in data) {
-        data = data.content;
-      }
-      
-      // Ensure data is array
-      if (Array.isArray(data)) {
-        sessions = data;
-      } else {
-        sessions = [];
+      // Check BaseResponse structure
+      if (response.data.statusCode === 200 && response.data.data) {
+        let data = response.data.data;
+        
+        // Check if data has pagination structure (PaginationUtil format)
+        if (data && typeof data === 'object' && 'content' in data) {
+          data = (data as PaginationResponse<BackendSessionDTO>).content;
+        }
+        
+        // Ensure data is array
+        if (Array.isArray(data)) {
+          sessions = data as BackendSessionDTO[];
+        }
       }
       
       // If empty, try /sessions as fallback
       if (!sessions || sessions.length === 0) {
         try {
-          const fallbackResponse = await api.get<BaseResponse<any>>("/sessions");
-          let fallbackData = fallbackResponse.data.data;
+          const fallbackResponse = await api.get<BaseResponse<PaginationResponse<BackendSessionDTO> | BackendSessionDTO[]>>("/sessions");
           
-          // Handle pagination if present
-          if (fallbackData && typeof fallbackData === 'object' && 'content' in fallbackData) {
-            fallbackData = fallbackData.content;
+          if (fallbackResponse.data.statusCode === 200 && fallbackResponse.data.data) {
+            let fallbackData = fallbackResponse.data.data;
+            
+            // Handle pagination if present
+            if (fallbackData && typeof fallbackData === 'object' && 'content' in fallbackData) {
+              fallbackData = (fallbackData as PaginationResponse<BackendSessionDTO>).content;
+            }
+            
+            sessions = Array.isArray(fallbackData) ? fallbackData as BackendSessionDTO[] : [];
           }
-          
-          sessions = Array.isArray(fallbackData) ? fallbackData : [];
-        } catch (fallbackError) {
+        } catch {
           sessions = [];
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If 403, user might be ADMIN, try GET /sessions instead
-      if (error?.response?.status === 403) {
-        const response = await api.get<BaseResponse<BackendSessionDTO[]>>("/sessions");
-        const data = response.data.data;
-        sessions = Array.isArray(data) ? data : [];
+      if ((error as { response?: { status: number } })?.response?.status === 403) {
+        const response = await api.get<BaseResponse<PaginationResponse<BackendSessionDTO> | BackendSessionDTO[]>>("/sessions");
+        
+        if (response.data.statusCode === 200 && response.data.data) {
+          let data = response.data.data;
+          
+          // Handle pagination if present
+          if (data && typeof data === 'object' && 'content' in data) {
+            data = (data as PaginationResponse<BackendSessionDTO>).content;
+          }
+          
+          sessions = Array.isArray(data) ? data as BackendSessionDTO[] : [];
+        }
       } else {
         sessions = []; // Return empty array instead of throwing
       }
@@ -226,64 +318,162 @@ export const courseApi = {
   registerCourse: async (
     registration: CourseRegistrationRequest
   ): Promise<CourseRegistrationResponse> => {
-    try {
-      // Use POST /students/register-session with query param
-      const response = await api.post<BaseResponse<any>>(
-        `/students/register-session?sessionId=${registration.courseId}`
-      );
-      
-      // Check if backend returned error (statusCode 500, 400, etc.)
-      if (response.data.statusCode >= 400) {
-        const error = new Error(response.data.message || 'Đăng ký thất bại');
-        (error as any).statusCode = response.data.statusCode;
-        (error as any).apiMessage = response.data.message;
-        throw error;
-      }
-      
-      return {
-        id: response.data.data?.id || registration.courseId,
-        status: 'PENDING',
-        message: response.data.message || 'Đăng ký thành công',
-      };
-    } catch (error: any) {
+    // Use POST /students/register-session with query param
+    const response = await api.post<BaseResponse<RegistrationResponseData>>(
+      `/students/register-session?sessionId=${registration.courseId}`
+    );
+    
+    // Check if backend returned error (statusCode 500, 400, etc.)
+    if (response.data.statusCode >= 400) {
+      const error = new Error(response.data.message || 'Đăng ký thất bại') as Error & { statusCode?: number; apiMessage?: string };
+      error.statusCode = response.data.statusCode;
+      error.apiMessage = response.data.message;
       throw error;
     }
+    
+    return {
+      id: response.data.data?.id || registration.courseId,
+      status: 'PENDING',
+      message: response.data.message || 'Đăng ký thành công',
+    };
   },
 
-  getStudentCourses: async (studentId: number): Promise<StudentCourseDTO[]> => {
-    // Use GET /students/history/{userId}
+  getStudentCourses: async (studentId?: number): Promise<StudentCourseDTO[]> => {
+    // Try multiple endpoints for getting student courses
+    
     try {
-      const response = await api.get<BaseResponse<any[]>>(
-        `/students/history/${studentId}`
-      );
-      const history = response.data.data;
+      // Try 1: GET /students/history without studentId (current user)
+      let response;
       
-      // Transform to StudentCourseDTO structure
-      return history.map((item: any) => ({
-        id: item.id,
-        studentId: studentId,
-        courseId: item.sessionId || item.id,
-        course: {
-          id: item.sessionId || item.id,
-          name: item.sessionSubject || item.courseName || 'N/A',
-          code: `SESSION-${item.sessionId || item.id}`,
-          subjectName: item.sessionSubject || item.courseName || 'N/A',
-          tutorName: item.tutorName || 'N/A',
-        } as CourseDTO,
-        registrationDate: item.registeredDate,
-        status: item.status === 'CONFIRMED' ? 'APPROVED' : item.status,
-        notes: '',
-      }));
-    } catch (error: any) {
-      // If 403, user might be ADMIN viewing student page - return empty
-      if (error?.response?.status === 403) {
+      try {
+        response = await api.get<BaseResponse<PaginationResponse<StudentHistoryItem>>>(
+          '/students/history'
+        );
+      } catch (error: unknown) {
+        // Try 2: GET /students/history/{studentId} if studentId provided
+        if (studentId && (error as { response?: { status: number } })?.response?.status === 404) {
+          response = await api.get<BaseResponse<PaginationResponse<StudentHistoryItem>>>(
+            `/students/history/${studentId}`
+          );
+        } else {
+          throw error;
+        }
+      }
+      
+      // Check BaseResponse structure
+      if (response.data.statusCode !== 200 || !response.data.data) {
         return [];
       }
-      throw error;
+      
+      // Extract content from pagination response
+      let history: StudentHistoryItem[];
+      const data = response.data.data;
+      
+      // Check if paginated response or direct array
+      if (data && typeof data === 'object' && 'content' in data) {
+        history = (data as PaginationResponse<StudentHistoryItem>).content;
+      } else if (Array.isArray(data)) {
+        history = data as unknown as StudentHistoryItem[];
+      } else {
+        return [];
+      }
+      
+      // Transform to StudentCourseDTO structure
+      return history.map((item: StudentHistoryItem) => {
+        const transformed = {
+          id: item.studentSessionId,
+          studentId: studentId || item.studentSessionId, // Use studentSessionId as fallback
+          courseId: item.sessionId,
+          course: {
+            id: item.sessionId,
+            name: item.subjectName,
+            code: `SESSION-${item.sessionId}`,
+            subjectName: item.subjectName,
+            tutorName: item.tutorName,
+          } as CourseDTO,
+          registrationDate: item.registeredDate,
+          status: (item.registrationStatus === 'CONFIRMED' ? 'APPROVED' : 
+                  item.registrationStatus === 'PENDING' ? 'PENDING' : 
+                  item.registrationStatus === 'REJECTED' ? 'REJECTED' : 
+                  'CANCELLED') as 'PENDING' | 'CANCELLED' | 'APPROVED' | 'REJECTED',
+          notes: '',
+          // Preserve session details from backend
+          sessionStartTime: item.startTime,
+          sessionEndTime: item.endTime,
+          sessionLocation: item.location,
+          sessionFormat: item.format,
+        };
+        return transformed;
+      });
+    } catch (error: unknown) {
+      const errorResponse = error as { response?: { status: number; data?: { message?: string } } };
+      
+      console.error('Error fetching student courses:', {
+        status: errorResponse?.response?.status,
+        message: errorResponse?.response?.data?.message,
+        studentId
+      });
+      
+      // If 403, try getting from current user's registration list
+      if (errorResponse?.response?.status === 403) {
+        try {
+          // Fallback: Try getting user's own registrations via student-sessions endpoint
+          const fallbackResponse = await api.get<BaseResponse<PaginationResponse<StudentHistoryItem> | StudentHistoryItem[]>>(
+            '/students/student-sessions'
+          );
+          
+          if (fallbackResponse.data.statusCode === 200 && fallbackResponse.data.data) {
+            let history: StudentHistoryItem[];
+            const fallbackData = fallbackResponse.data.data;
+            
+            // Handle pagination if present
+            if (fallbackData && typeof fallbackData === 'object' && 'content' in fallbackData) {
+              history = (fallbackData as PaginationResponse<StudentHistoryItem>).content;
+            } else if (Array.isArray(fallbackData)) {
+              history = fallbackData as StudentHistoryItem[];
+            } else {
+              return [];
+            }
+            return history.map((item: StudentHistoryItem) => {
+              const transformed = {
+                id: item.studentSessionId,
+                studentId: studentId || item.studentSessionId,
+                courseId: item.sessionId,
+                course: {
+                  id: item.sessionId,
+                  name: item.subjectName,
+                  code: `SESSION-${item.sessionId}`,
+                  subjectName: item.subjectName,
+                  tutorName: item.tutorName,
+                } as CourseDTO,
+                registrationDate: item.registeredDate,
+                status: (item.registrationStatus === 'CONFIRMED' ? 'APPROVED' : 
+                        item.registrationStatus === 'PENDING' ? 'PENDING' : 
+                        item.registrationStatus === 'REJECTED' ? 'REJECTED' : 
+                        'CANCELLED') as 'PENDING' | 'CANCELLED' | 'APPROVED' | 'REJECTED',
+                notes: '',
+                // Preserve session details from backend
+                sessionStartTime: item.startTime,
+                sessionEndTime: item.endTime,
+                sessionLocation: item.location,
+                sessionFormat: item.format,
+              };
+              return transformed;
+            });
+          }
+        } catch (fallbackError) {
+          console.warn('Fallback endpoint also failed:', fallbackError);
+        }
+        
+        return []; // Return empty array for 403 instead of throwing
+      }
+      
+      // For other errors, return empty array to prevent app crash
+      return [];
     }
   },
 
-  cancelRegistration: async (_registrationId: number): Promise<boolean> => {
+  cancelRegistration: async (): Promise<boolean> => {
     // No cancel endpoint exists, return false
     throw new Error('Cancel registration not supported yet');
   },
@@ -297,41 +487,76 @@ export const scheduleApi = {
       endDate?: string;
     }
   ): Promise<SessionDTO[]> => {
-    // Use GET /students/history/{userId} to get enrolled sessions
-    const response = await api.get<BaseResponse<any[]>>(
-      `/students/history`
-    );
-    const history = response.data.data;
+    // Use GET /students/history to get enrolled sessions for current user
+    let response;
+    
+    try {
+      response = await api.get<BaseResponse<PaginationResponse<StudentHistoryItem> | StudentHistoryItem[]>>(
+        '/students/history'
+      );
+    } catch (error: unknown) {
+      // If current user endpoint fails, try with studentId
+      if ((error as { response?: { status: number } })?.response?.status === 403) {
+        try {
+          response = await api.get<BaseResponse<PaginationResponse<StudentHistoryItem> | StudentHistoryItem[]>>(
+            `/students/history/${studentId}`
+          );
+        } catch {
+          return []; // Return empty array if both endpoints fail
+        }
+      } else {
+        return [];
+      }
+    }
+    
+    // Check BaseResponse structure
+    if (response.data.statusCode !== 200 || !response.data.data) {
+      return [];
+    }
+    
+    let history = response.data.data;
+    
+    // Handle pagination if present
+    if (history && typeof history === 'object' && 'content' in history) {
+      history = (history as PaginationResponse<StudentHistoryItem>).content;
+    }
+    
+    if (!Array.isArray(history)) {
+      return [];
+    }
     
     // Filter by date range if provided and transform to SessionDTO
-    let filteredHistory = history;
+    let filteredHistory = history as StudentHistoryItem[];
     if (params?.startDate && params?.endDate) {
       const start = new Date(params.startDate);
       const end = new Date(params.endDate);
-      filteredHistory = history.filter((item: any) => {
-        const sessionDate = new Date(item.sessionStartTime);
+      filteredHistory = (history as StudentHistoryItem[]).filter((item: StudentHistoryItem) => {
+        const sessionDate = new Date(item.startTime);
         return sessionDate >= start && sessionDate <= end;
       });
     }
     
-    return filteredHistory.map((item: any) => ({
-      id: item.id,
-      courseId: item.sessionId || item.id,
+    return filteredHistory.map((item: StudentHistoryItem) => ({
+      id: item.studentSessionId,
+      courseId: item.sessionId,
       course: {
-        id: item.sessionId || item.id,
-        name: item.sessionSubject || 'N/A',
-        code: `SESSION-${item.sessionId || item.id}`,
-        tutorName: item.tutorName || 'N/A',
-      } as any,
+        id: item.sessionId,
+        name: item.subjectName,
+        code: `SESSION-${item.sessionId}`,
+        tutorName: item.tutorName,
+      } as CourseDTO,
       studentId: studentId,
       tutorId: 0,
-      sessionDate: new Date(item.sessionStartTime).toISOString().split('T')[0],
-      startTime: new Date(item.sessionStartTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-      endTime: new Date(item.sessionEndTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-      location: item.sessionLocation || 'N/A',
-      locationType: item.sessionFormat === 'ONLINE' ? 'ONLINE' : 'OFFLINE',
-      meetingLink: item.sessionFormat === 'ONLINE' ? item.sessionLocation : undefined,
-      sessionStatus: item.status === 'CONFIRMED' ? 'SCHEDULED' : item.status, // Updated to sessionStatus
+      sessionDate: new Date(item.startTime).toISOString().split('T')[0],
+      startTime: new Date(item.startTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+      endTime: new Date(item.endTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+      location: item.location,
+      locationType: item.format === 'ONLINE' ? 'ONLINE' : 'OFFLINE',
+      meetingLink: item.format === 'ONLINE' ? item.location : undefined,
+      sessionStatus: (item.registrationStatus === 'CONFIRMED' ? 'SCHEDULED' : 
+                     item.sessionStatus === 'COMPLETED' ? 'COMPLETED' : 
+                     item.sessionStatus === 'CANCELLED' ? 'CANCELLED' : 
+                     'RESCHEDULED') as 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED',
       notes: '',
       createdDate: item.registeredDate,
       updateDate: item.updatedDate,
@@ -340,8 +565,21 @@ export const scheduleApi = {
 
   getAllSessions: async (): Promise<BackendSessionDTO[]> => {
     // Actual backend endpoint
-    const response = await api.get<BaseResponse<BackendSessionDTO[]>>("/sessions");
-    return response.data.data;
+    const response = await api.get<BaseResponse<PaginationResponse<BackendSessionDTO> | BackendSessionDTO[]>>("/sessions");
+    
+    // Check BaseResponse structure
+    if (response.data.statusCode !== 200 || !response.data.data) {
+      return [];
+    }
+    
+    let data = response.data.data;
+    
+    // Handle pagination if present
+    if (data && typeof data === 'object' && 'content' in data) {
+      data = (data as PaginationResponse<BackendSessionDTO>).content;
+    }
+    
+    return Array.isArray(data) ? data as BackendSessionDTO[] : [];
   },
 
   // Thọ: Cập nhật lại endpoint : /sessions/tutor{id}/page=0
@@ -352,25 +590,30 @@ export const scheduleApi = {
   const defaultResult = { content: [], totalPages: 0, totalElements: 0 };
 
   try {
-    const response = await api.get<BaseResponse<any>>(
+    const response = await api.get<BaseResponse<PaginationResponse<BackendSessionDTO> | BackendSessionDTO[]>>(
       `/sessions/tutor/${tutorId}?page=${page}`
     );
 
-    const data = response.data?.data;
+    // Check BaseResponse structure
+    if (response.data.statusCode !== 200 || !response.data.data) {
+      return defaultResult;
+    }
+
+    const data = response.data.data;
 
     // Case 1: pagination object
     if (data && typeof data === 'object' && 'content' in data) {
       return {
-        content: data.content ?? [],
-        totalPages: data.totalPages ?? 0,
-        totalElements: data.totalElements ?? 0
+        content: (data as PaginationResponse<BackendSessionDTO>).content ?? [],
+        totalPages: (data as PaginationResponse<BackendSessionDTO>).totalPages ?? 0,
+        totalElements: (data as PaginationResponse<BackendSessionDTO>).totalElements ?? 0
       };
     }
 
     // Case 2: array
     if (Array.isArray(data)) {
       return {
-        content: data,
+        content: data as BackendSessionDTO[],
         totalPages: Math.ceil(data.length / 10),
         totalElements: data.length
       };
@@ -419,7 +662,7 @@ export const scheduleApi = {
     } as SessionDTO;
   },
   
-  createSession: async (sessionData: any): Promise<BackendSessionDTO> => {
+  createSession: async (sessionData: CreateSessionData): Promise<BackendSessionDTO> => {
     // POST /sessions - exists in backend
     const response = await api.post<BaseResponse<BackendSessionDTO>>("/sessions", sessionData);
     return response.data.data;
@@ -447,44 +690,44 @@ export const tutorApi = {
   },
 
   // Tutor Dashboard & Statistics
-  getDashboardStats: async (_tutorId: number): Promise<any> => {
+  getDashboardStats: async (): Promise<GenericApiResponse> => {
     // TODO: Replace with actual endpoint when available
-    // const response = await api.get<BaseResponse<any>>(`/tutors/${tutorId}/dashboard`);
-    // return response.data.data;
     throw new Error('Dashboard stats API not yet implemented in backend');
   },
 
   // Tutor Sessions Management
-  getTutorSessions: async (_tutorId: number, _params?: any): Promise<BackendSessionDTO[]> => {
-    // TODO: Replace with actual endpoint when available
-    // const response = await api.get<BaseResponse<BackendSessionDTO[]>>(`/tutors/${tutorId}/sessions`, { params });
-    // return response.data.data;
-    
+  getTutorSessions: async (): Promise<BackendSessionDTO[]> => {
     // Fallback: Use GET /sessions and filter by tutor
     const response = await api.get<BaseResponse<BackendSessionDTO[]>>("/sessions");
     return response.data.data;
   },
 
   // Student Registration Management
-  getPendingRegistrations: async (_tutorId: number): Promise<any[]> => {
+  getPendingRegistrations: async (): Promise<StudentSessionItem[]> => {
     try {
-      const response = await api.get<BaseResponse<any>>('/tutors/pending-registrations');
-      let data = response.data.data;
+      const response = await api.get<BaseResponse<PaginationResponse<StudentSessionItem> | StudentSessionItem[]>>('/tutors/pending-registrations');
+      
+      // Check BaseResponse structure
+      if (response.data.statusCode !== 200 || !response.data.data) {
+        return [];
+      }
+      
+      const data = response.data.data;
       
       // Handle pagination if present
       if (data && typeof data === 'object' && 'content' in data) {
-        return data.content;
+        return (data as PaginationResponse<StudentSessionItem>).content;
       }
       
-      return Array.isArray(data) ? data : [];
-    } catch (error) {
+      return Array.isArray(data) ? data as StudentSessionItem[] : [];
+    } catch {
       return [];
     }
   },
 
   approveRegistration: async (studentSessionId: number): Promise<void> => {
     // API expects array of IDs
-    await api.put<BaseResponse<any>>(
+    await api.put<BaseResponse<GenericApiResponse>>(
       '/tutors/student-sessions/approve',
       [studentSessionId]
     );
@@ -492,49 +735,45 @@ export const tutorApi = {
 
   rejectRegistration: async (studentSessionId: number): Promise<void> => {
     // API expects array of IDs
-    await api.put<BaseResponse<any>>(
+    await api.put<BaseResponse<GenericApiResponse>>(
       '/tutors/student-sessions/reject',
       [studentSessionId]
     );
   },
 
   // Tutor Schedule
-  getTutorSchedule: async (_tutorId: number, _startDate: string, _endDate: string): Promise<any[]> => {
+  getTutorSchedule: async (): Promise<GenericApiResponse[]> => {
     // TODO: Replace with actual endpoint when available
-    // const response = await api.get<BaseResponse<any[]>>(`/tutors/${tutorId}/schedule`, {
-    //   params: { startDate, endDate }
-    // });
-    // return response.data.data;
     throw new Error('Tutor schedule API not yet implemented in backend');
   },
 
   // Tutor Profile Management
-  registerAsTutor: async (data: any): Promise<any> => {
+  registerAsTutor: async (data: TutorRegistrationData): Promise<GenericApiResponse> => {
     // Endpoint used in BecomeTutor.tsx
-    const response = await api.post<BaseResponse<any>>('/tutors', data);
+    const response = await api.post<BaseResponse<GenericApiResponse>>('/tutors', data);
     return response.data.data;
   },
 
   // Get tutor profile with subjects
-  getTutorProfile: async (): Promise<any> => {
+  getTutorProfile: async (): Promise<GenericApiResponse> => {
     // GET /tutors/profile - requires authentication
-    const response = await api.get<BaseResponse<any>>('/tutors/profile');
+    const response = await api.get<BaseResponse<GenericApiResponse>>('/tutors/profile');
     return response.data.data;
   },
 
   // Get subjects that tutor can teach
-  getTutorSubjects: async (): Promise<any[]> => {
+  getTutorSubjects: async (): Promise<SubjectDTO[]> => {
     try {
       // Use existing endpoint that returns tutor profile with subjects
       const tutorProfile = await tutorApi.getTutorProfile();
-      return tutorProfile.subjects || [];
+      return (tutorProfile.subjects as SubjectDTO[]) || [];
     } catch (error) {
       console.log('Failed to get tutor subjects:', error);
       // Fallback to all subjects if tutor profile not available
       try {
-        const response = await api.get<BaseResponse<any[]>>('/subjects');
+        const response = await api.get<BaseResponse<SubjectDTO[]>>('/subjects');
         return response.data.data;
-      } catch (fallbackError) {
+      } catch {
         return [];
       }
     }
