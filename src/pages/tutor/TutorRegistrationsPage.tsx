@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useUser } from '../../Context/UserContext';
 import toast from 'react-hot-toast';
+import { tutorApi } from '../../services/api';
 
 interface RegistrationRequest {
   id: number;
@@ -34,38 +35,30 @@ const TutorRegistrationsPage = () => {
 
     try {
       setLoading(true);
-      // TODO: Call real API when available
-      // For now, use mock data
-      setRegistrations([
-        {
-          id: 1,
-          studentName: 'Nguyễn Văn A',
-          sessionSubject: 'Giải tích 1',
-          sessionDate: '2025-12-05',
-          sessionTime: '08:00 - 10:00',
-          registrationDate: '2025-12-02T10:30:00',
-          status: 'PENDING',
-          notes: 'Học viên mới, cần hỗ trợ thêm',
-        },
-        {
-          id: 2,
-          studentName: 'Trần Thị B',
-          sessionSubject: 'Vật lý 1',
-          sessionDate: '2025-12-06',
-          sessionTime: '14:00 - 16:00',
-          registrationDate: '2025-12-02T11:15:00',
-          status: 'PENDING',
-        },
-        {
-          id: 3,
-          studentName: 'Lê Văn C',
-          sessionSubject: 'Toán rời rạc',
-          sessionDate: '2025-12-04',
-          sessionTime: '10:00 - 12:00',
-          registrationDate: '2025-12-01T09:20:00',
-          status: 'APPROVED',
-        },
-      ]);
+      const data = await tutorApi.getPendingRegistrations();
+      
+      // Transform backend data (StudentSessionDTO) to frontend format
+      const transformedData: RegistrationRequest[] = data.map(item => {
+        const startTime = item.sessionStartTime ? new Date(item.sessionStartTime) : null;
+        const endTime = item.sessionEndTime ? new Date(item.sessionEndTime) : null;
+        
+        return {
+          id: item.id,
+          studentName: item.studentName || 'N/A',
+          sessionSubject: item.sessionSubject || 'N/A',
+          sessionDate: startTime ? startTime.toISOString().split('T')[0] : 'N/A',
+          sessionTime: startTime && endTime 
+            ? `${startTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - ${endTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`
+            : 'N/A',
+          registrationDate: item.registeredDate,
+          status: item.status === 'CONFIRMED' ? 'APPROVED' 
+                : item.status === 'REJECTED' ? 'REJECTED' 
+                : 'PENDING',
+          notes: item.sessionLocation ? `Địa điểm: ${item.sessionLocation}` : undefined,
+        };
+      });
+      
+      setRegistrations(transformedData);
     } catch (error) {
       console.error('Error loading registrations:', error);
       toast.error('Không thể tải danh sách đăng ký');
@@ -80,7 +73,9 @@ const TutorRegistrationsPage = () => {
 
   const handleApprove = async (registrationId: number) => {
     try {
-      // TODO: Call real API
+      await tutorApi.approveRegistration(registrationId);
+      
+      // Update local state
       setRegistrations(prev =>
         prev.map(reg =>
           reg.id === registrationId
@@ -89,14 +84,17 @@ const TutorRegistrationsPage = () => {
         )
       );
       toast.success('Đã phê duyệt đăng ký!');
-    } catch {
+    } catch (error) {
+      console.error('Error approving registration:', error);
       toast.error('Không thể phê duyệt đăng ký');
     }
   };
 
   const handleReject = async (registrationId: number) => {
     try {
-      // TODO: Call real API
+      await tutorApi.rejectRegistration(registrationId);
+      
+      // Update local state
       setRegistrations(prev =>
         prev.map(reg =>
           reg.id === registrationId
@@ -105,7 +103,8 @@ const TutorRegistrationsPage = () => {
         )
       );
       toast.success('Đã từ chối đăng ký!');
-    } catch {
+    } catch (error) {
+      console.error('Error rejecting registration:', error);
       toast.error('Không thể từ chối đăng ký');
     }
   };

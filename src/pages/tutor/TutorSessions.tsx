@@ -14,7 +14,7 @@ import {
   Users,
   RefreshCw,
   ChevronLeft,
-  ChevronRight, CircleX
+  ChevronRight, 
 } from "lucide-react";
 import SessionForm from "../../Components/SessionForm";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -68,6 +68,12 @@ const TutorSessions: React.FC = () => {
   const { user, isLoading } = useUser();
 
   const loadSessions = async (page: number = 0) => {
+    // Don't load sessions if user context is still loading
+    if (isLoading || !user?.id) {
+      console.log("User context still loading or no user ID available");
+      return;
+    }
+
     try {
       // Gọi API riêng cho tutor
       const id_tutor = user?.id
@@ -94,9 +100,32 @@ const TutorSessions: React.FC = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
-    loadSessions(0);
-  }, []);
+    const loadData = async () => {
+      // Only load sessions when user context is ready and user exists
+      if (!isLoading && user?.id) {
+        setLoading(true);
+        try {
+          const response = await scheduleApi.getTutorSessions(user.id, 0);
+          console.log("loadSessions response", response)
+          setSessions(response.content || []);
+          setTotalPages(response.totalPages || 0);
+          setCurrentPage(0);
+          console.log("Đã tải danh sách buổi học của tutor:", response);
+        } catch (error) {
+          console.error("Không thể tải danh sách buổi học:", error);
+          setSessions([]);
+          setTotalPages(0);
+        } finally {
+          setLoading(false);
+        }
+      } else if (!isLoading && !user?.id) {
+        // User context is ready but no user found, stop loading
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [isLoading, user?.id]);
 
   const handleDelete = async (sessionId: number) => {
     if (!confirm("Bạn có chắc chắn muốn xóa buổi học này?")) return;
@@ -163,12 +192,25 @@ const TutorSessions: React.FC = () => {
   const totalStudents = sessions.reduce((sum, s) => sum + s.currentQuantity, 0);
 
   // --- TRẠNG THÁI LOADING BAN ĐẦU ---
-  if (loading && totalSessions === 0) {
+  if (isLoading || (loading && totalSessions === 0)) {
     return (
       <div className="flex items-center justify-center min-h-64 p-6">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-gray-600">Đang tải dữ liệu...</p>
+          <p className="text-gray-600">
+            {isLoading ? "Đang tải thông tin người dùng..." : "Đang tải dữ liệu..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if user context is ready but no user found
+  if (!isLoading && !user?.id) {
+    return (
+      <div className="flex items-center justify-center min-h-64 p-6">
+        <div className="text-center">
+          <p className="text-red-600">Không tìm thấy thông tin tutor. Vui lòng đăng nhập lại.</p>
         </div>
       </div>
     );
