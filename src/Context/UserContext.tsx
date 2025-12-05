@@ -1,4 +1,4 @@
-import React, {
+import {
   createContext,
   useState,
   useEffect,
@@ -116,7 +116,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const setUserDirectly = (fetchedUser: User) => {
-    setUser(fetchedUser);
+    // Force new object reference để trigger React re-render
+    setUser({ ...fetchedUser });
     setIsLoading(false);
   };
 

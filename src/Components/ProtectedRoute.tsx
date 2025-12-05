@@ -18,11 +18,11 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireTutor = false }
     return <Navigate to="/login" replace />;
   }
 
-  if (requireAdmin && user.role !== "admin") {
+  if (requireAdmin && user.role?.toLowerCase() !== "admin") {
     return <Navigate to="/login" replace />; // Chuyển hướng tới trang "Không có quyền truy cập"
   }
 
-  if (requireTutor && user.role !== "tutor") {
+  if (requireTutor && user.role?.toLowerCase() !== "tutor") {
     return <Navigate to="/login" replace />; // Chuyển hướng tới trang "Không có quyền truy cập"
   }
 

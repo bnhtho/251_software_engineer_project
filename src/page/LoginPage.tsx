@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import hcmutLogo from '/src/assets/logo.svg';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../Context/UserContext";
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
@@ -14,26 +14,27 @@ export const LoginPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Only redirect if we're on the login page AND user is logged in
     if (!user || window.location.pathname !== "/login") return;
-    console.log(user)
-    const role = user.role;
-    console.log(role)
-    let redirectPath = "/"; // Đường dẫn mặc định (Fallback)
+    
+    // Normalize role to lowercase for consistent comparison
+    const role = user.role?.toLowerCase();
+    let redirectPath = "/dashboard"; // Đường dẫn mặc định (Fallback)
 
     switch (role) {
       case "student":
         redirectPath = "/dashboard";
         break;
       case "tutor":
-        redirectPath = "/tutor/dashboard";
+        redirectPath = "/tutor";
         break;
       case "admin":
         redirectPath = "/admin";
         break;
       default:
-        toast.error("Không xác định được role!")
-        // Xử lý vai trò không xác định hoặc mặc định
-        redirectPath = "/welcome";
+        console.error("Unknown role:", user.role);
+        toast.error(`Không xác định được role: ${user.role}`);
+        redirectPath = "/dashboard";
         break;
     }
 

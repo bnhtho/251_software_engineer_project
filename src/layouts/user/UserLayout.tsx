@@ -10,7 +10,7 @@ const UserLayout = () => {
   
   // Determine if user is in tutor routes
   const isTutorRoute = location.pathname.startsWith('/tutor');
-  const isTutor = user?.role === 'TUTOR' || user?.role === 'tutor';
+  const isTutor = user?.role?.toLowerCase() === 'tutor';
 
   return (
     <div className="min-h-screen bg-gray-50">

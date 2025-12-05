@@ -1,8 +1,7 @@
-import { MessageCircle, Calendar, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import Avatar from "./Avatar";
 
 interface TutorCardProps {
-    id: number;
     name: string;
     lastName: string;
     title: string;
@@ -14,12 +13,9 @@ interface TutorCardProps {
     studentCount: number;
     experienceYears: number;
     isAvailable: boolean;
-    onMessage?: (tutorId: number) => void;
-    onSchedule?: (tutorId: number) => void;
 }
 
 const TutorCard = ({
-    id,
     name,
     lastName,
     title,
@@ -28,11 +24,8 @@ const TutorCard = ({
     specializations,
     rating,
     reviewCount,
-    studentCount,
     experienceYears,
     isAvailable,
-    onMessage,
-    onSchedule,
 }: TutorCardProps) => {
     return (
         <div className="mt-8 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-shadow relative max-w-sm mx-auto p-6">
@@ -93,23 +86,6 @@ const TutorCard = ({
                 </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-center gap-3">
-                <button
-                    onClick={() => onMessage?.(id)}
-                    className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                    <MessageCircle className="w-4 h-4" />
-                    Nhắn tin
-                </button>
-                <button
-                    onClick={() => onSchedule?.(id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#0E7AA0] text-white rounded-md text-sm font-medium hover:bg-[#0a5f7a] transition-colors"
-                >
-                    <Calendar className="w-4 h-4" />
-                    Đặt lịch
-                </button>
-            </div>
         </div>
     );
 };
