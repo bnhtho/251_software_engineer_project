@@ -7,9 +7,9 @@ import Avatar from "./Avatar";
 export default function Header() {
   const { user } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isAdmin = user?.role === "admin" || user?.role === "ADMIN";
-  const isTutor = user?.role === "tutor" || user?.role === "TUTOR";
-  const isStudent = user?.role === "student" || user?.role === "STUDENT";
+  const isAdmin = user?.role?.toLowerCase() === "admin";
+  const isTutor = user?.role?.toLowerCase() === "tutor";
+  const isStudent = user?.role?.toLowerCase() === "student";
   const isLoggedIn = !!user;
 
   // Function to close the menu

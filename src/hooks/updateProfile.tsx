@@ -21,10 +21,6 @@ export const useProfileUpdate = () => {
 
     const updateProfile = useCallback(
         async (formData: ProfileFormData) => {
-
-            // ========== CHECKPOINT A ==========
-            console.log("📌 [A] Payload gửi lên server:", formData);
-
             const token = localStorage.getItem("authToken");
             if (!token) {
                 toast.error("Phiên đăng nhập hết hạn.");
@@ -32,9 +28,7 @@ export const useProfileUpdate = () => {
             }
 
             setIsSubmitting(true);
-            // Check user role timing bug here
-            console.log(">>> user BEFORE sending API:", user);
-            console.log(">>> user.role BEFORE sending API:", user?.role);
+            
             const apiPayload = {
                 hcmutId: formData.hcmutId,
                 firstName: formData.firstName,
@@ -47,12 +41,9 @@ export const useProfileUpdate = () => {
 
             // CHỌN API THEO ROLE
             const endpoint =
-                user?.role === "tutor"
+                user?.role?.toLowerCase() === "tutor"
                     ? "http://localhost:8081/tutors/profile"
                     : "http://localhost:8081/students/profile";
-
-            // ========== CHECKPOINT B ==========
-            console.log("📌 [B] Endpoint gọi tới:", endpoint);
 
             try {
                 const response = await axios.put(endpoint, apiPayload, {
@@ -62,40 +53,26 @@ export const useProfileUpdate = () => {
                     },
                 });
 
-                // ========== CHECKPOINT C ==========
-                console.log("📌 [C] Raw response từ server:", response.data);
-
                 const responseData = response.data?.data || response.data || {};
-
-                // ========== CHECKPOINT D ==========
-                console.log("📌 [D] responseData sau khi bóc tách:", responseData);
 
                 // KHÓA ROLE – không cho backend ghi đè
                 const originalRole = user?.role;
 
+                // Force new object reference để trigger React re-render
                 const updatedUser: User = {
-                    ...user,
+                    id: user!.id,
+                    role: originalRole!, // KHÓA ROLE
                     ...responseData,
-
-                    // override lại bằng dữ liệu từ form
+                    // Override lại bằng dữ liệu từ form để đảm bảo consistency
                     firstName: formData.firstName,
                     lastName: formData.lastName,
                     dob: formData.dob,
                     otherMethodContact: formData.otherMethodContact,
                     phone: formData.phone,
-
-                    // YÊU CẦU: KHÓA ROLE
-                    role: originalRole,
                 };
 
-                // ========== CHECKPOINT E ==========
-                console.log("📌 [E] User trước khi update:", user);
-                console.log("📌 [F] updatedUser chuẩn bị set:", updatedUser);
-
+                // Force update với new object
                 setUserDirectly(updatedUser);
-
-                // ========== CHECKPOINT G ==========
-                console.log("📌 [G] setUserDirectly() đã chạy");
 
                 toast.success("Cập nhật thông tin thành công!");
 

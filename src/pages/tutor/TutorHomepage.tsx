@@ -13,6 +13,7 @@ import {
 import { useUser } from "../../Context/UserContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { scheduleApi, tutorApi } from "../../services/api";
 
 interface DashboardStats {
   totalSessions: number;
@@ -26,7 +27,7 @@ interface DashboardStats {
 interface UpcomingSession {
   id: number;
   subjectName: string;
-  studentName: string;
+  studentNames: string[];
   startTime: string;
   endTime: string;
   format: string;
@@ -35,9 +36,16 @@ interface UpcomingSession {
 
 interface PendingRegistration {
   id: number;
+  studentId: number;
   studentName: string;
+  sessionId: number;
   sessionSubject: string;
-  registrationDate: string;
+  sessionStartTime: string;
+  sessionEndTime: string;
+  sessionLocation: string;
+  sessionFormat: string;
+  status: string;
+  registeredDate: string;
 }
 
 const TutorHomePage = () => {
@@ -64,56 +72,72 @@ const TutorHomePage = () => {
 
     try {
       setLoading(true);
-      // TODO: Call real APIs when available
-      // For now, use mock data
+      
+      // Load sessions data
+      const sessionsResponse = await scheduleApi.getTutorSessions(user.id, 0);
+      const allSessions = sessionsResponse.content || [];
 
-      // Mock stats
-      setStats({
-        totalSessions: 24,
-        upcomingSessions: 5,
-        pendingRegistrations: 3,
-        totalStudents: 18,
-        completedSessions: 19,
-        cancelledSessions: 0,
+      // Load pending registrations
+      const pendingRegsData = await tutorApi.getPendingRegistrations();
+
+      // Calculate stats
+      const now = new Date();
+      const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      const upcomingCount = allSessions.filter(session => {
+        const sessionDate = new Date(session.startTime);
+        return sessionDate > now && sessionDate <= sevenDaysLater;
+      }).length;
+
+      const completedCount = allSessions.filter(session => 
+        session.status === 'COMPLETED'
+      ).length;
+
+      const cancelledCount = allSessions.filter(session => 
+        session.status === 'CANCELLED'
+      ).length;
+
+      // Get unique students
+      const uniqueStudents = new Set<string>();
+      allSessions.forEach(session => {
+        session.studentNames?.forEach(name => uniqueStudents.add(name));
       });
 
-      // Mock upcoming sessions
-      setUpcomingSessions([
-        {
-          id: 1,
-          subjectName: "Giải tích 1",
-          studentName: "Nguyễn Văn A",
-          startTime: "2025-11-26T08:00:00",
-          endTime: "2025-11-26T10:00:00",
-          format: "ONLINE",
-          location: "Google Meet",
-        },
-        {
-          id: 2,
-          subjectName: "Vật lý 1",
-          studentName: "Trần Thị B",
-          startTime: "2025-11-26T14:00:00",
-          endTime: "2025-11-26T16:00:00",
-          format: "OFFLINE",
-          location: "H1-101",
-        },
-      ]);
+      setStats({
+        totalSessions: allSessions.length,
+        upcomingSessions: upcomingCount,
+        pendingRegistrations: pendingRegsData.length,
+        totalStudents: uniqueStudents.size,
+        completedSessions: completedCount,
+        cancelledSessions: cancelledCount,
+      });
 
-      // Mock pending registrations
-      setPendingRegistrations([
-        {
-          id: 1,
-          studentName: "Lê Văn C",
-          sessionSubject: "Toán rời rạc",
-          registrationDate: "2025-11-25T10:30:00",
-        },
-        {
-          id: 2,
-          studentName: "Phạm Thị D",
-          sessionSubject: "Cấu trúc dữ liệu",
-          registrationDate: "2025-11-25T11:15:00",
-        },
-      ]);
+      // Get upcoming sessions (next 5 sessions)
+      const upcomingSessions = allSessions
+        .filter(session => {
+          const sessionDate = new Date(session.startTime);
+          return sessionDate > now;
+        })
+        .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+        .slice(0, 5)
+        .map(session => ({
+          id: session.id,
+          subjectName: session.subjectName,
+          studentNames: session.studentNames || [],
+          startTime: session.startTime,
+          endTime: session.endTime,
+          format: session.format,
+          location: session.location,
+        }));
+
+      setUpcomingSessions(upcomingSessions);
+
+      // Set pending registrations (max 5 most recent)
+      const recentPendingRegs = pendingRegsData
+        .sort((a, b) => new Date(b.registeredDate || 0).getTime() - new Date(a.registeredDate || 0).getTime())
+        .slice(0, 5);
+
+      setPendingRegistrations(recentPendingRegs);
 
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -255,7 +279,9 @@ const TutorHomePage = () => {
                         </h3>
                         <p className="text-sm text-gray-600 mt-1">
                           <Users className="inline h-4 w-4 mr-1" />
-                          {session.studentName}
+                          {session.studentNames.length > 0 
+                            ? session.studentNames.join(', ') 
+                            : 'Chưa có học viên'}
                         </p>
                         <p className="text-sm text-gray-500 mt-2">
                           <Clock className="inline h-4 w-4 mr-1" />
@@ -276,7 +302,6 @@ const TutorHomePage = () => {
               </div>
             )}
           </div>
-
           {/* Pending Registrations */}
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <div className="mb-4 flex items-center justify-between">
@@ -306,13 +331,13 @@ const TutorHomePage = () => {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h3 className="font-medium text-gray-900">
-                          {registration.studentName}
+                          {registration.studentName || `Sinh viên #${registration.studentId}`}
                         </h3>
                         <p className="text-sm text-gray-600 mt-1">
                           {registration.sessionSubject}
                         </p>
                         <p className="text-xs text-gray-500 mt-2">
-                          {formatDateTime(registration.registrationDate)}
+                          {formatDateTime(registration.registeredDate)}
                         </p>
                       </div>
                       <div className="flex gap-2 ml-4">
