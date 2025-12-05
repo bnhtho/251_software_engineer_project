@@ -183,7 +183,7 @@ interface CreateSessionData {
   format: string;
   location: string;
   maxQuantity: number;
-  sessionStatusId?: number; // Optional, defaults to SCHEDULED in backend
+  sessionStatusId?: number; // 1=PENDING (default for new sessions), 2=SCHEDULED, 3=IN_PROGRESS, 4=COMPLETED, 5=CANCELLED
 }
 
 // Tutor registration data
@@ -761,21 +761,16 @@ export const tutorApi = {
     return response.data.data;
   },
 
-  // Get subjects that tutor can teach
+  // Get subjects that tutor can teach from /tutors/profile
   getTutorSubjects: async (): Promise<SubjectDTO[]> => {
     try {
-      // Use existing endpoint that returns tutor profile with subjects
       const tutorProfile = await tutorApi.getTutorProfile();
-      return (tutorProfile.subjects as SubjectDTO[]) || [];
+      // Extract subjects from profile
+      const subjects = (tutorProfile.subjects as SubjectDTO[]) || [];
+      return subjects;
     } catch (error) {
-      console.log('Failed to get tutor subjects:', error);
-      // Fallback to all subjects if tutor profile not available
-      try {
-        const response = await api.get<BaseResponse<SubjectDTO[]>>('/subjects');
-        return response.data.data;
-      } catch {
-        return [];
-      }
+      console.error('Error fetching tutor subjects:', error);
+      return [];
     }
   },
 };

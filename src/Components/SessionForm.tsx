@@ -12,17 +12,16 @@ const SessionForm = () => {
     const [startTime, setStartTime] = useState<string>(""); // local input
     const [endTime, setEndTime] = useState<string>(""); // ISO UTC
     const [selectedSubject, setSelectedSubject] = useState<number | null>(null);
-    const [selectedStatus, setSelectedStatus] = useState<number>(2); // Default SCHEDULED - backend will use this or default to SCHEDULED
     const [subjects, setSubjects] = useState<{ id: number; name: string }[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    // Load subjects for tutor
+    // Load subjects for tutor from /tutors/profile
     useEffect(() => {
         const loadData = async () => {
             try {
-                const tutorSubjectsList = await tutorApi.getTutorSubjects(); // Get only tutor's subjects from tutor profile
+                const tutorSubjectsList = await tutorApi.getTutorSubjects();
                 setSubjects(tutorSubjectsList);
             } catch (err) {
                 console.error("Failed to load tutor subjects:", err);
@@ -111,7 +110,7 @@ const SessionForm = () => {
         const calculatedEndTime = calculateEndTime(startTime, duration);
         const startTimeISO = moment(startTime, "YYYY-MM-DDTHH:mm").toISOString();
 
-        // Prepare request body (backend tự động tính dayOfWeek từ startTime)
+        // Prepare request body (backend tự động tính dayOfWeek)
         const sessionData = {
             tutorId: user.id,
             subjectId: selectedSubject,
@@ -120,7 +119,7 @@ const SessionForm = () => {
             format: format,
             location: target.location.value,
             maxQuantity: parseInt(target.maxQuantity.value),
-            sessionStatusId: selectedStatus, // Matches SessionRequest.sessionStatusId (Byte)
+            sessionStatusId: 1, // PENDING - mặc định session mới cần được duyệt
         };
 
         try {
@@ -135,7 +134,6 @@ const SessionForm = () => {
             setDuration(0);
             setFormat(null);
             setSelectedSubject(null);
-            setSelectedStatus(1);
 
             // Reload page after 2 seconds
             setTimeout(() => {
