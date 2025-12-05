@@ -33,10 +33,9 @@ export default function TutorSidebar() {
   const name = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
 
   const mainNavItems: (NavItemType | NavItemDividerType)[] = [
-    { icon: Home, label: "Dashboard", path: "" },
+    { icon: Home, label: "Trang chủ", path: "" },
     { icon: BookOpen, label: "Quản lý buổi học", path: "sessions" },
-    { icon: ClipboardList, label: "Đăng ký sinh viên", path: "registrations" },
-    { icon: FileText, label: "Tài liệu", path: "materials" },
+    { icon: ClipboardList, label: "Duyệt sinh viên", path: "registrations" },
     { divider: true },
   ];
 

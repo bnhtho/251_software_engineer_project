@@ -1,9 +1,11 @@
 import { useState } from "react";
-import ProfileCard from "../../Components/ProfileCard";
+import StudentCard from "../../Components/StudentCard";
 import InfoForm from "../../Components/InfoForm";
 import HistoryLearning from "../../Components/HistoryLearning";
 import SchedulePage from "../../pages/user/Schedule";
-
+import TutorCard from "../../Components/TutorCard";
+// import {user}
+import { useUser } from "../../Context/UserContext";
 // Dùng hằng số để tránh lặp lại chuỗi
 const TABS = {
   INFO: "info",
@@ -16,6 +18,7 @@ const tabItems = [
 ];
 
 const ProfilePage = () => {
+  const { user, logout } = useUser();
   const [activeTab, setActiveTab] = useState(TABS.INFO);
 
   return (
@@ -61,7 +64,27 @@ const ProfilePage = () => {
               {/* Profile Card (1/3 or 4/12) */}
               <div className="lg:col-span-1 xl:col-span-4">
                 <div className="sticky top-6">
-                  <ProfileCard />
+                  {/* <TutorCard /> */}
+                  {user?.role === "tutor" ? (
+                    <TutorCard
+                      id={user.id}
+                      name={user.firstName || ""}
+                      lastName={user.lastName || ""}       // bắt buộc
+                      title={user.title || ""}             // fallback nếu chưa có
+                      department={user.department || ""}
+                      description={user.bio || ""}
+                      specializations={user.subjects?.map((s) => s.name) || []}
+                      rating={user.rating || 0}
+                      reviewCount={0}                       // tạm set 0
+                      studentCount={user.totalSessionsCompleted || 0}
+                      experienceYears={user.experienceYears || 0}
+                      isAvailable={user.isAvailable ?? false}
+                      onMessage={(id) => console.log("Message", id)}
+                      onSchedule={(id) => console.log("Schedule", id)}
+                    />
+                  ) : (
+                    <StudentCard />
+                  )}
                 </div>
               </div>
 

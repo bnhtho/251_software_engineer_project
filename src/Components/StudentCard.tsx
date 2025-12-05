@@ -3,10 +3,10 @@ import { useUser } from "../Context/UserContext";
 import Avatar from "./Avatar";
 import { Mail, Phone } from "lucide-react";
 
-const ProfileCard = () => {
+const StudentCard = () => {
   const { user } = useUser();
   const name = `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "Người dùng";
-  
+
   const displayData = {
     majorName: user?.majorName || "Chưa cập nhật ngành học",
     phone: user?.phone || "Chưa cập nhật SĐT",
@@ -16,8 +16,8 @@ const ProfileCard = () => {
   return (
     <div>
       <div className="bg-white rounded-lg border border-gray-200 p-6 w-full max-w-xs mx-auto flex flex-col items-center shadow-sm">
-        
-        <Avatar 
+
+        <Avatar
           name={name}
           className="
             w-24 h-24 rounded-full 
@@ -27,7 +27,7 @@ const ProfileCard = () => {
           "
         />
         <h2 className="text-lg font-semibold text-gray-900">{name}</h2>
-        
+
         <h3 className="text-sm text-gray-500 mt-1">
           {displayData.majorName}
         </h3>
@@ -55,10 +55,10 @@ const ProfileCard = () => {
             </p>
           </div>
         </div>
-        
+
       </div>
     </div>
   );
 };
 
-export default ProfileCard;
+export default StudentCard;

@@ -3,10 +3,12 @@ import InfoForm from "../../Components/InfoForm";
 import { useUser } from "../../Context/UserContext";
 // import { fetchProfile } from "../../Context/UserContext";
 import { useEffect, useState } from "react";
-import ProfileCard from "../../Components/ProfileCard";
+import ProfileCard from "../../Components/StudentCard";
 import HistoryLearning from "../../Components/HistoryLearning";
 import { Edit } from "lucide-react";
+import TutorCard from "../../Components/TutorCard";
 const TutorProfilePage = () => {
+  const { user, logout } = useUser();
 
   return (
     <>
@@ -25,17 +27,30 @@ const TutorProfilePage = () => {
 
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-4">
-            <ProfileCard/>
+            <TutorCard
+              id={user?.id ?? 0}
+              name={user?.firstName || ""}
+              lastName={user?.lastName || ""}
+              title={user?.title || ""}
+              department={user?.department || ""}
+              description={user?.bio || ""}
+              specializations={user?.subjects?.map((s) => s.name) || []}
+              rating={user?.rating || 0}
+              reviewCount={0}
+              studentCount={user?.totalSessionsCompleted || 0}
+              experienceYears={user?.experienceYears || 0}
+              isAvailable={user?.isAvailable ?? false}
+              onMessage={(id) => console.log("Message", id)}
+              onSchedule={(id) => console.log("Schedule", id)}
+            />
           </div>
           <div className="col-span-12 lg:col-span-8">
-            {/* NOTE: [x] Đã fetch xong Data từ API */}
+            {/* InforForm: Nhận theo Role */}
             <InfoForm />
           </div>
         </div>
-    {/* NOTE [x] History  */}
-    <HistoryLearning/>
-    {/* NOTE: [ ] Edit profile */}
-    
+        {/* <HistoryLearning /> */}
+
       </div>
     </>
   );

@@ -27,9 +27,14 @@ export interface User {
   majorName: string;
   subjects: Subject[];
   majorId: string;
-  isAvailable: string;
+  isAvailable: boolean;
   experienceYears: number;
   // rating: 0;
+  // tutor
+  totalSessionsCompleted: number;
+  rating: number;
+  title: string;
+  department: string;
 }
 
 
