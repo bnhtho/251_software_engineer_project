@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useUser } from '../../Context/UserContext';
 import { courseApi } from '../../services/api';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 // Types
 interface Session {
@@ -366,20 +366,29 @@ const SessionsPage: React.FC = () => {
   // Register for a session
   const handleRegister = async (sessionId: number) => {
     if (!user?.id || !token) {
-      toast.error('Vui lòng đăng nhập để đăng ký buổi học');
+      toast.error('Vui lòng đăng nhập để đăng ký buổi học', {
+        duration: 3000,
+        icon: '🔒',
+      });
       return;
     }
 
     // Check if session is already registered
     if (isSessionRegistered(sessionId)) {
-      toast.error('Bạn đã đăng ký buổi học này rồi');
+      toast.error('Bạn đã đăng ký buổi học này rồi', {
+        duration: 3000,
+        icon: 'ℹ️',
+      });
       return;
     }
 
     // Check if session is full
     const session = sessions.find(s => s.id === sessionId);
     if (session && session.currentQuantity >= session.maxQuantity) {
-      toast.error('Buổi học đã đầy số lượng');
+      toast.error('Buổi học đã đầy số lượng', {
+        duration: 3000,
+        icon: '🚫',
+      });
       return;
     }
 
@@ -392,50 +401,37 @@ const SessionsPage: React.FC = () => {
         notes: ''
       });
       
-      toast.success('Đăng ký buổi học thành công! Chờ giảng viên xác nhận.');
+      toast.success('Đăng ký buổi học thành công! Chờ giảng viên xác nhận.', {
+        duration: 4000,
+        icon: '✅',
+      });
       await refreshData();
     } catch (err: unknown) {
       console.error('Error registering for session:', err);
       
       let errorMessage = 'Không thể đăng ký buổi học';
       
-      const getErrorMessage = (error: unknown): string | undefined => {
-        if (!error) return undefined;
-        if (typeof error === 'string') return error;
-        if (error instanceof Error && typeof error.message === 'string') return error.message;
-        if (typeof error === 'object' && error !== null) {
-          const obj = error as Record<string, unknown>;
-          const resp = obj['response'];
-          if (typeof resp === 'object' && resp !== null) {
-            const respObj = resp as Record<string, unknown>;
-            const data = respObj['data'];
-            if (typeof data === 'object' && data !== null) {
-              const dataObj = data as Record<string, unknown>;
-              const msg = dataObj['message'];
-              if (typeof msg === 'string') return msg;
-            }
-          }
-          const msgProp = obj['message'];
-          if (typeof msgProp === 'string') return msgProp;
-        }
-        return undefined;
-      };
-      
-      const extracted = getErrorMessage(err);
-      
-      if (extracted) {
-        if (extracted.includes('Session is not available')) {
+      // Extract error message
+      if (err instanceof Error) {
+        const message = err.message;
+        
+        if (message.includes('Session is not available')) {
           errorMessage = 'Buổi học này hiện tại không thể đăng ký';
-        } else if (extracted.includes('already registered')) {
+        } else if (message.includes('already registered')) {
           errorMessage = 'Bạn đã đăng ký buổi học này rồi';
-        } else if (extracted.includes('session is full')) {
+        } else if (message.includes('session is full')) {
           errorMessage = 'Buổi học đã đầy số lượng';
+        } else if (message.includes('Schedule conflict') || message.includes('already has a session at this time')) {
+          errorMessage = 'Trung lịch học! Bạn đã có buổi học khác vào thời gian này';
         } else {
-          errorMessage = extracted;
+          errorMessage = message;
         }
       }
       
-      toast.error(errorMessage);
+      toast.error(errorMessage, {
+        duration: 4000,
+        icon: '⚠️',
+      });
     } finally {
       setRegistering(null);
     }
@@ -460,6 +456,7 @@ const SessionsPage: React.FC = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
+      <Toaster position="top-right" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
