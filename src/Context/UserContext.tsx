@@ -25,8 +25,11 @@ export interface User {
   phone: string;
   bio: string;
   majorName: string;
-  // subject: [];
   subjects: Subject[];
+  majorId: string;
+  isAvailable: string;
+  experienceYears: number;
+  // rating: 0;
 }
 
 
