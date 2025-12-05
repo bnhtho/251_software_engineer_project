@@ -20,6 +20,7 @@ import TutorProfilePage from "./pages/tutor/TutorProfile";
 import TutorSessions from "./pages/tutor/TutorSessions";
 import TutorRegistrationsPage from "./pages/tutor/TutorRegistrationsPage";
 import { ToastContainer } from 'react-toastify';
+import BecomeTutorPage from "./pages/user/BecomeTutor";
 // import Sessions from "./pages/admin/Sessions";
 // import Courses from "./pages/user/Course";
 export default function App() {
@@ -48,6 +49,7 @@ export default function App() {
               <Route index element={<HomePage />} /> {/* Student Dashboard */}
               <Route path="profile" element={<Profile />} />
               <Route path="sessions" element={<Sessions />} />
+              <Route path="become-tutor" element={<BecomeTutorPage />} />
             </Route>
 
             {/* ========== TUTOR ROUTES ========== */}
