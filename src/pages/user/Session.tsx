@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  BookOpen, 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Users, 
+import {
+  BookOpen,
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
   Search,
   RefreshCw,
   Eye,
@@ -85,9 +85,9 @@ const SessionCard: React.FC<{
       'OPEN': { label: 'Có thể đăng ký', color: 'bg-green-100 text-green-800' },
       'PENDING': { label: 'Chờ xác nhận', color: 'bg-yellow-100 text-yellow-800' },
     };
-    
+
     const statusInfo = statusMap[displayStatus as keyof typeof statusMap] || { label: 'Chờ xác nhận', color: 'bg-gray-100 text-gray-800' };
-    
+
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
         {statusInfo.label}
@@ -107,11 +107,10 @@ const SessionCard: React.FC<{
           {getStatusBadge(session.status, session.sessionStatus)}
         </div>
         <div className="text-right">
-          <span className={`text-sm font-medium ${
-            isFull ? 'text-red-600' : 
-            session.currentQuantity > session.maxQuantity * 0.8 ? 'text-yellow-600' : 
-            'text-green-600'
-          }`}>
+          <span className={`text-sm font-medium ${isFull ? 'text-red-600' :
+            session.currentQuantity > session.maxQuantity * 0.8 ? 'text-yellow-600' :
+              'text-green-600'
+            }`}>
             {session.currentQuantity}/{session.maxQuantity}
           </span>
           <p className="text-xs text-gray-500 mt-1">Học viên</p>
@@ -141,22 +140,21 @@ const SessionCard: React.FC<{
           <Eye className="h-4 w-4" />
           Chi tiết
         </button>
-        
+
         {!isRegistered ? (
           <button
             onClick={() => onRegister(session.id)}
             disabled={loading || !isAvailable}
-            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${
-              loading || !isAvailable
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${loading || !isAvailable
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
           >
             <UserPlus className="h-4 w-4" />
-            {loading ? 'Đang đăng ký...' : 
-             isFull ? 'Đã đầy' : 
-             session.status === 'CANCELLED' || session.sessionStatus === 'CANCELLED' ? 'Đã hủy' :
-             'Đăng ký'}
+            {loading ? 'Đang đăng ký...' :
+              isFull ? 'Đã đầy' :
+                session.status === 'CANCELLED' || session.sessionStatus === 'CANCELLED' ? 'Đã hủy' :
+                  'Đăng ký'}
           </button>
         ) : (
           <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm bg-green-100 text-green-800 rounded-md">
@@ -291,13 +289,13 @@ const SessionsPage: React.FC = () => {
     try {
       // Fetch available sessions using API service
       const sessionsData = await courseApi.getCourses();
-      
+
       // Transform courseApi response to Session format
       const transformedSessions: Session[] = sessionsData.map(course => {
         // Combine date and time to create full ISO timestamp
         let startTime = course.startDate;
         let endTime = course.endDate;
-        
+
         // If we have timeslot info, combine date with time
         if (course.timeslots && course.timeslots[0]) {
           const timeslot = course.timeslots[0];
@@ -305,7 +303,7 @@ const SessionsPage: React.FC = () => {
           startTime = `${course.startDate}T${timeslot.startTime}:00Z`;
           endTime = `${course.endDate}T${timeslot.endTime}:00Z`;
         }
-        
+
         return {
           id: course.id,
           tutorName: course.tutorName,
@@ -322,7 +320,7 @@ const SessionsPage: React.FC = () => {
           sessionStatus: course.status === 'FULL' ? 'FULL' : 'SCHEDULED',
         };
       });
-      
+
       setSessions(transformedSessions);
 
       // Fetch registered sessions if user exists
@@ -330,24 +328,24 @@ const SessionsPage: React.FC = () => {
         try {
           // Fetch student courses without passing user.id to avoid 403 errors
           const studentCourses = await courseApi.getStudentCourses();
-          
+
           // Transform to StudentSession format
           const transformedRegisteredSessions: StudentSession[] = studentCourses.map(sc => ({
-              id: sc.id,
-              studentId: sc.studentId,
-              sessionId: sc.courseId,
-              sessionSubject: sc.course.subjectName || 'N/A',
-              sessionStartTime: sc.sessionStartTime || new Date().toISOString(),
-              sessionEndTime: sc.sessionEndTime || new Date().toISOString(),
-              sessionLocation: sc.sessionLocation || 'TBA',
-              sessionFormat: sc.sessionFormat || 'OFFLINE',
-              sessionStatus: sc.status === 'APPROVED' ? 'SCHEDULED' : sc.status,
-              registeredDate: sc.registrationDate,
-              updatedDate: new Date().toISOString(),
-              status: sc.status,
-            }
+            id: sc.id,
+            studentId: sc.studentId,
+            sessionId: sc.courseId,
+            sessionSubject: sc.course.subjectName || 'N/A',
+            sessionStartTime: sc.sessionStartTime || new Date().toISOString(),
+            sessionEndTime: sc.sessionEndTime || new Date().toISOString(),
+            sessionLocation: sc.sessionLocation || 'TBA',
+            sessionFormat: sc.sessionFormat || 'OFFLINE',
+            sessionStatus: sc.status === 'APPROVED' ? 'SCHEDULED' : sc.status,
+            registeredDate: sc.registrationDate,
+            updatedDate: new Date().toISOString(),
+            status: sc.status,
+          }
           ));
-          
+
           setRegisteredSessions(transformedRegisteredSessions);
         } catch (error) {
           console.error('Error fetching registered sessions:', error);
@@ -400,7 +398,7 @@ const SessionsPage: React.FC = () => {
         studentId: user.id,
         notes: ''
       });
-      
+
       toast.success('Đăng ký buổi học thành công! Chờ giảng viên xác nhận.', {
         duration: 4000,
         icon: '✅',
@@ -408,13 +406,13 @@ const SessionsPage: React.FC = () => {
       await refreshData();
     } catch (err: unknown) {
       console.error('Error registering for session:', err);
-      
+
       let errorMessage = 'Không thể đăng ký buổi học';
-      
+
       // Extract error message
       if (err instanceof Error) {
         const message = err.message;
-        
+
         if (message.includes('Session is not available')) {
           errorMessage = 'Buổi học này hiện tại không thể đăng ký';
         } else if (message.includes('already registered')) {
@@ -427,7 +425,7 @@ const SessionsPage: React.FC = () => {
           errorMessage = message;
         }
       }
-      
+
       toast.error(errorMessage, {
         duration: 4000,
         icon: '⚠️',
@@ -460,8 +458,8 @@ const SessionsPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Đăng ký buổi học</h1>
-          <p className="text-gray-600">Tìm kiếm và đăng ký các buổi học phù hợp với bạn</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Quản lý buổi học</h1>
+          <p className="text-gray-600">Quản lý buổi học của sinh viên. Tại đây <b>sinh viên</b> có thể đăng ký buổi học và xem những buổi học đã đăng ký</p>
         </div>
 
         {/* Tabs */}
@@ -470,21 +468,19 @@ const SessionsPage: React.FC = () => {
             <nav className="-mb-px flex space-x-8">
               <button
                 onClick={() => setActiveTab('available')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'available'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'available'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
               >
                 Buổi học có sẵn ({filteredSessions.length})
               </button>
               <button
                 onClick={() => setActiveTab('registered')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'registered'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'registered'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
               >
                 Đã đăng ký ({registeredSessions.length})
               </button>
@@ -581,22 +577,21 @@ const SessionsPage: React.FC = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              session.status === 'APPROVED' || session.sessionStatus === 'COMPLETED' 
-                                ? 'bg-green-100 text-green-800'
-                                : session.status === 'PENDING' || session.sessionStatus === 'SCHEDULED'
-                                ? 'bg-blue-100 text-blue-800' 
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${session.status === 'APPROVED' || session.sessionStatus === 'COMPLETED'
+                              ? 'bg-green-100 text-green-800'
+                              : session.status === 'PENDING' || session.sessionStatus === 'SCHEDULED'
+                                ? 'bg-blue-100 text-blue-800'
                                 : session.status === 'REJECTED'
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {session.status === 'APPROVED' || session.sessionStatus === 'COMPLETED' 
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                              {session.status === 'APPROVED' || session.sessionStatus === 'COMPLETED'
                                 ? 'Đã phê duyệt'
                                 : session.status === 'PENDING' || session.sessionStatus === 'SCHEDULED'
-                                ? 'Chờ xác nhận'
-                                : session.status === 'REJECTED'
-                                ? 'Đã từ chối' 
-                                : 'Chờ xử lý'
+                                  ? 'Chờ xác nhận'
+                                  : session.status === 'REJECTED'
+                                    ? 'Đã từ chối'
+                                    : 'Chờ xử lý'
                               }
                             </span>
                             <p className="text-xs text-gray-500 mt-1">

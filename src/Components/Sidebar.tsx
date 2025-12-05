@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useUser } from "../Context/UserContext";
 import { useState, useEffect, useRef } from "react";
-import { ChevronRight, Home, Users, FileText, Settings, Bell, User, Menu, LogOut, UserCircle, ChevronDown, MessageSquare } from "lucide-react";
+import { ChevronRight, Home, Users, FileText, Settings, Bell, User, Menu, LogOut, UserCircle, ChevronDown, MessageSquare, Calendar } from "lucide-react";
 import React from "react";
 import Avatar from "./Avatar";
 
@@ -30,7 +30,8 @@ export default function Sidebar() {
 
     const mainNavItems: (NavItemType | NavItemDividerType)[] = [
         { icon: Home, label: "Trang chủ", path: "" },
-        { icon: User, label: "Đăng ký buổi học", path: "sessions" },
+        { icon: User, label: "Quản lý buổi học", path: "sessions" },
+        { icon: Calendar, label: "Lịch học", path: "schedule" },
         { divider: true },
     ];
 

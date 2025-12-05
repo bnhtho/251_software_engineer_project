@@ -21,7 +21,7 @@ interface ScheduleItem {
   sessionEndTime: string;
   sessionLocation: string;
   sessionFormat: string;
-  sessionStatus: string; // Updated to match backend field
+  status: string;
   sessionDayOfWeek: string;
   confirmedDate: string;
   registeredDate: string;
@@ -62,38 +62,49 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("authToken") || "";
-  
+
   const fetchHistory = useCallback(async () => {
-    if (!user?.id) return;
+
+    setLoading(true);
+
     try {
       const res = await fetch(
-        `http://localhost:8081/students/schedule/0`, // API lấy lịch
+        `http://localhost:8081/students/schedule/0`, // chỉ cần page = 0
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (!res.ok) {
-        setScheduleItems([]);
-        return;
+        let errorMsg = `Error: ${res.status}`;
+        try {
+          const errData = await res.json();
+          errorMsg = errData.message || errorMsg;
+        } catch (_) { }
+        throw new Error(errorMsg);
       }
 
       const data = await res.json();
-      // Đảm bảo data.data là mảng, nếu không thì fallback về mảng rỗng
-      setScheduleItems(Array.isArray(data.data) ? data.data : []);
+      console.log("Schedule API response:", data);
+
+      if (data.statusCode === 200 && Array.isArray(data.data)) {
+        setScheduleItems(data.data);
+      } else {
+        console.warn("API format unexpected:", data);
+        setScheduleItems([]);
+      }
+
     } catch (err) {
-      console.error("Lỗi fetch lịch:", err);
+      console.error("Fetch schedule error:", err);
       setScheduleItems([]);
     } finally {
       setLoading(false);
     }
-  }, [user?.id, token]);
 
-  useEffect(() => {
-    if (user && !isLoading) {
-      fetchHistory();
-    }
-  }, [user, isLoading, fetchHistory]);
+  }, [token]);
 
   // Logic lọc "Sắp tới" dựa trên field name mới
   const getUpcomingSessions = () => {
@@ -102,24 +113,25 @@ const HomePage = () => {
         const sessionDate = moment(item.sessionStartTime);
         return (
           sessionDate.isAfter(moment()) &&
-          (item.sessionStatus === "CONFIRMED" || item.sessionStatus === "IN_PROGRESS" || item.sessionStatus === "SCHEDULED")
+          (item.status === "CONFIRMED" || item.status === "IN_PROGRESS" || item.status === "SCHEDULED")
         );
       })
       .sort((a, b) => moment(a.sessionStartTime).diff(moment(b.sessionStartTime)))
       .slice(0, 3);
   };
-
-  // Logic tính toán thống kê (cập nhật field name mới)
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
   const stats = {
     totalCourses: scheduleItems.length,
     completedCourses: scheduleItems.filter(
-      (item) => item.sessionStatus === "COMPLETED"
+      (item) => item.status === "COMPLETED"
     ).length,
     upcomingSessions: scheduleItems.filter((item) => {
       const sessionDate = moment(item.sessionStartTime);
       return (
         sessionDate.isAfter(moment()) &&
-        (item.sessionStatus === "CONFIRMED" || item.sessionStatus === "SCHEDULED" || item.sessionStatus === "IN_PROGRESS")
+        (item.status === "CONFIRMED" || item.status === "SCHEDULED" || item.status === "IN_PROGRESS")
       );
     }).length,
     totalHours: Math.round(
@@ -219,16 +231,10 @@ const HomePage = () => {
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-[#0E7AA0]" />
                   <h2 className="text-xl font-bold text-gray-900">
-                    Lịch học sắp tới
+                    Lịch học trong tuần
                   </h2>
                 </div>
-                <button
-                  onClick={() => navigate("/dashboard/tutors")}
-                  className="flex items-center gap-1 text-sm text-[#0E7AA0] hover:underline"
-                >
-                  Tìm gia sư
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+
               </div>
             </div>
             <div className="p-6">
@@ -246,7 +252,7 @@ const HomePage = () => {
                     <div
                       key={item.id}
                       className="p-4 border border-gray-200 rounded-lg hover:border-[#0E7AA0] hover:bg-blue-50/50 transition-all cursor-pointer"
-                      onClick={() => navigate("/dashboard/tutors")}
+                      onClick={() => navigate("schedule")}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -255,7 +261,7 @@ const HomePage = () => {
                             <h3 className="font-semibold text-gray-900">
                               {item.sessionSubject}
                             </h3>
-                            {getStatusBadge(item.sessionStatus)}
+                            {getStatusBadge(item.status)}
                           </div>
                           <div className="space-y-1 text-sm text-gray-600">
                             <div className="flex items-center gap-2">
@@ -298,21 +304,21 @@ const HomePage = () => {
               </h2>
               <div className="space-y-3">
                 <button
-                  onClick={() => navigate("/dashboard/tutors")}
+                  onClick={() => navigate("sessions")}
                   className="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-[#0E7AA0] hover:bg-blue-50 transition-all"
                 >
                   <BookOpen className="w-5 h-5 text-[#0E7AA0]" />
                   <span className="font-medium text-gray-900">
-                    Tìm gia sư
+                    Đăng ký buổi học
                   </span>
                 </button>
                 <button
-                  onClick={() => navigate("/dashboard/materials")}
+                  onClick={() => navigate("materials")}
                   className="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-[#0E7AA0] hover:bg-blue-50 transition-all"
                 >
                   <Calendar className="w-5 h-5 text-[#0E7AA0]" />
                   <span className="font-medium text-gray-900">
-                    Tài liệu học tập
+                    Xem lịch học
                   </span>
                 </button>
               </div>

@@ -14,6 +14,8 @@ import AdminSettings from "./pages/admin/Settings";
 import PageNotFound from "./page/PageNotFound";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { UserProvider } from "./Context/UserContext";
+// Scheduler
+import SchedulePage from "./pages/user/Schedule";
 // Tutor
 import TutorHomePage from "./pages/tutor/TutorHomepage";
 import TutorProfilePage from "./pages/tutor/TutorProfile";
@@ -49,6 +51,7 @@ export default function App() {
               <Route index element={<HomePage />} /> {/* Student Dashboard */}
               <Route path="profile" element={<Profile />} />
               <Route path="sessions" element={<Sessions />} />
+              <Route path="schedule" element={<SchedulePage />} />
               <Route path="become-tutor" element={<BecomeTutorPage />} />
             </Route>
 

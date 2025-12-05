@@ -66,7 +66,7 @@ const TutorHomePage = () => {
       setLoading(true);
       // TODO: Call real APIs when available
       // For now, use mock data
-      
+
       // Mock stats
       setStats({
         totalSessions: 24,
@@ -263,11 +263,10 @@ const TutorHomePage = () => {
                         </p>
                       </div>
                       <span
-                        className={`rounded px-2 py-1 text-xs font-medium ${
-                          session.format === "ONLINE"
+                        className={`rounded px-2 py-1 text-xs font-medium ${session.format === "ONLINE"
                             ? "bg-blue-100 text-blue-700"
                             : "bg-green-100 text-green-700"
-                        }`}
+                          }`}
                       >
                         {session.format === "ONLINE" ? "Online" : "Offline"}
                       </span>
