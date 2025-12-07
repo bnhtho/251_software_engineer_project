@@ -37,7 +37,6 @@ const InfoForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Submit form, gọi hook update
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await updateProfile(formData);

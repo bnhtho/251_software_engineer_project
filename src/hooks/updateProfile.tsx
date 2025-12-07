@@ -13,6 +13,7 @@ interface ProfileFormData {
     dob: string;
     otherMethodContact: string;
     phone: string;
+    experienceYears: number;
 }
 
 export const useProfileUpdate = () => {
@@ -28,7 +29,7 @@ export const useProfileUpdate = () => {
             }
 
             setIsSubmitting(true);
-            
+
             const apiPayload = {
                 hcmutId: formData.hcmutId,
                 firstName: formData.firstName,
@@ -37,6 +38,8 @@ export const useProfileUpdate = () => {
                 otherMethodContact: formData.otherMethodContact,
                 phone: formData.phone,
                 phoneNumber: formData.phone,
+                experienceYears: formData.experienceYears,
+                bio: formData.bio
             };
 
             // CHỌN API THEO ROLE
@@ -55,15 +58,12 @@ export const useProfileUpdate = () => {
 
                 const responseData = response.data?.data || response.data || {};
 
-                // KHÓA ROLE – không cho backend ghi đè
-                const originalRole = user?.role;
 
                 // Force new object reference để trigger React re-render
                 const updatedUser: User = {
-                    id: user!.id,
-                    role: originalRole!, // KHÓA ROLE
+                    ...user!,
                     ...responseData,
-                    // Override lại bằng dữ liệu từ form để đảm bảo consistency
+                    role: user!.role,
                     firstName: formData.firstName,
                     lastName: formData.lastName,
                     dob: formData.dob,
@@ -73,7 +73,6 @@ export const useProfileUpdate = () => {
 
                 // Force update với new object
                 setUserDirectly(updatedUser);
-
                 toast.success("Cập nhật thông tin thành công!");
 
                 return { success: true, newInitialData: formData };

@@ -13,7 +13,7 @@ const TutorFields: React.FC<TutorFieldsProps> = ({
     formData,
     handleChange,
     isSubmitting,
-    subjectsOptions = [],
+    // subjectsOptions = [],
 }) => {
     return (
         <div className="grid gap-4">
