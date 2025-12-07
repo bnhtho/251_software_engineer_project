@@ -17,10 +17,10 @@ import { useUser } from "../../Context/UserContext";
 import Avatar from "../../Components/Avatar";
 
 const adminNavItems = [
-  { icon: LayoutDashboard, label: "Dashboard", to: "/admin" },
-  { icon: Users, label: "Danh sách gia sư", to: "/admin/tutors" },
-  { icon: BookOpen, label: "Khóa học", to: "/admin/courses" },
-  { icon: CalendarCheck, label: "Buổi học", to: "/admin/sessions" },
+  { icon: LayoutDashboard, label: "Trang chủ", to: "/admin" },
+  { icon: Users, label: "Duyệt hồ sơ sinh viên", to: "/admin/tutors" },
+  // { icon: BookOpen, label: "Khóa học", to: "/admin/courses" },
+  { icon: CalendarCheck, label: "Duyệt buổi học", to: "/admin/sessions" },
 ];
 
 const AdminLayout = () => {

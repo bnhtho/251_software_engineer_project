@@ -113,7 +113,7 @@ const SessionCard: React.FC<{
             }`}>
             {session.currentQuantity}/{session.maxQuantity}
           </span>
-          <p className="text-xs text-gray-500 mt-1">Học viên</p>
+          <p className="text-xs text-gray-500 mt-1">Sinh viên</p>
         </div>
       </div>
 
@@ -233,11 +233,11 @@ const SessionDetailModal: React.FC<{
               <h4 className="font-medium text-gray-900 mb-2">Thông tin lớp học</h4>
               <div className="flex items-center text-sm text-gray-600 mb-2">
                 <Users className="h-4 w-4 mr-2" />
-                Số lượng: {session.currentQuantity}/{session.maxQuantity} học viên
+                Số lượng: {session.currentQuantity}/{session.maxQuantity} Sinh viên
               </div>
               {session.studentNames.length > 0 && (
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">Danh sách học viên đã đăng ký:</p>
+                  <p className="text-sm font-medium text-gray-700 mb-1">Danh sách Sinh viên đã đăng ký:</p>
                   <ul className="text-sm text-gray-600 space-y-1">
                     {session.studentNames.map((name, index) => (
                       <li key={index} className="flex items-center">

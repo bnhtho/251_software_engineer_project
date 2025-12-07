@@ -72,7 +72,7 @@ const TutorHomePage = () => {
 
     try {
       setLoading(true);
-      
+
       // Load sessions data
       const sessionsResponse = await scheduleApi.getTutorSessions(user.id, 0);
       const allSessions = sessionsResponse.content || [];
@@ -89,11 +89,11 @@ const TutorHomePage = () => {
         return sessionDate > now && sessionDate <= sevenDaysLater;
       }).length;
 
-      const completedCount = allSessions.filter(session => 
+      const completedCount = allSessions.filter(session =>
         session.status === 'COMPLETED'
       ).length;
 
-      const cancelledCount = allSessions.filter(session => 
+      const cancelledCount = allSessions.filter(session =>
         session.status === 'CANCELLED'
       ).length;
 
@@ -158,9 +158,19 @@ const TutorHomePage = () => {
     });
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString("vi-VN", {
+      // date: "day",
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -256,7 +266,7 @@ const TutorHomePage = () => {
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
-                Buổi học sắp tới
+                Buổi dạy sắp tới
               </h2>
             </div>
 
@@ -279,19 +289,19 @@ const TutorHomePage = () => {
                         </h3>
                         <p className="text-sm text-gray-600 mt-1">
                           <Users className="inline h-4 w-4 mr-1" />
-                          {session.studentNames.length > 0 
-                            ? session.studentNames.join(', ') 
-                            : 'Chưa có học viên'}
+                          {session.studentNames.length > 0
+                            ? session.studentNames.join(', ')
+                            : 'Chưa có Sinh viên'}
                         </p>
                         <p className="text-sm text-gray-500 mt-2">
                           <Clock className="inline h-4 w-4 mr-1" />
-                          {formatTime(session.startTime)} - {formatTime(session.endTime)}
+                          {formatDate(session.startTime)} - {formatTime(session.startTime)}
                         </p>
                       </div>
                       <span
                         className={`rounded px-2 py-1 text-xs font-medium ${session.format === "ONLINE"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-green-100 text-green-700"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-green-100 text-green-700"
                           }`}
                       >
                         {session.format === "ONLINE" ? "Online" : "Offline"}
@@ -306,7 +316,7 @@ const TutorHomePage = () => {
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
-                Yêu cầu đăng ký
+                Sinh viên đăng ký
               </h2>
               <button
                 onClick={() => navigate("/tutor/registrations")}
@@ -319,7 +329,7 @@ const TutorHomePage = () => {
             {pendingRegistrations.length === 0 ? (
               <div className="text-center py-8">
                 <CheckCircle className="mx-auto h-12 w-12 text-gray-400" />
-                <p className="mt-2 text-gray-500">Không có yêu cầu mới</p>
+                <p className="mt-2 text-gray-500">Không có sinh viên nào đăng ký</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -340,20 +350,7 @@ const TutorHomePage = () => {
                           {formatDateTime(registration.registeredDate)}
                         </p>
                       </div>
-                      <div className="flex gap-2 ml-4">
-                        <button
-                          className="rounded bg-green-600 p-2 text-white hover:bg-green-700"
-                          title="Chấp nhận"
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                        </button>
-                        <button
-                          className="rounded bg-red-600 p-2 text-white hover:bg-red-700"
-                          title="Từ chối"
-                        >
-                          <XCircle className="h-4 w-4" />
-                        </button>
-                      </div>
+
                     </div>
                   </div>
                 ))}

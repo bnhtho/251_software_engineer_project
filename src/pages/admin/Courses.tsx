@@ -117,7 +117,7 @@ const AdminCourses = () => {
 //         <div className="flex items-center gap-2">
 //           <BookOpen className="h-5 w-5 text-purple-600" />
 //           <div>
-//             <p className="text-sm text-gray-600">Tổng học viên</p>
+//             <p className="text-sm text-gray-600">Tổng Sinh viên</p>
 //             <p className="text-2xl font-semibold text-gray-900">
 //               {/* {sessions.push((sum, s) => sum + s.currentQuantity, 0)} */}
 //             </p>
@@ -143,7 +143,7 @@ const AdminCourses = () => {
 //     <div className="rounded-lg border border-gray-200 bg-white">
 //       <div className="p-4 border-b border-gray-200">
 //         <h2 className="text-lg font-semibold text-gray-900">Danh sách môn học</h2>
-//         <p className="text-sm text-gray-600 mt-1">Thống kê số buổi học và học viên cho từng môn</p>
+//         <p className="text-sm text-gray-600 mt-1">Thống kê số buổi học và Sinh viên cho từng môn</p>
 //       </div>
 //       <div className="divide-y divide-gray-200">
 //         {filteredSubjects.length === 0 ? (
@@ -181,7 +181,7 @@ const AdminCourses = () => {
 //                         </p>
 //                       </div>
 //                       <div className="rounded-lg bg-gray-50 p-3">
-//                         <p className="text-xs text-gray-600">Học viên</p>
+//                         <p className="text-xs text-gray-600">Sinh viên</p>
 //                         <p className="mt-1 text-lg font-semibold text-gray-900">
 //                           {stats.totalStudents}
 //                         </p>

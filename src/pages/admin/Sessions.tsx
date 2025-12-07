@@ -162,9 +162,10 @@ const Sessions = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold text-gray-900">Quản lí buổi học</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Duyệt buổi học
+        </h1>
         <p className="mt-2 text-sm text-gray-500">
-          Quản lí tất cả các buổi học trong hệ thống
+          Quản lý những buổi học trong hệ thống.
         </p>
       </div>
 
@@ -192,7 +193,7 @@ const Sessions = () => {
           <div className="flex items-center">
             <Users className="h-8 w-8 text-green-600" />
             <div className="ml-4">
-              <h3 className="text-lg font-medium text-gray-900">Tổng học viên</h3>
+              <h3 className="text-lg font-medium text-gray-900">Tổng Sinh viên</h3>
               <p className="text-2xl font-bold text-green-600">
                 {sessions.reduce((total, session) => total + session.currentQuantity, 0)}
               </p>
@@ -366,7 +367,7 @@ const SessionsList: React.FC<SessionsListProps> = ({
                   <p className="font-medium">{session.location}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Học viên</p>
+                  <p className="text-gray-500">Sinh viên</p>
                   <p className="font-medium">{session.currentQuantity}/{session.maxQuantity}</p>
                 </div>
                 <div>
@@ -377,7 +378,7 @@ const SessionsList: React.FC<SessionsListProps> = ({
 
               {session.studentNames && session.studentNames.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-gray-500 text-sm mb-2">Học viên đã đăng ký:</p>
+                  <p className="text-gray-500 text-sm mb-2">Sinh viên đã đăng ký:</p>
                   <div className="flex flex-wrap gap-1">
                     {session.studentNames.map((name, index) => (
                       <span

@@ -101,8 +101,8 @@ const AdminTutorsPending = () => {
         }
       );
 
-      toast.success(`Duyệt thành công ID: ${id}`);
-      setTutorDataList((prev) => prev.filter((item) => item.user.id !== id));
+      toast.success(`Duyệt thành công hồ sơ có ID là ${id}`);
+      setTutorDataList((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
       toast.error("Có lỗi khi duyệt!");
       console.log(error);

@@ -67,7 +67,7 @@ const ProfilePage = () => {
                   {/* <TutorCard /> */}
                   {user?.role === "tutor" ? (
                     <TutorCard
-                      id={user.id}
+                      // id={user.id}
                       name={user.firstName || ""}
                       lastName={user.lastName || ""}       // bắt buộc
                       title={user.title || ""}             // fallback nếu chưa có
@@ -79,8 +79,8 @@ const ProfilePage = () => {
                       studentCount={user.totalSessionsCompleted || 0}
                       experienceYears={user.experienceYears || 0}
                       isAvailable={user.isAvailable ?? false}
-                      onMessage={(id) => console.log("Message", id)}
-                      onSchedule={(id) => console.log("Schedule", id)}
+                    // onMessage={(id) => console.log("Message", id)}
+                    // onSchedule={(id) => console.log("Schedule", id)}
                     />
                   ) : (
                     <StudentCard />
